@@ -198,7 +198,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     private AccelerateInterpolator mAlphaInterpolator = new AccelerateInterpolator(0.9f);
     private DecelerateInterpolator mLeftScreenAlphaInterpolator = new DecelerateInterpolator(4);
 
-    public static boolean DISABLE_ALL_APPS = false;
+    public static boolean DISABLE_ALL_APPS = true;	//modify by linmaoqing 2014-5-12 
 
     // Previews & outlines
     ArrayList<AppsCustomizeAsyncTask> mRunningTasks;
