@@ -16,17 +16,22 @@
 
 package com.android.launcher3;
 
+import java.lang.ref.WeakReference;
+
 import android.app.SearchManager;
-import android.content.*;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.os.Handler;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.Display;
 
-import java.lang.ref.WeakReference;
+import com.android.launcher3.much.IconDecorater;
+import com.android.launcher3.much.MuchConfig;
 
 public class LauncherAppState {
     private static final String TAG = "LauncherAppState";
@@ -47,6 +52,7 @@ public class LauncherAppState {
 
     private DynamicGrid mDynamicGrid;
 
+    private IconDecorater mIconDecorater;
     public static LauncherAppState getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LauncherAppState();
@@ -113,12 +119,17 @@ public class LauncherAppState {
         ContentResolver resolver = sContext.getContentResolver();
         resolver.registerContentObserver(LauncherSettings.Favorites.CONTENT_URI, true,
                 mFavoritesObserver);
+        
+        MuchConfig.init(sContext);
+        mIconDecorater = new IconDecorater(sContext);
     }
 
     /**
      * Call from Application.onTerminate(), which is not guaranteed to ever be called.
      */
     public void onTerminate() {
+    	mIconDecorater.shutdown(); //add by linmaoqing 2014-5-12
+    	
         sContext.unregisterReceiver(mModel);
 
         ContentResolver resolver = sContext.getContentResolver();
@@ -216,4 +227,12 @@ public class LauncherAppState {
     public int getLongPressTimeout() {
         return mLongPressTimeout;
     }
+    
+    public IconDecorater getIconDecorater() {
+        return mIconDecorater;
+    }
+
+	public Resources getResources() {
+		return sContext.getResources();
+	}
 }

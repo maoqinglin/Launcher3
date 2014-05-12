@@ -16,11 +16,35 @@
 
 package com.android.launcher3;
 
+import java.lang.ref.WeakReference;
+import java.net.URISyntaxException;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import android.app.SearchManager;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentProviderClient;
+import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.content.Intent.ShortcutIconResource;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -42,23 +66,9 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.Pair;
-import com.android.launcher3.InstallWidgetReceiver.WidgetMimeTypeHandlerData;
 
-import java.lang.ref.WeakReference;
-import java.net.URISyntaxException;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.android.launcher3.InstallWidgetReceiver.WidgetMimeTypeHandlerData;
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * Maintains in-memory state of the Launcher. It is expected that there should be only one
@@ -2842,6 +2852,8 @@ public class LauncherModel extends BroadcastReceiver {
                     final int id = resources.getIdentifier(resourceName, null, null);
                     icon = Utilities.createIconBitmap(
                             mIconCache.getFullResIcon(resources, id), context);
+                    if(icon != null && MuchConfig.SUPPORT_MUCH_STYLE)
+                        icon = mApp.getIconDecorater().decorateIcon(mApp.getResources(), icon);
                 }
             } catch (Exception e) {
                 // drop this.  we have other places to look for icons
@@ -3000,7 +3012,9 @@ public class LauncherModel extends BroadcastReceiver {
                 icon = getFallbackIcon();
                 info.usingFallbackIcon = true;
             }
-        }
+        }else if(MuchConfig.SUPPORT_MUCH_STYLE){    //add by linmaoqing 2014-5-12
+            icon = mApp.getIconDecorater().decorateIcon(mApp.getResources(), icon);
+        } //end by linmaoqing
         info.setIcon(icon);
 
         info.title = name;

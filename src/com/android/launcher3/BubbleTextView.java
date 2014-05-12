@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Region;
 import android.graphics.Region.Op;
@@ -29,6 +28,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.widget.TextView;
+
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * TextView that draws a bubble behind the text. We cannot use a LineBackgroundSpan
@@ -107,6 +108,9 @@ public class BubbleTextView extends TextView {
     public void applyFromShortcutInfo(ShortcutInfo info, IconCache iconCache) {
         Bitmap b = info.getIcon(iconCache);
         LauncherAppState app = LauncherAppState.getInstance();
+        if(MuchConfig.SUPPORT_MUCH_STYLE) {	//add by linmaoqing 2014-5-12
+            app.getIconDecorater().observeIconNeedUpdated(this, b, info.intent.getComponent());
+        }//end by linmaoqing
         DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
 
         setCompoundDrawables(null,

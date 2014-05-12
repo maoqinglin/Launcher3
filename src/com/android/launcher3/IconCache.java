@@ -16,6 +16,10 @@
 
 package com.android.launcher3;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,9 +32,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * Cache of application icons.  Icons can be made from any thread.
@@ -226,9 +228,12 @@ public class IconCache {
             if (entry.title == null) {
                 entry.title = info.activityInfo.name;
             }
-
-            entry.icon = Utilities.createIconBitmap(
-                    getFullResIcon(info), mContext);
+            if(MuchConfig.SUPPORT_MUCH_STYLE) {	//add by linmaoqing 2014-5-12
+                entry.icon = LauncherAppState.getInstance().getIconDecorater().decorateIcon(info);
+            }else{ 
+            	entry.icon = Utilities.createIconBitmap(
+            			getFullResIcon(info), mContext);
+            }//end by linmaoqing
         }
         return entry;
     }

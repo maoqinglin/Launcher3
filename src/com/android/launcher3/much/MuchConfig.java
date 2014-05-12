@@ -2,7 +2,9 @@
 package com.android.launcher3.much;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 
 public final class MuchConfig {
     public static final boolean SUPPORT_MUCH_STYLE = true;
@@ -17,6 +19,8 @@ public final class MuchConfig {
     private static final String DB_CREATED_BUT_REMAIN_APPS_NOT_LOADED = "DB_CREATED_BUT_REMAIN_APPS_NOT_LOADED";
 
     private static final String ALREADY_SET_DEFAULT_WALLPAPER = "ALREADY_SET_DEFAULT_WALLPAPER";
+    public static final String MUCH_LAUNCH_ICON_KEY = "much_launcher_icon_sw_key";
+    
     private static MuchConfig sInstatnce;
     private Context mContext;
 
@@ -81,8 +85,8 @@ public final class MuchConfig {
         return Build.MODEL.startsWith("MUCH i5");
     }
 
-//    public boolean isLauncherShortcutNeedBg(){
-//        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
-//        return sp.getBoolean(LauncherSettingsKeys.MUCH_LAUNCH_ICON_KEY, true);
-//    }
+    public boolean isLauncherShortcutNeedBg(){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+        return sp.getBoolean(MUCH_LAUNCH_ICON_KEY, true);
+    }
 }

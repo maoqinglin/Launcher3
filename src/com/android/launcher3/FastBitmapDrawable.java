@@ -24,14 +24,14 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 
-class FastBitmapDrawable extends Drawable {
+public class FastBitmapDrawable extends Drawable {
     private Bitmap mBitmap;
     private int mAlpha;
     private int mWidth;
     private int mHeight;
     private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
-    FastBitmapDrawable(Bitmap b) {
+   public FastBitmapDrawable(Bitmap b) {
 	mAlpha = 255;
         mBitmap = b;
         if (b != null) {
