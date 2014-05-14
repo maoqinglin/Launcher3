@@ -1,8 +1,11 @@
 
 package com.android.launcher3.much;
 
+import com.android.launcher3.LauncherAppState;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
@@ -46,40 +49,40 @@ public final class MuchConfig {
         mContext = context;
     }
 
-//    public int getPageCount() {
-//        String spfkey = LauncherApplication.getSharedPreferencesKey();
-//        SharedPreferences sp = mContext.getSharedPreferences(spfkey,
-//                Context.MODE_PRIVATE);
-//        int pageCount = sp.getInt(PAGE_COUNT, 5);
-//        return pageCount;
-//    }
-//
-//    public void setPageCount(int screenCount) {
-//        String spKey = LauncherApplication.getSharedPreferencesKey();
-//        SharedPreferences sp = mContext.getSharedPreferences(spKey,
-//                Context.MODE_PRIVATE);
-//        Editor editor = sp.edit();
-//        editor.putInt(PAGE_COUNT, screenCount < 1 ? 1 : screenCount);
-//        editor.commit();
-//    }
-//
-//    public boolean needLoadAllItemInfos() {
-//        String spfkey = LauncherApplication.getSharedPreferencesKey();
-//        SharedPreferences sp = mContext.getSharedPreferences(spfkey,
-//                Context.MODE_PRIVATE);
-//        boolean load = sp.getBoolean(DB_CREATED_BUT_REMAIN_APPS_NOT_LOADED,
-//                false);
-//        return load;
-//    }
-//
-//    public void setLoadAllItemInfosNotNeed() {
-//        String spKey = LauncherApplication.getSharedPreferencesKey();
-//        SharedPreferences sp = mContext.getSharedPreferences(spKey,
-//                Context.MODE_PRIVATE);
-//        Editor editor = sp.edit();
-//        editor.putBoolean(DB_CREATED_BUT_REMAIN_APPS_NOT_LOADED, true);
-//        editor.commit();
-//    }
+    public int getPageCount() {
+        String spfkey = LauncherAppState.getSharedPreferencesKey();
+        SharedPreferences sp = mContext.getSharedPreferences(spfkey,
+                Context.MODE_PRIVATE);
+        int pageCount = sp.getInt(PAGE_COUNT, 5);
+        return pageCount;
+    }
+
+    public void setPageCount(int screenCount) {
+        String spKey = LauncherAppState.getSharedPreferencesKey();
+        SharedPreferences sp = mContext.getSharedPreferences(spKey,
+                Context.MODE_PRIVATE);
+        Editor editor = sp.edit();
+        editor.putInt(PAGE_COUNT, screenCount < 1 ? 1 : screenCount);
+        editor.commit();
+    }
+
+    public boolean needLoadAllItemInfos() {
+        String spfkey = LauncherAppState.getSharedPreferencesKey();
+        SharedPreferences sp = mContext.getSharedPreferences(spfkey,
+                Context.MODE_PRIVATE);
+        boolean load = sp.getBoolean(DB_CREATED_BUT_REMAIN_APPS_NOT_LOADED,
+                false);
+        return load;
+    }
+
+    public void setLoadAllItemInfosNotNeed() {
+        String spKey = LauncherAppState.getSharedPreferencesKey();
+        SharedPreferences sp = mContext.getSharedPreferences(spKey,
+                Context.MODE_PRIVATE);
+        Editor editor = sp.edit();
+        editor.putBoolean(DB_CREATED_BUT_REMAIN_APPS_NOT_LOADED, true);
+        editor.commit();
+    }
 
     public static boolean isI5Platform() {
         return Build.MODEL.startsWith("MUCH i5");

@@ -17,6 +17,21 @@
 
 package com.android.launcher3;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.animation.Animator;
@@ -45,7 +60,6 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
@@ -98,21 +112,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.launcher3.DropTarget.DragObject;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import com.android.launcher3.much.ImageHelper;
+import com.android.launcher3.much.MuchConfig;
+import com.android.launcher3.much.ScreenCapture;
 
 /**
  * Default launcher application.
@@ -2539,6 +2541,10 @@ public class Launcher extends Activity
         if (folder.getParent() == null) {
             mDragLayer.addView(folder);
             mDragController.addDropTarget((DropTarget) folder);
+            //add by linmaoqing 2014-5-13
+            if(MuchConfig.SUPPORT_MUCH_STYLE){
+                applyBlur(folder);
+            }//end by linmaoqing
         } else {
             Log.w(TAG, "Opening folder (" + folder + ") which already has a parent (" +
                     folder.getParent() + ").");
@@ -2551,7 +2557,30 @@ public class Launcher extends Activity
         folder.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         getDragLayer().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
     }
-
+    /**
+     * auther:linmaoqing
+     * date  : 2014-5-13
+     * @param folder
+     * 实现文件夹背景磨砂效果
+     */
+    private void applyBlur(final Folder folder) {
+        Log.w(TAG, "folder = "+folder);
+        folder.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                Log.w(TAG, "onPreDraw");
+                folder.getViewTreeObserver().removeOnPreDrawListener(this);
+                Context context = getApplicationContext();
+                ScreenCapture capture = new ScreenCapture(context);
+                Bitmap screenBmp = capture.captureScreen();
+//              Bitmap screenBmp = BitmapFactory.decodeResource(getResources(), R.drawable.screen);
+                Log.w(TAG, "w = "+screenBmp.getWidth()+" --- h = "+screenBmp.getHeight());
+                ImageHelper.blur(context,folder,screenBmp);
+                return true;
+            }
+        });
+    }
+    
     public void closeFolder() {
         Folder folder = mWorkspace.getOpenFolder();
         if (folder != null) {
