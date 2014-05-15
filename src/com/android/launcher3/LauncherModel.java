@@ -56,6 +56,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -1623,7 +1624,13 @@ public class LauncherModel extends BroadcastReceiver {
             int countY = (int) grid.numRows;
 
             // Make sure the default workspace is loaded, if needed
-            LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(0);
+            //edit begin by lilu 20140514
+            if (Build.MODEL.startsWith("MUCH i")) {
+            	LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace_i5 : 0);
+            } else {
+            	LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace : 0);
+            }
+            //edit end by lilu 20140514
 
             // Check if we need to do any upgrade-path logic
             boolean loadedOldDb = LauncherAppState.getLauncherProvider().justLoadedOldDb();

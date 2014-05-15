@@ -294,4 +294,9 @@ s -->
     <string name="wallpaper_button_text">Wallpapers</string>
     <!-- Text for settings button -->
     <string name="settings_button_text">Settings</string>
+
+    <!-- MUCH -->
+    <string name="much_folder_name_tool">Tools</string>
+    <string name="much_folder_name_common">Common</string>
+    <string name="much_folder_name_attachment">Attachment</string>
 </resources>

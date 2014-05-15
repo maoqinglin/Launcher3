@@ -473,7 +473,11 @@ public class Launcher extends Activity
         // On large interfaces, we want the screen to auto-rotate based on the current orientation
         unlockScreenOrientation(true);
 
-        showFirstRunCling();
+        //edit begin by lilu 20140514 去除每次清除数据显示引导的界面
+        if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+            showFirstRunCling();
+        }
+        //edit end by lilu 20140514
     }
 
     protected void onUserLeaveHint() {

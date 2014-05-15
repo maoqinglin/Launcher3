@@ -82,7 +82,7 @@
             android:name="com.android.launcher3.Launcher"
             android:clearTaskOnLaunch="true"
             android:launchMode="singleTask"
-            android:screenOrientation="nosensor"
+            android:screenOrientation="user"
             android:stateNotNeeded="true"
             android:theme="@style/Theme"
             android:windowSoftInputMode="adjustPan" >

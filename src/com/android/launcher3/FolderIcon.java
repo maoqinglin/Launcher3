@@ -16,6 +16,8 @@
 
 package com.android.launcher3;
 
+import java.util.ArrayList;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -30,6 +32,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Looper;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,11 +43,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.launcher3.R;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.FolderInfo.FolderListener;
-
-import java.util.ArrayList;
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * An icon that can appear on in the workspace representing an {@link UserFolder}.
@@ -63,6 +64,9 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     private static final int DROP_IN_ANIMATION_DURATION = 400;
     private static final int INITIAL_ITEM_ANIMATION_DURATION = 350;
     private static final int FINAL_ITEM_ANIMATION_DURATION = 200;
+    //added begin by lilu 20140515
+    private static final int MUCH_NUM_ITEMS_IN_PREVIEW = 16;
+    //added end by lilu 20140515
 
     // The degree to which the inner ring grows when accepting drop
     private static final float INNER_RING_GROWTH_FACTOR = 0.15f;
@@ -204,9 +208,11 @@ public class FolderIcon extends LinearLayout implements FolderListener {
                 DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
                 sPreviewSize = grid.folderIconSizePx;
                 sPreviewPadding = res.getDimensionPixelSize(R.dimen.folder_preview_padding);
-                sSharedOuterRingDrawable = res.getDrawable(R.drawable.portal_ring_outer_holo);
-                sSharedInnerRingDrawable = res.getDrawable(R.drawable.portal_ring_inner_nolip_holo);
-                sSharedFolderLeaveBehind = res.getDrawable(R.drawable.portal_ring_rest);
+                //edit begin by lilu 20140515
+                sSharedOuterRingDrawable = res.getDrawable(MuchConfig.SUPPORT_MUCH_STYLE ? R.drawable.much_portal_ring_outer_holo : R.drawable.portal_ring_outer_holo);
+                sSharedInnerRingDrawable = res.getDrawable(MuchConfig.SUPPORT_MUCH_STYLE ? R.drawable.much_portal_ring_inner_nolip_holo : R.drawable.portal_ring_inner_holo);
+                sSharedFolderLeaveBehind = res.getDrawable(MuchConfig.SUPPORT_MUCH_STYLE ? R.drawable.much_portal_ring_rest : R.drawable.portal_ring_rest);
+                //edit end by lilu 20140515
                 sStaticValuesDirty = false;
             }
         }
@@ -466,6 +472,9 @@ public class FolderIcon extends LinearLayout implements FolderListener {
 
             mPreviewOffsetX = (mTotalWidth - mAvailableSpaceInPreview) / 2;
             mPreviewOffsetY = previewPadding + grid.folderBackgroundOffset;
+            Log.e("lilu", "mPreviewOffsetX:"+mPreviewOffsetX+" mPreviewOffsetY:"+mPreviewOffsetY);
+            Log.e("lilu", "totalSize:"+totalSize+" drawableSize:"+drawableSize);
+            Log.e("lilu", "previewSize:"+previewSize+" previewPadding:"+previewPadding);
         }
     }
 
@@ -502,6 +511,22 @@ public class FolderIcon extends LinearLayout implements FolderListener {
 
     private PreviewItemDrawingParams computePreviewItemDrawingParams(int index,
             PreviewItemDrawingParams params) {
+        if(MuchConfig.SUPPORT_MUCH_STYLE) {
+            int overlayAlpha = 80;
+            float totalScale = 0.25f;
+                        //因为Launcher3采用了相对坐标，因此需要加上getPaddingTop等偏移量
+            float transX = (index % 4) * (mIntrinsicIconSize * totalScale) + getPaddingLeft() - 2;
+            float transY = (index / 4) * (mIntrinsicIconSize * totalScale) + getPaddingTop() + 15;
+            if (params == null) {
+                params = new PreviewItemDrawingParams(transX, transY, totalScale, overlayAlpha);
+            } else {
+                params.transX = transX;
+                params.transY = transY;
+                params.scale = totalScale;
+                params.overlayAlpha = overlayAlpha;
+            }
+            return params;
+        }
         index = NUM_ITEMS_IN_PREVIEW - index - 1;
         float r = (index * 1.0f) / (NUM_ITEMS_IN_PREVIEW - 1);
         float scale = (1 - PERSPECTIVE_SCALE_FACTOR * (1 - r));
@@ -568,7 +593,9 @@ public class FolderIcon extends LinearLayout implements FolderListener {
             computePreviewDrawingParams(d);
         }
 
-        int nItemsInPreview = Math.min(items.size(), NUM_ITEMS_IN_PREVIEW);
+        //edit begin by lilu 20140514
+        int nItemsInPreview = MuchConfig.SUPPORT_MUCH_STYLE ? Math.min(items.size(), MUCH_NUM_ITEMS_IN_PREVIEW) : Math.min(items.size(), NUM_ITEMS_IN_PREVIEW);
+        //edit end by lilu 20140514
         if (!mAnimating) {
             for (int i = nItemsInPreview - 1; i >= 0; i--) {
                 v = (TextView) items.get(i);
