@@ -44,6 +44,8 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.SearchManager;
 import android.appwidget.AppWidgetHostView;
 import android.appwidget.AppWidgetManager;
@@ -53,7 +55,10 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentCallbacks2;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -115,6 +120,7 @@ import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.much.ImageHelper;
 import com.android.launcher3.much.MuchConfig;
 import com.android.launcher3.much.ScreenCapture;
+import com.umeng.analytics.MobclickAgent;
 
 /**
  * Default launcher application.
@@ -148,7 +154,7 @@ public class Launcher extends Activity
 
     static final String EXTRA_SHORTCUT_DUPLICATE = "duplicate";
 
-    static final int SCREEN_COUNT = 5;
+    static int SCREEN_COUNT = 5;  //modify by linmaoqing 2014-5-14
     static final int DEFAULT_SCREEN = 2;
 
     private static final String PREFERENCES = "launcher.preferences";
@@ -330,6 +336,12 @@ public class Launcher extends Activity
 
     private BubbleTextView mWaitingForResume;
 
+    //add by linmaoqing 2014-5-14
+    private MuchUninstallSharePrompt mUninstallSharePrompt; 
+    private HomeKeyListenerReceiver mHomeKeyListenerReceiver;
+    public final static int CREATE_UNINSTALL_DIALOG = 111;
+    //end by linmaoqing
+
     private HideFromAccessibilityHelper mHideFromAccessibilityHelper
         = new HideFromAccessibilityHelper();
 
@@ -379,7 +391,13 @@ public class Launcher extends Activity
         }
 
         super.onCreate(savedInstanceState);
-
+        if (!MuchConfig.SUPPORT_MUCH_STYLE) { //add by linmaoqing 2014-5-15
+            //AndroidManifest.xml的Launcher方向改为user，需要保持原生竖屏
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            SCREEN_COUNT = MuchConfig.getInstance().getPageCount();
+            MuchAppShakeAndShareManager.getInstance().setDeleteState(MuchAppShakeAndShareManager.ShakeState.DELETE_NONE); //横竖屏切换时置位
+        }
         LauncherAppState.setApplicationContext(getApplicationContext());
         LauncherAppState app = LauncherAppState.getInstance();
 
@@ -478,6 +496,12 @@ public class Launcher extends Activity
             showFirstRunCling();
         }
         //edit end by lilu 20140514
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+        	MuchAppShakeAndShareManager.getInstance().setWorkspace(mWorkspace);
+        }
+        if(MuchConfig.SUPPORT_MUCH_STYLE) {
+            registerHomeKeyReceiver(); //add by linmaoqing 2014-4-16
+        }
     }
 
     protected void onUserLeaveHint() {
@@ -1784,7 +1808,10 @@ public class Launcher extends Activity
 
         getContentResolver().unregisterContentObserver(mWidgetObserver);
         unregisterReceiver(mCloseSystemDialogsReceiver);
-
+        //add by linmaoqing 2014-5-14
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+        	unRegisterHomeKeyReceiver();
+        }//end by linmaoqing
         mDragLayer.clearAllResizeFrames();
         ((ViewGroup) mWorkspace.getParent()).removeAllViews();
         mWorkspace.removeAllViews();
@@ -2106,6 +2133,11 @@ public class Launcher extends Activity
 
     @Override
     public void onBackPressed() {
+        //add by linmaoqing 2014-5-14
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            MuchAppShakeAndShareManager.getInstance().stopShakeAnim();
+        }//end by linmaoqing
+    	
         if (isAllAppsVisible()) {
             if (mAppsCustomizeContent.getContentType() ==
                     AppsCustomizePagedView.ContentType.Applications) {
@@ -2169,6 +2201,12 @@ public class Launcher extends Activity
         }
 
         Object tag = v.getTag();
+        //add by linmaoqing
+        Log.e("lmq", "delet-state = "+MuchAppShakeAndShareManager.getInstance().unStartApp());
+        if (MuchAppShakeAndShareManager.getInstance().unStartApp() && !(tag instanceof FolderInfo)) {
+            showShareDialog(v);
+         return;
+        }//end by linmaoqing
         if (tag instanceof ShortcutInfo) {
             // Open shortcut
             final ShortcutInfo shortcut = (ShortcutInfo) tag;
@@ -2208,6 +2246,11 @@ public class Launcher extends Activity
             if (v instanceof FolderIcon) {
                 FolderIcon fi = (FolderIcon) v;
                 handleFolderClick(fi);
+                //begin add by linmaoqing
+                Log.e("lmq", "onclick handleClickToShake");
+                if(MuchConfig.SUPPORT_MUCH_STYLE){
+                    MuchAppShakeAndShareManager.getInstance().handleClickToShake(false, false);
+                }//end by linmaoqing
             }
         } else if (v == mAllAppsButton) {
             if (isAllAppsVisible()) {
@@ -2217,6 +2260,23 @@ public class Launcher extends Activity
             }
         }
     }
+
+    /**
+     * add by linmaoqing 2014-5-15
+     * @param v
+     * @param tag
+     */
+	void showShareDialog(View v) {
+		if(v instanceof BubbleTextView){
+			boolean isShow = ((BubbleTextView)v).getDeleteRect().isShowUninstallDialog();
+			Log.e("lmq", "isShow = "+isShow+"-----tag = "+v.getTag());
+			if(!isShow){ //如果显示了卸载对话框就不显示分享对话框
+				showUninstallSharePrompt((ItemInfo)v.getTag(), null);
+				mUninstallSharePrompt.shareItemInfo();
+				mUninstallSharePrompt = null;
+			}
+		}
+	}
 
     public boolean onTouch(View v, MotionEvent event) {
         return false;
@@ -2588,6 +2648,11 @@ public class Launcher extends Activity
     public void closeFolder() {
         Folder folder = mWorkspace.getOpenFolder();
         if (folder != null) {
+            //add by linmaoqing
+            if (MuchAppShakeAndShareManager.getInstance().getDeleteState() == MuchAppShakeAndShareManager.ShakeState.DELETE_DESKTOP) {
+//                mWorkspace.toShakeOpenFolder(Workspace.DELETE_DESKTOP,false);
+                MuchAppShakeAndShareManager.getInstance().toShakeOpenFolder(MuchAppShakeAndShareManager.ShakeState.DELETE_DESKTOP, false);
+            }
             if (folder.isEditingName()) {
                 folder.dismissEditingName();
             }
@@ -2658,13 +2723,36 @@ public class Launcher extends Activity
                 }
             } else {
                 if (!(itemUnderLongClick instanceof Folder)) {
+                    //add by linmaoqing
+                    if(MuchConfig.SUPPORT_MUCH_STYLE){
+                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true,true);
+                    }
                     // User long pressed on an item
                     mWorkspace.startDrag(longClickCellInfo);
+                }else if(itemUnderLongClick instanceof Folder){
+                    if(MuchConfig.SUPPORT_MUCH_STYLE){
+                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true, false);
+                    }//end by linmaoqing
                 }
             }
         }
         return true;
     }
+    /**
+     * add by linmaoqing 2014-5-14
+     * @param item
+     * @param folder
+     * 获取卸载对话框
+     */
+    public void showUninstallSharePrompt(ItemInfo item, Folder folder) {
+        if(MuchConfig.SUPPORT_MUCH_STYLE) {
+            mUninstallSharePrompt = new MuchUninstallSharePrompt(this, item, folder);
+        }
+    }
+
+    public MuchUninstallSharePrompt getUninstallSharePrompt() {
+        return mUninstallSharePrompt;
+    }//end by linmaoqing
 
     boolean isHotseatLayout(View layout) {
         return mHotseat != null && layout != null &&
@@ -2829,7 +2917,7 @@ public class Launcher extends Activity
         // Shrink workspaces away if going to AppsCustomize from workspace
         Animator workspaceAnim =
                 mWorkspace.getChangeStateAnimation(Workspace.State.SMALL, animated);
-        if (!AppsCustomizePagedView.DISABLE_ALL_APPS) {
+        if (AppsCustomizePagedView.DISABLE_ALL_APPS) {  //show all widget modify by linmaoqing 2014-5-16
             // Set the content type for the all apps space
             mAppsCustomizeTabHost.setContentTypeImmediate(contentType);
         }
@@ -4516,6 +4604,117 @@ public class Launcher extends Activity
                 }
             }.start();
         }
+    }
+
+    /**
+     * add by linmaoqing 2014-5-14
+     * @return
+     */
+    public boolean isVisitorMode () {
+        //begin add  linmaoqing 2014-4-11     删除应用后，长按图标导致异常，需要捕获
+        int visit = 0;
+        try {
+            ContentResolver resolver = getContentResolver();
+            Uri uri = Uri.parse("content://com.ireadygo.provider.screen_capture/config");
+            visit = resolver.update(uri, new ContentValues(), null, null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        return visit == 1;
+    }
+
+    private void registerHomeKeyReceiver(){
+        mHomeKeyListenerReceiver = new HomeKeyListenerReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent .ACTION_CLOSE_SYSTEM_DIALOGS);
+        registerReceiver(mHomeKeyListenerReceiver, filter);
+    }
+
+    private void unRegisterHomeKeyReceiver(){
+        if(null != mHomeKeyListenerReceiver){
+            unregisterReceiver(mHomeKeyListenerReceiver);
+        }
+    }
+
+    class HomeKeyListenerReceiver extends BroadcastReceiver{
+
+        public void onReceive(Context context, Intent intent) {
+            if(null!=intent && Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())){
+                hideUninstallSharePrompt();
+                MuchAppShakeAndShareManager.getInstance().stopShakeAnim();
+            }
+        }
+    }
+
+    public void hideUninstallSharePrompt(){
+        if(mUninstallSharePrompt != null) {
+            mUninstallSharePrompt.dismiss();
+            mUninstallSharePrompt = null;
+        }
+    }//end add linmaoqing
+
+    public void addWorkspaceCountByItemInfo(int screen) {
+        if(MuchConfig.SUPPORT_MUCH_STYLE) {
+            int count = mWorkspace.getChildCount();
+            for (int n = count; n <= screen; n++) {
+                mWorkspace.addScreen();
+                mWorkspace.notifyPageSwitchListener();
+            }
+        }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case CREATE_UNINSTALL_DIALOG:
+                if(mUninstallSharePrompt != null)
+                    return createUnintallDialog();
+            default:
+                break;
+        }
+        return super.onCreateDialog(id);
+    }
+
+    private AlertDialog createUnintallDialog() {
+        String msg = String
+                .format(getString(R.string.much_uninstall_app_dialog_messag), mUninstallSharePrompt.mLabel);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(msg);
+        builder.setTitle(R.string.much_uninstall_app_dialog_title);
+        builder.setPositiveButton(R.string.much_uninstall_app_dialog_done,
+                new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                MobclickAgent.onEvent(Launcher.this, "deleteApp");
+                LauncherAppState.getInstance().getMuchItemInfoManager().deleteItemInfoWithPackage(mUninstallSharePrompt.mPackageName);
+                ArrayList<String> del = new ArrayList<String>();
+                del.add(mUninstallSharePrompt.mPackageName);
+//                bindAppsRemoved(del, true);
+                ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
+                appInfos.add(mUninstallSharePrompt.getAppInfo());
+                bindComponentsRemoved(del, appInfos, true);
+                dialog.dismiss();
+            }
+        });
+
+        builder.setNegativeButton(R.string.much_uninstall_app_dialog_cancel,
+                new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        builder.setOnDismissListener(new OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                removeDialog(CREATE_UNINSTALL_DIALOG);
+            }
+        });
+
+        builder.setCancelable(true);
+        AlertDialog dialog = builder.create();
+        return dialog;
     }
 }
 

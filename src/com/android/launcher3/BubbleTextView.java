@@ -25,8 +25,10 @@ import android.graphics.Region;
 import android.graphics.Region.Op;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 import com.android.launcher3.much.MuchConfig;
@@ -67,7 +69,10 @@ public class BubbleTextView extends TextView {
     private boolean mStayPressed;
     private CheckLongPressHelper mLongPressHelper;
 
-    public BubbleTextView(Context context) {
+    private DeleteRect mDeleteRect;
+    private boolean mIsCanEdit = true;
+
+	public BubbleTextView(Context context) {
         super(context);
         init();
     }
@@ -103,6 +108,11 @@ public class BubbleTextView extends TextView {
             res.getColor(R.color.outline_color);
 
         setShadowLayer(SHADOW_LARGE_RADIUS, 0.0f, SHADOW_Y_OFFSET, SHADOW_LARGE_COLOUR);
+
+        //add by linmaoqing
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            mDeleteRect = new DeleteRect(this);
+        }//end by linmaoqing
     }
 
     public void applyFromShortcutInfo(ShortcutInfo info, IconCache iconCache) {
@@ -229,6 +239,12 @@ public class BubbleTextView extends TextView {
         // Call the superclass onTouchEvent first, because sometimes it changes the state to
         // isPressed() on an ACTION_UP
         boolean result = super.onTouchEvent(event);
+        //add by linmaoqing
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            if(mDeleteRect != null){
+                return mDeleteRect.onTouchEventDelete(result,event);
+            }
+        }//end by linmaoqing
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -393,4 +409,29 @@ public class BubbleTextView extends TextView {
 
         mLongPressHelper.cancelLongPress();
     }
+
+    /**
+     * add by linmaoqing 2014-5-14
+     * @return
+     */
+    public DeleteRect getDeleteRect() {
+		return mDeleteRect;
+	}
+
+    public boolean isCanEdit() {
+		return mIsCanEdit;
+	}
+
+    @Override
+	protected void onDraw(Canvas canvas) {
+		// TODO Auto-generated method stub
+		super.onDraw(canvas);
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            if(mDeleteRect != null){
+                if(isCanEdit()){
+                    mDeleteRect.drawDelete(canvas, getScrollX(), getScrollY());
+                }
+            }
+        }
+    }//end by linmaoqing
 }

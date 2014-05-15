@@ -299,4 +299,13 @@ s -->
     <string name="much_folder_name_tool">Tools</string>
     <string name="much_folder_name_common">Common</string>
     <string name="much_folder_name_attachment">Attachment</string>
+    <string name="much_visit_mode">Current state is guest mode, can\'t undertake this operation!</string>
+    <string name="much_share_message_with_url">I downloaded %1$s in #78Dian#，Downloading:%2$s, Let\'s enjoy the game！</string>
+    <string name="much_share_message_without_url">I am playing %1$s in #78Dian# ，Let\'s enjoy the game！</string>
+    <string name="much_share_subject">Sharing！</string>
+    <string name="much_share_send_to_title">Sharing！</string>
+     <string name="much_uninstall_app_dialog_messag">Sure to uninstall %1$s ?</string>
+    <string name="much_uninstall_app_dialog_title">Warning!</string>
+    <string name="much_uninstall_app_dialog_done">Done</string>
+    <string name="much_uninstall_app_dialog_cancel">Cancel</string>
 </resources>

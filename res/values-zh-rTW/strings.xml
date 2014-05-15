@@ -121,4 +121,15 @@
     <string name="widget_button_text" msgid="2880537293434387943">"小工具"</string>
     <string name="wallpaper_button_text" msgid="8404103075899945851">"桌布"</string>
     <string name="settings_button_text" msgid="8119458837558863227">"設定"</string>
+
+    <!-- MUCH -->
+    <string name="much_visit_mode">當前處于訪客模式，不能進行該操作!</string>
+    <string name="much_share_message_with_url">我在#摩奇遊戲手機#下載了"%1$s", 下載地址:"%2$s",  一起來玩吧！</string>
+    <string name="much_share_message_without_url">我用#摩奇遊戲手機#正在玩"%1$s"，一起來玩吧！</string>
+    <string name="much_share_subject">分享！</string>
+    <string name="much_share_send_to_title">分享！</string>
+    <string name="much_uninstall_app_dialog_messag">確定要卸載(%1$s)嗎?</string>
+    <string name="much_uninstall_app_dialog_title">提示!</string>
+    <string name="much_uninstall_app_dialog_done">確定</string>
+    <string name="much_uninstall_app_dialog_cancel">取消</string>
 </resources>

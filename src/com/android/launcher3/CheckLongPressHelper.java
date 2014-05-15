@@ -48,6 +48,20 @@ public class CheckLongPressHelper {
         mView.postDelayed(mPendingCheckForLongPress,
                 LauncherAppState.getInstance().getLongPressTimeout());
     }
+    
+    /**
+     * add by linmaoqing 2014-5-14
+     * @param pressTime
+     * 抖动时页面触摸延时
+     */
+    public void postCheckForLongPress(int pressTime) {
+        mHasPerformedLongPress = false;
+
+        if (mPendingCheckForLongPress == null) {
+            mPendingCheckForLongPress = new CheckForLongPress();
+        }
+        mView.postDelayed(mPendingCheckForLongPress, pressTime);
+    }//end by linmaoqing
 
     public void cancelLongPress() {
         mHasPerformedLongPress = false;

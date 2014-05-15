@@ -51,8 +51,10 @@ public class LauncherAppState {
     private static LauncherAppState INSTANCE;
 
     private DynamicGrid mDynamicGrid;
-
+    //add by linmaoqing 2014-5-14
     private IconDecorater mIconDecorater;
+
+    private MuchItemInfoManager mMuchItemInfoManager;
     public static LauncherAppState getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new LauncherAppState();
@@ -122,6 +124,7 @@ public class LauncherAppState {
         
         MuchConfig.init(sContext);
         mIconDecorater = new IconDecorater(sContext);
+        mMuchItemInfoManager = new MuchItemInfoManager(sContext);
     }
 
     /**
@@ -230,6 +233,10 @@ public class LauncherAppState {
     
     public IconDecorater getIconDecorater() {
         return mIconDecorater;
+    }
+
+    public MuchItemInfoManager getMuchItemInfoManager() {
+        return mMuchItemInfoManager;
     }
 
 	public Resources getResources() {

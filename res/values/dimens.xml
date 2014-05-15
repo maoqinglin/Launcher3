@@ -110,4 +110,14 @@
     <dimen name="folder_cell_width">74dp</dimen>
     <dimen name="folder_cell_height">80dp</dimen>
     <dimen name="much_workspace_indicator_item_padding">6dp</dimen>
+    
+    <!-- Workspace cell size -->
+    <dimen name="workspace_cell_width_land">106dp</dimen>
+    <dimen name="workspace_cell_width_port">80dp</dimen>
+    <dimen name="workspace_cell_height_land">74dp</dimen>
+    <dimen name="workspace_cell_height_port">100dp</dimen>
+    <dimen name="workspace_width_gap_land">0dp</dimen>
+    <dimen name="workspace_width_gap_port">0dp</dimen>
+    <dimen name="workspace_height_gap_land">0dp</dimen>
+    <dimen name="workspace_height_gap_port">0dp</dimen>
 </resources>

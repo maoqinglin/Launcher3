@@ -46,7 +46,6 @@ import android.widget.TextView;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.FolderInfo.FolderListener;
 import com.android.launcher3.much.MuchConfig;
-
 /**
  * An icon that can appear on in the workspace representing an {@link UserFolder}.
  */
@@ -108,7 +107,10 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     private PreviewItemDrawingParams mAnimParams = new PreviewItemDrawingParams(0, 0, 0, 0);
     private ArrayList<ShortcutInfo> mHiddenItems = new ArrayList<ShortcutInfo>();
 
-    public FolderIcon(Context context, AttributeSet attrs) {
+    //add by linmaoqing
+    private DeleteRect mDeleteRect;
+
+	public FolderIcon(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -120,6 +122,8 @@ public class FolderIcon extends LinearLayout implements FolderListener {
 
     private void init() {
         mLongPressHelper = new CheckLongPressHelper(this);
+        //add by linmaoqing
+        mDeleteRect = new DeleteRect(this);
     }
 
     public boolean isDropEnabled() {
@@ -690,6 +694,10 @@ public class FolderIcon extends LinearLayout implements FolderListener {
         // Call the superclass onTouchEvent first, because sometimes it changes the state to
         // isPressed() on an ACTION_UP
         boolean result = super.onTouchEvent(event);
+        //add by linmaoqing
+        if(mDeleteRect != null){
+            return mDeleteRect.onTouchEventDelete(result ,event);
+        }//end by linmaoqing
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -709,4 +717,12 @@ public class FolderIcon extends LinearLayout implements FolderListener {
 
         mLongPressHelper.cancelLongPress();
     }
+
+    /**
+     * add by linmaoqing 2014-5-14
+     * @return
+     */
+    public DeleteRect getDeleteRect() {
+		return mDeleteRect;
+	}//end by linmaoqing
 }

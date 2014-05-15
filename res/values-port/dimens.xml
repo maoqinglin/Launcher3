@@ -24,4 +24,14 @@
 
     <integer name="apps_customize_widget_cell_count_x">2</integer>
     <integer name="apps_customize_widget_cell_count_y">3</integer>
+    
+    <dimen name="much_workspace_celllayout_padding_left">11dp</dimen>
+    <dimen name="much_workspace_celllayout_padding_right">11dp</dimen>
+    <dimen name="much_workspace_celllayout_padding_top">15dp</dimen>
+    <dimen name="much_workspace_celllayout_padding_bottom">170dp</dimen>
+    <dimen name="much_workspace_celllayout_width">90dp</dimen>
+    <dimen name="much_workspace_celllayout_height">90dp</dimen>
+    <dimen name="much_workspace_celllayout_width_gap">0dp</dimen>
+    <dimen name="much_workspace_celllayout_height_gap">35dp</dimen>
+    <dimen name="much_workspace_celllayout_max_gap">0dp</dimen>
 </resources>

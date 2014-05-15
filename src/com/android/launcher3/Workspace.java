@@ -16,6 +16,11 @@
 
 package com.android.launcher3;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.AnimatorListenerAdapter;
@@ -51,13 +56,11 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Choreographer;
 import android.view.Display;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
-import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.TextView;
@@ -65,11 +68,6 @@ import android.widget.TextView;
 import com.android.launcher3.FolderIcon.FolderRingAnimator;
 import com.android.launcher3.Launcher.CustomContentCallbacks;
 import com.android.launcher3.LauncherSettings.Favorites;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of pages.
@@ -1064,6 +1062,23 @@ public class Workspace extends SmoothPagedView
             stripEmptyScreens();
             mStripScreensOnPageStopMoving = false;
         }
+    }
+
+    /**
+     * add by linmaoqing 2014-5-14
+     *  新增一个页面
+     */
+    protected void addScreen() {
+        LayoutInflater layoutInflter = LayoutInflater.from(mLauncher);
+        CellLayout screen = (CellLayout) layoutInflter.inflate(
+                R.layout.much_workspace_screen, this, false);
+        addView(screen, getChildCount());
+        screen.setOnLongClickListener(mLongClickListener);
+        int count = getChildCount();
+        if (count > Launcher.SCREEN_COUNT) {
+            Launcher.SCREEN_COUNT = getChildCount();
+        }
+//        invalidateCachedOffsets();
     }
 
     @Override

@@ -45,7 +45,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.MeasureSpec;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.inputmethod.EditorInfo;
@@ -268,6 +267,14 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     };
 
     public void onClick(View v) {
+        //begin add by linmaoqing 2014-5-14
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            if(MuchAppShakeAndShareManager.getInstance().unStartApp()){
+                mLauncher.showShareDialog(v);
+                return;
+            }
+        }//end by linmaoqing
+
         Object tag = v.getTag();
         if (tag instanceof ShortcutInfo) {
             mLauncher.onClick(v);
@@ -295,6 +302,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             mEmptyCell[0] = item.cellX;
             mEmptyCell[1] = item.cellY;
             mCurrentDragView = v;
+
+            //add by linmaoqing 2014-4-5-14
+            if(MuchConfig.SUPPORT_MUCH_STYLE){
+                MuchAppShakeAndShareManager.getInstance().handleClickToShake(true, false);
+            }//end by linmaoqing
 
             //add by linmaoqing 2014-5-13
             if (MuchConfig.SUPPORT_MUCH_STYLE) {

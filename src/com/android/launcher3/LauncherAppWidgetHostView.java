@@ -18,6 +18,7 @@ package com.android.launcher3;
 
 import android.appwidget.AppWidgetHostView;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -36,12 +37,18 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements Touc
     private int mPreviousOrientation;
     private DragLayer mDragLayer;
 
-    public LauncherAppWidgetHostView(Context context) {
+    private DeleteRect mDeleteRect; //add by linmaoqing 2014-5-14
+    public DeleteRect getDeleteRect() {
+        return mDeleteRect;
+    }//end by linmaoqing
+
+	public LauncherAppWidgetHostView(Context context) {
         super(context);
         mContext = context;
         mLongPressHelper = new CheckLongPressHelper(this);
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mDragLayer = ((Launcher) context).getDragLayer();
+        mDeleteRect = new DeleteRect(this);//add by linmaoqing 2014-5-14
     }
 
     @Override
@@ -71,6 +78,14 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements Touc
             return true;
         }
 
+        //add by linmaoqing 2014-5-14
+        if(mDeleteRect != null){
+            if(mDeleteRect.isDelete()){
+                if(mDeleteRect != null){
+                    return !mDeleteRect.onTouchEventDelete(false,ev);
+                }
+            }
+        }//end by linmaoqing
         // Watch for longpress events at this level to make sure
         // users can always pick up this widget
         switch (ev.getAction()) {
@@ -93,14 +108,27 @@ public class LauncherAppWidgetHostView extends AppWidgetHostView implements Touc
     public boolean onTouchEvent(MotionEvent ev) {
         // If the widget does not handle touch, then cancel
         // long press when we release the touch
+        boolean result = super.onTouchEvent(ev); //add by linmaoqing 2014-5-14
+        if(mDeleteRect != null){
+            return mDeleteRect.onTouchEventDelete(result,ev);
+        }//end by linmaoqing
         switch (ev.getAction()) {
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
                 mLongPressHelper.cancelLongPress();
                 break;
         }
-        return false;
+        return result;
     }
+
+    //add by linmaoqing 2014-5-14
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        if(mDeleteRect != null){
+            mDeleteRect.drawDelete(canvas, this.getScrollX(), this.getScrollY());
+        }
+    }//end by linmaoqing
 
     @Override
     public void cancelLongPress() {

@@ -30,4 +30,14 @@
     <integer name="apps_customize_widget_cell_count_y">2</integer>
     <integer name="apps_customize_cling_focused_x">2</integer>
     <integer name="apps_customize_cling_focused_y">1</integer>
+
+    <dimen name="much_workspace_celllayout_padding_left">40dp</dimen>
+    <dimen name="much_workspace_celllayout_padding_right">153dp</dimen>
+    <dimen name="much_workspace_celllayout_padding_top">12dp</dimen>
+    <dimen name="much_workspace_celllayout_padding_bottom">7dp</dimen>
+    <dimen name="much_workspace_celllayout_width">102dp</dimen>
+    <dimen name="much_workspace_celllayout_height">78dp</dimen>
+    <dimen name="much_workspace_celllayout_width_gap">28dp</dimen>
+    <dimen name="much_workspace_celllayout_height_gap">0dp</dimen>
+    <dimen name="much_workspace_celllayout_max_gap">16dp</dimen>
 </resources>
