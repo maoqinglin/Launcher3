@@ -4459,6 +4459,11 @@ public class Launcher extends Activity
         return mSharedPrefs;
     }
     public boolean isFolderClingVisible() {
+        //add begin by lilu 20140519
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            return false;
+        }
+        //add end by lilu 20140519
         Cling cling = (Cling) findViewById(R.id.folder_cling);
         if (cling != null) {
             return cling.getVisibility() == View.VISIBLE;

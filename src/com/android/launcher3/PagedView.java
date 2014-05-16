@@ -16,6 +16,8 @@
 
 package com.android.launcher3;
 
+import java.util.ArrayList;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -32,7 +34,6 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.view.accessibility.AccessibilityEventCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -53,7 +54,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
-import java.util.ArrayList;
+import com.android.launcher3.much.MuchConfig;
 
 interface Page {
     public int getPageChildCount();
@@ -70,7 +71,10 @@ interface Page {
 public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarchyChangeListener {
     private static final String TAG = "PagedView";
     private static final boolean DEBUG = false;
-    protected static final int INVALID_PAGE = -1;
+    //edit begin by lilu 20140516 因循环划动需要的辅助页（-1，getChildCount()）
+    protected static final int INVALID_PAGE = MuchConfig.SUPPORT_MUCH_STYLE ? -100 : -1;
+    protected static final int PRE_EDGE_PAGE = -1;
+    //edit end by lilu 20140516
 
     // the min drag distance for a fling to register, to prevent random page shifts
     private static final int MIN_LENGTH_FOR_FLING = 25;
@@ -508,6 +512,12 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
      * the previous tab page.
      */
     protected void updateCurrentPageScroll() {
+        //add begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            updateCurrentPageScrollLoop();
+            return;
+        }
+        //add end by lilu 20140516
         // If the current page is invalid, just reset the scroll position to zero
         int newX = 0;
         if (0 <= mCurrentPage && mCurrentPage < getPageCount()) {
@@ -517,6 +527,16 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         mScroller.setFinalX(newX);
         mScroller.forceFinished(true);
     }
+
+    //MUCH Method
+    //add begin by lilu 20140516
+    private void updateCurrentPageScrollLoop() {
+        int newX = getScrollForPage(mCurrentPage);
+        scrollTo(newX, 0);
+        mScroller.setFinalX(newX);
+        mScroller.forceFinished(true);
+    }
+    //add end by lilu 20140516
 
     /**
      * Called during AllApps/Home transitions to avoid unnecessary work. When that other animation
@@ -621,6 +641,13 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     @Override
     public void scrollTo(int x, int y) {
+        //add begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            //MUCH支持循环滑动，增加了对首页和尾页的划动
+            scrollToOnlyForSingle(x,y);
+            return;
+        }
+        //add end by lilu 20140516
         // In free scroll mode, we clamp the scrollX
         if (mFreeScroll) {
             x = Math.min(x, mFreeScrollMaxScrollX);
@@ -667,6 +694,54 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         }
     }
 
+    //MUCH Method
+    //add begin by lilu 20140516
+    private void scrollToOnlyForSingle(int x, int y) {
+
+        if (mFreeScroll) {
+            x = Math.min(x, mFreeScrollMaxScrollX);
+            x = Math.max(x, mFreeScrollMinScrollX);
+        }
+
+        final boolean isRtl = isLayoutRtl();
+        mUnboundedScrollX = x;
+        super.scrollTo(x, y);
+
+        boolean isXBeforeFirstPage = isRtl ? (x > mMaxScrollX) : (x < 0);
+        boolean isXAfterLastPage = isRtl ? (x < 0) : (x > mMaxScrollX);
+        if (isXBeforeFirstPage) {
+            if (mAllowOverScroll) {
+                if (isRtl) {
+                    overScroll(x - mMaxScrollX);
+                } else {
+                    overScroll(x);
+                }
+            }
+        } else if (isXAfterLastPage) {
+            if (mAllowOverScroll) {
+                if (isRtl) {
+                    overScroll(x);
+                } else {
+                    overScroll(x - mMaxScrollX);
+                }
+            }
+        } else {
+            mOverScrollX = x;
+        }
+
+        mTouchX = x;
+        mSmoothingTime = System.nanoTime() / NANOTIME_DIV;
+
+        // Update the last motion events when scrolling
+        if (isReordering(true)) {
+            float[] p = mapPointFromParentToView(this, mParentDownMotionX, mParentDownMotionY);
+            mLastMotionX = p[0];
+            mLastMotionY = p[1];
+            updateDragViewTranslationDuringDrag();
+        }
+    }
+    //add end by lilu 20140516
+
     private void sendScrollAccessibilityEvent() {
         AccessibilityManager am =
                 (AccessibilityManager) getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
@@ -705,6 +780,17 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
             sendScrollAccessibilityEvent();
 
             mCurrentPage = Math.max(0, Math.min(mNextPage, getPageCount() - 1));
+
+            //add begin by lilu 20140516
+            if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                //首尾切换时，最后完成需要划动的距离
+                mCurrentPage = Math.max(0, Math.min(
+                        (mNextPage + getPageCount()) % getPageCount(),
+                        getPageCount() - 1));
+                final int newX = getScrollForPage(mCurrentPage);
+                scrollTo(newX, getScrollY());
+            }
+            //add end by lilu 20140516
             mNextPage = INVALID_PAGE;
             notifyPageSwitchListener();
 
@@ -1088,6 +1174,16 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     protected int getChildOffset(int index) {
+        //add begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            if (PRE_EDGE_PAGE == index) {
+                return -getOnePageOffset();
+            }
+            if (getChildCount() == index) {
+                return getChildCount() * getOnePageOffset();
+            }
+        }
+        //add end by lilu 20140516
         if (index < 0 || index > getChildCount() - 1) return 0;
 
         int offset = getPageAt(index).getLeft() - getViewportOffsetX();
@@ -1522,12 +1618,31 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     public int getScrollForPage(int index) {
+        //add begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE && mPageScrolls != null && mPageScrolls.length > 0) {
+            int onePageOffset = getOnePageOffset();
+            if (PRE_EDGE_PAGE == index) {
+                return -onePageOffset;
+            } else if (index == getChildCount()) {
+                return mPageScrolls.length * onePageOffset;
+            }
+        }
+        //add end by lilu 20140516
         if (mPageScrolls == null || index >= mPageScrolls.length || index < 0) {
             return 0;
         } else {
             return mPageScrolls[index];
         }
     }
+
+    //add begin by lilu 20140519
+    protected int getOnePageOffset() {
+        if (mPageScrolls != null && mPageScrolls.length > 0) {
+            return (mPageScrolls[mPageScrolls.length - 1] - mPageScrolls[0])/(mPageScrolls.length - 1);
+        }
+        return 0;
+	}
+    //add end by lilu 20140519
 
     // While layout transitions are occurring, a child's position may stray from its baseline
     // position. This method returns the magnitude of this stray at any given time.
@@ -1566,10 +1681,19 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         int overScrollAmount = (int) Math.round(f * screenSize);
         if (amount < 0) {
             mOverScrollX = overScrollAmount;
-            super.scrollTo(0, getScrollY());
+            //edit begin by lilu 20140516
+            if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+                //取消停留首页，需向尾页划动
+                super.scrollTo(0, getScrollY());
+            }
+            //edit end by lilu 20140516
         } else {
             mOverScrollX = mMaxScrollX + overScrollAmount;
-            super.scrollTo(mMaxScrollX, getScrollY());
+            //edit begin by lilu 20140516
+            if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+                super.scrollTo(mMaxScrollX, getScrollY());
+            }
+            //edit end by lilu 20140516
         }
         invalidate();
     }
@@ -1590,10 +1714,18 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         int overScrollAmount = (int) Math.round(OVERSCROLL_DAMP_FACTOR * f * screenSize);
         if (amount < 0) {
             mOverScrollX = overScrollAmount;
-            super.scrollTo(0, getScrollY());
+            //edit begin by lilu 20140516
+            if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+                super.scrollTo(0, getScrollY());
+            }
+            //edit end by lilu 20140516
         } else {
             mOverScrollX = mMaxScrollX + overScrollAmount;
-            super.scrollTo(mMaxScrollX, getScrollY());
+            //edit begin by lilu 20140516
+            if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+                super.scrollTo(mMaxScrollX, getScrollY());
+            }
+            //edit end by lilu 20140516
         }
         invalidate();
     }
@@ -1873,13 +2005,15 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                     final boolean isRtl = isLayoutRtl();
                     boolean isDeltaXLeft = isRtl ? deltaX > 0 : deltaX < 0;
                     boolean isVelocityXLeft = isRtl ? velocityX > 0 : velocityX < 0;
+                    //edit begin by lilu 20140516
                     if (((isSignificantMove && !isDeltaXLeft && !isFling) ||
-                            (isFling && !isVelocityXLeft)) && mCurrentPage > 0) {
+                            (isFling && !isVelocityXLeft)) && (MuchConfig.SUPPORT_MUCH_STYLE ? (mCurrentPage >= 0) : (mCurrentPage > 0))) {
                         finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage - 1;
                         snapToPageWithVelocity(finalPage, velocityX);
                     } else if (((isSignificantMove && isDeltaXLeft && !isFling) ||
                             (isFling && isVelocityXLeft)) &&
-                            mCurrentPage < getChildCount() - 1) {
+                            (MuchConfig.SUPPORT_MUCH_STYLE ? (mCurrentPage < getChildCount()) : (mCurrentPage < (getChildCount() - 1)))) {
+                        //edit end by lilu 20140516
                         finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + 1;
                         snapToPageWithVelocity(finalPage, velocityX);
                     } else {
@@ -2120,7 +2254,13 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     protected void snapToPageWithVelocity(int whichPage, int velocity) {
-        whichPage = Math.max(0, Math.min(whichPage, getChildCount() - 1));
+        //edit begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            whichPage = Math.max(-1, Math.min(whichPage, getChildCount()));
+        } else {
+            whichPage = Math.max(0, Math.min(whichPage, getChildCount() - 1));
+        }
+        //edit end by lilu 20140516
         int halfScreenSize = getViewportWidth() / 2;
 
         final int newX = getScrollForPage(whichPage);
@@ -2166,7 +2306,13 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     protected void snapToPage(int whichPage, int duration, boolean immediate) {
-        whichPage = Math.max(0, Math.min(whichPage, getPageCount() - 1));
+        //edit begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            whichPage = Math.max(-1, Math.min(whichPage, getChildCount()));
+        } else {
+            whichPage = Math.max(0, Math.min(whichPage, getChildCount() - 1));
+        }
+        //edit end by lilu 20140516
 
         int newX = getScrollForPage(whichPage);
         final int sX = mUnboundedScrollX;
@@ -2216,10 +2362,23 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     public void scrollLeft() {
-        if (getNextPage() > 0) snapToPage(getNextPage() - 1);
+        //edit begin by lilu 20140516
+        if (getNextPage() > 0) {
+            snapToPage(getNextPage() - 1);
+        } else if (MuchConfig.SUPPORT_MUCH_STYLE && getNextPage() == 0) {
+            snapToPage(getNextPage() - 1);
+        }
+        //edit end by lilu 20140516
     }
 
     public void scrollRight() {
+        //edit begin by lilu 20140516
+        if (MuchConfig.SUPPORT_MUCH_STYLE
+                && (getNextPage() == getChildCount() - 1)) {
+            snapToPage(getNextPage() + 1);
+            return;
+        }
+        //edit end by lilu 20140516
         if (getNextPage() < getChildCount() -1) snapToPage(getNextPage() + 1);
     }
 

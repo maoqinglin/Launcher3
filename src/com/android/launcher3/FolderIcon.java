@@ -476,9 +476,6 @@ public class FolderIcon extends LinearLayout implements FolderListener {
 
             mPreviewOffsetX = (mTotalWidth - mAvailableSpaceInPreview) / 2;
             mPreviewOffsetY = previewPadding + grid.folderBackgroundOffset;
-            Log.e("lilu", "mPreviewOffsetX:"+mPreviewOffsetX+" mPreviewOffsetY:"+mPreviewOffsetY);
-            Log.e("lilu", "totalSize:"+totalSize+" drawableSize:"+drawableSize);
-            Log.e("lilu", "previewSize:"+previewSize+" previewPadding:"+previewPadding);
         }
     }
 

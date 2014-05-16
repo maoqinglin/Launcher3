@@ -203,7 +203,7 @@ class DeviceProfile {
 
         // At this point, if the cells do not fit into the available height, then we need
         // to shrink the icon size
-        /*
+        
         Rect padding = getWorkspacePadding(isLandscape ?
                 CellLayout.LANDSCAPE : CellLayout.PORTRAIT);
         int h = (int) (numRows * cellHeightPx) + padding.top + padding.bottom;
@@ -215,7 +215,7 @@ class DeviceProfile {
             cellWidthPx = iconSizePx;
             cellHeightPx = iconSizePx + (int) Math.ceil(fm.bottom - fm.top);
         }
-        */
+        
 
         // Hotseat
         hotseatBarHeightPx = iconSizePx + 4 * edgeMarginPx;
@@ -310,12 +310,11 @@ class DeviceProfile {
         if (orientation == CellLayout.LANDSCAPE &&
                 transposeLayoutWithOrientation) {
             // Pad the left and right of the workspace with search/hotseat bar sizes
-//            padding.set(searchBarSpaceHeightPx, edgeMarginPx,
-//                    hotseatBarHeightPx, edgeMarginPx);
-            padding.set(searchBarSpaceHeightPx,
-            		edgeMarginPx + pageIndicatorHeightPx,
-                    hotseatBarHeightPx,
-                    edgeMarginPx);
+            padding.set(searchBarSpaceHeightPx, edgeMarginPx,
+                    hotseatBarHeightPx, edgeMarginPx);
+//            padding.set(searchBarSpaceHeightPx,edgeMarginPx + pageIndicatorHeightPx,
+//                    hotseatBarHeightPx,
+//                    edgeMarginPx);
         } else {
             if (isTablet()) {
                 // Pad the left and right of the workspace to ensure consistent spacing
@@ -426,6 +425,7 @@ class DeviceProfile {
         // Layout the workspace
         View workspace = launcher.findViewById(R.id.workspace);
         lp = (FrameLayout.LayoutParams) workspace.getLayoutParams();
+//        lp.gravity = Gravity.CENTER;
         lp.gravity = Gravity.CENTER;
         Rect padding = getWorkspacePadding(isLandscape
                 ? CellLayout.LANDSCAPE
@@ -557,7 +557,7 @@ public class DynamicGrid {
         } else {
             //加载摩奇适配的配置文件
             deviceProfiles.add(new DeviceProfile("MUCH G2",
-            		670, 1230, 4, 4, 52, 11, (hasAA ? 4 : 5), 52));
+            		670, 1230, 4, 4, 52, 11, 5, 52));
         }
         //edit end by lilu 20140514
         mMinWidth = dpiFromPx(minWidthPx, dm);

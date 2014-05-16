@@ -50,6 +50,7 @@ import android.view.animation.LayoutAnimationController;
 
 import com.android.launcher3.R;
 import com.android.launcher3.FolderIcon.FolderRingAnimator;
+import com.android.launcher3.much.MuchConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -341,6 +342,9 @@ public class CellLayout extends ViewGroup {
     }
 
     void setOverScrollAmount(float r, boolean left) {
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            return;
+        }
         if (left && mOverScrollForegroundDrawable != mOverScrollLeft) {
             mOverScrollForegroundDrawable = mOverScrollLeft;
         } else if (!left && mOverScrollForegroundDrawable != mOverScrollRight) {

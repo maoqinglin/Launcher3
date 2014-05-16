@@ -68,6 +68,7 @@ import android.widget.TextView;
 import com.android.launcher3.FolderIcon.FolderRingAnimator;
 import com.android.launcher3.Launcher.CustomContentCallbacks;
 import com.android.launcher3.LauncherSettings.Favorites;
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of pages.
@@ -1194,6 +1195,12 @@ public class Workspace extends SmoothPagedView
             if (getChildCount() <= 1) {
                 return 0;
             }
+            //add begin by lilu 20140516
+            if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                //因首尾划动时，可滑动的壁纸会直接头尾切换，效果不好，需要调整
+                return flushWallpaperOffset();
+            }
+            //add end by lilu 20140516
 
             // Exclude the leftmost page
             int emptyExtraPages = numEmptyScreensToIgnore();
@@ -1230,6 +1237,28 @@ public class Workspace extends SmoothPagedView
                 return offset * (padding + numScrollingPages - 1) / parallaxPageSpan;
             }
         }
+
+        //MUCH Method
+        //add begin by lilu 20140516
+        private float flushWallpaperOffset() {
+            int scrollRange = getScrollRange();
+
+            float scrollProgress = getScrollX() / (float) scrollRange;
+            if (scrollProgress > 1) {
+                scrollProgress = -(float) (scrollProgress - 1 - 1.0f / (getChildCount() - 1));
+            } else if (scrollProgress < 0) {
+                scrollProgress = (float) (1 - 1.0f / (getChildCount() - 1) - scrollProgress);
+            }
+
+            return scrollProgress;
+
+        }
+
+        private int getScrollRange() {
+            return getChildOffset(getChildCount() - 1) - getChildOffset(0);
+        }
+
+        //add end by lilu 20140516
 
         private int numEmptyScreensToIgnore() {
             int numScrollingPages = getChildCount() - numCustomPages();
@@ -1527,8 +1556,12 @@ public class Workspace extends SmoothPagedView
             CellLayout cl = (CellLayout) getChildAt(index);
             float scrollProgress = getScrollProgress(screenCenter, cl, index);
             cl.setOverScrollAmount(Math.abs(scrollProgress), isLeftPage);
-            float rotation = -WORKSPACE_OVERSCROLL_ROTATION * scrollProgress;
-            cl.setRotationY(rotation);
+            //add begin by lilu 20140519 去除overscroll时的形变动画
+            if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+            	float rotation = -WORKSPACE_OVERSCROLL_ROTATION * scrollProgress;
+            	cl.setRotationY(rotation);
+            }
+            //add end by lilu 20140519
 
             if (!mOverscrollTransformsSet || Float.compare(mLastOverscrollPivotX, pivotX) != 0) {
                 mOverscrollTransformsSet = true;
@@ -4077,6 +4110,58 @@ public class Workspace extends SmoothPagedView
         super.onRestoreInstanceState(state);
         Launcher.setScreen(mCurrentPage);
     }
+
+    //add begin by lilu 20140516
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            //因父类PagedView屏蔽了首页和尾页显示（getVisiblePages()/screenScrolled()）,父类dispatchDraw()只画可见的child
+            boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING
+                    && mNextPage == INVALID_PAGE;
+
+            if (!fastDraw) {
+                long drawingTime = getDrawingTime();
+                int width = getWidth();
+                float scrollPos = (float) getScrollX() * 10 / width;//
+
+                int leftScreen;
+                int rightScreen;
+                boolean isScrollToRight = false;
+                int childCount = getChildCount();
+                if (scrollPos < 0) {
+                    leftScreen = childCount - 1;
+                    rightScreen = 0;
+                } else {
+                    leftScreen = Math.min((int) scrollPos, childCount - 1);
+                    rightScreen = leftScreen + 1;
+                    rightScreen = rightScreen % childCount;
+                    isScrollToRight = true;
+                }
+
+                if (isScreenNoValid(leftScreen)) {
+                    if (rightScreen == 0 && !isScrollToRight) {
+                        int offset = getOnePageOffset() * childCount;
+                        canvas.translate(-offset, 0);
+                        drawChild(canvas, getChildAt(leftScreen), drawingTime);
+                        canvas.translate(+offset, 0);
+                    }
+                }
+                if (scrollPos != leftScreen && isScreenNoValid(rightScreen)) {
+                    if (rightScreen == 0 && isScrollToRight) {
+                        int offset = getOnePageOffset() * childCount;
+                        canvas.translate(+offset, 0);
+                        drawChild(canvas, getChildAt(rightScreen), drawingTime);
+                        canvas.translate(-offset, 0);
+                    }
+                }
+            }
+        }
+    }
+    private boolean isScreenNoValid(int screen) {
+        return screen >= 0 && screen < getChildCount();
+    }
+    //add end by lilu 20140516
 
     @Override
     protected void dispatchRestoreInstanceState(SparseArray<Parcelable> container) {

@@ -531,12 +531,16 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             public void onAnimationEnd(Animator animation) {
                 mState = STATE_OPEN;
                 setLayerType(LAYER_TYPE_NONE, null);
-                Cling cling = mLauncher.showFirstRunFoldersCling();
-                if (cling != null) {
-                    cling.bringScrimToFront();
-                    bringToFront();
-                    cling.bringToFront();
+                //edit begin by lilu 20140519
+                if (!MuchConfig.SUPPORT_MUCH_STYLE) {
+                	Cling cling = mLauncher.showFirstRunFoldersCling();
+                	if (cling != null) {
+                		cling.bringScrimToFront();
+                		bringToFront();
+                		cling.bringToFront();
+                	}
                 }
+                //edit end by lilu 20140519
                 setFocusOnFirstChild();
             }
         });
