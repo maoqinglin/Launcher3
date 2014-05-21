@@ -2193,6 +2193,18 @@ public class Launcher extends Activity
             }
             return;
         }
+        
+        if (v instanceof CellLayoutCreator) {
+            if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                Log.e("lmq","onclick currpage = " + mWorkspace.getCurrentPage() + "-----count = " + mWorkspace.getChildCount());
+                if (mWorkspace.isInOverviewMode()) {
+                    Log.e("lmq", "CellLayoutCreator onclick");
+                    mWorkspace.setAddCellLayoutFlag(true);
+                    mWorkspace.addOrDeleteEmptyLayout(Workspace.State.OVERVIEW);
+                    return;
+                }
+            }
+        }
 
         if (v instanceof CellLayout) {
             if (mWorkspace.isInOverviewMode()) {
@@ -2266,17 +2278,17 @@ public class Launcher extends Activity
      * @param v
      * @param tag
      */
-	void showShareDialog(View v) {
-		if(v instanceof BubbleTextView){
-			boolean isShow = ((BubbleTextView)v).getDeleteRect().isShowUninstallDialog();
-			Log.e("lmq", "isShow = "+isShow+"-----tag = "+v.getTag());
-			if(!isShow){ //如果显示了卸载对话框就不显示分享对话框
-				showUninstallSharePrompt((ItemInfo)v.getTag(), null);
-				mUninstallSharePrompt.shareItemInfo();
-				mUninstallSharePrompt = null;
-			}
-		}
-	}
+    void showShareDialog(View v) {
+        if (v instanceof BubbleTextView) {
+            boolean isShow = ((BubbleTextView) v).getDeleteRect().isShowUninstallDialog();
+            Log.e("lmq", "isShow = " + isShow + "-----tag = " + v.getTag());
+            if (!isShow) { // 如果显示了卸载对话框就不显示分享对话框
+                showUninstallSharePrompt((ItemInfo) v.getTag(), null);
+                mUninstallSharePrompt.shareItemInfo();
+                mUninstallSharePrompt = null;
+            }
+        }
+    }
 
     public boolean onTouch(View v, MotionEvent event) {
         return false;
