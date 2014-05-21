@@ -3822,6 +3822,17 @@ public class Launcher extends Activity
                 continue;
             }
 
+            //add begin by lilu 20140521
+            if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+                if(MuchConfig.SUPPORT_MUCH_STYLE && item.screenId == 0) {
+                    int max = Math.max(item.cellX, item.cellY);
+                    int min = Math.min(item.cellX, item.cellY);
+                    item.cellX = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? max : min;
+                    item.cellY = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? min : max;
+                }
+            }
+            //add end by lilu 20140521
+
             switch (item.itemType) {
                 case LauncherSettings.Favorites.ITEM_TYPE_APPLICATION:
                 case LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT:
@@ -3920,6 +3931,16 @@ public class Launcher extends Activity
         if (waitUntilResume(r)) {
             return;
         }
+
+        //add begin by lilu 20140521 由于第0屏有4×3的widget，所以横竖屏切换时span需要做处理
+        if (MuchConfig.SUPPORT_MUCH_STYLE && ("com.ireadygo.app.dynamic".equals(item.providerName.getPackageName()) || 
+                "com.ireadygo.app.appstore".equals(item.providerName.getPackageName()))) {
+            int max = Math.max(item.spanX, item.spanY);
+            int min = Math.min(item.spanX, item.spanY);
+            item.spanX = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? min : max;
+            item.spanY = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? max : min;
+        }
+        //add end by lilu 20140521
 
         final long start = DEBUG_WIDGETS ? SystemClock.uptimeMillis() : 0;
         if (DEBUG_WIDGETS) {

@@ -310,11 +310,14 @@ class DeviceProfile {
         if (orientation == CellLayout.LANDSCAPE &&
                 transposeLayoutWithOrientation) {
             // Pad the left and right of the workspace with search/hotseat bar sizes
-            padding.set(searchBarSpaceHeightPx, edgeMarginPx,
-                    hotseatBarHeightPx, edgeMarginPx);
-//            padding.set(searchBarSpaceHeightPx,edgeMarginPx + pageIndicatorHeightPx,
-//                    hotseatBarHeightPx,
-//                    edgeMarginPx);
+            if (MuchConfig.SUPPORT_MUCH_STYLE) {//增加横屏上部页面指示器的距离
+                padding.set(searchBarSpaceHeightPx,edgeMarginPx + (int)(0.5 * pageIndicatorHeightPx),
+                        hotseatBarHeightPx,
+                        edgeMarginPx);
+            } else {
+                padding.set(searchBarSpaceHeightPx, edgeMarginPx,
+                        hotseatBarHeightPx, edgeMarginPx);
+            }
         } else {
             if (isTablet()) {
                 // Pad the left and right of the workspace to ensure consistent spacing
@@ -425,13 +428,17 @@ class DeviceProfile {
         // Layout the workspace
         View workspace = launcher.findViewById(R.id.workspace);
         lp = (FrameLayout.LayoutParams) workspace.getLayoutParams();
-//        lp.gravity = Gravity.CENTER;
         lp.gravity = Gravity.CENTER;
         Rect padding = getWorkspacePadding(isLandscape
                 ? CellLayout.LANDSCAPE
                 : CellLayout.PORTRAIT);
         workspace.setPadding(padding.left, padding.top,
                 padding.right, padding.bottom);
+        //add begin by lilu 20140521
+        if (MuchConfig.SUPPORT_MUCH_STYLE && isLandscape) {
+            lp.rightMargin = hotseatBarHeightPx / 3;
+        }
+        //add end by lilu 20140521
         workspace.setLayoutParams(lp);
 
         // Layout the hotseat
@@ -475,13 +482,16 @@ class DeviceProfile {
         if (pageIndicator != null) {
             if (hasVerticalBarLayout) {
                 // Hide the page indicators when we have vertical search/hotseat
-                pageIndicator.setVisibility(View.GONE);
-//                lp = (FrameLayout.LayoutParams) pageIndicator.getLayoutParams();
-//                lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
-//                lp.width = LayoutParams.WRAP_CONTENT;
-//                lp.height = LayoutParams.WRAP_CONTENT;
-//                lp.bottomMargin = padding.height();
-//                pageIndicator.setLayoutParams(lp);
+                if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                    lp = (FrameLayout.LayoutParams) pageIndicator.getLayoutParams();
+                    lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
+                    lp.width = LayoutParams.WRAP_CONTENT;
+                    lp.height = LayoutParams.WRAP_CONTENT;
+                    lp.bottomMargin = padding.height();
+                    pageIndicator.setLayoutParams(lp);
+                } else {
+                    pageIndicator.setVisibility(View.GONE);
+                }
             } else {
                 // Put the page indicators above the hotseat
                 lp = (FrameLayout.LayoutParams) pageIndicator.getLayoutParams();
