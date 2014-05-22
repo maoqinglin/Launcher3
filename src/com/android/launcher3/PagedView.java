@@ -1051,8 +1051,14 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         int verticalPadding = getPaddingTop() + getPaddingBottom();
 
         int childLeft = mFirstChildLeft = offsetX + (screenWidth - getChildWidth(startIndex)) / 2;
+        //edit begin by lilu 20140522
+        boolean needUpdateFreeScrollBound = false;
         if (mPageScrolls == null || getChildCount() != mChildCountOnLastLayout) {
             mPageScrolls = new int[getChildCount()];
+            if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                needUpdateFreeScrollBound = true;
+            }
+        //edit end by lilu 20140522
         }
 
         for (int i = startIndex; i != endIndex; i += delta) {
@@ -1090,6 +1096,11 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                 }
             }
         }
+        //add begin by lilu 20140522
+        if (MuchConfig.SUPPORT_MUCH_STYLE && needUpdateFreeScrollBound) {
+            updateFreescrollBounds();
+        }
+        //add end by lilu 20140522
 
         if (mFirstLayout && mCurrentPage >= 0 && mCurrentPage < getChildCount()) {
             setHorizontalScrollBarEnabled(false);
@@ -1811,7 +1822,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     void updateFreescrollBounds() {
-        Log.e("lmq", "updateFreescrollBounds");
         getOverviewModePages(mTempVisiblePagesRange);
         if (isLayoutRtl()) {
             mFreeScrollMinScrollX = getScrollForPage(mTempVisiblePagesRange[1]);
