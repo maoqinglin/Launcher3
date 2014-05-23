@@ -449,8 +449,15 @@ class DeviceProfile {
             lp.gravity = Gravity.RIGHT;
             lp.width = hotseatBarHeightPx;
             lp.height = LayoutParams.MATCH_PARENT;
-            hotseat.setPadding(0, 2 * edgeMarginPx,
-                    2 * edgeMarginPx, 2 * edgeMarginPx);
+            //edit begin by lilu 20140523
+            if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                hotseat.setPadding(0, 2 * edgeMarginPx,
+                        0, 2 * edgeMarginPx);
+            } else {
+                hotseat.setPadding(0, 2 * edgeMarginPx,
+                        2 * edgeMarginPx, 2 * edgeMarginPx);
+            }
+            //edit end by lilu 20140523
         } else if (isTablet()) {
             // Pad the hotseat with the grid gap calculated above
             int gridGap = (int) ((widthPx - 2 * edgeMarginPx -
@@ -499,6 +506,11 @@ class DeviceProfile {
                 lp.width = LayoutParams.WRAP_CONTENT;
                 lp.height = LayoutParams.WRAP_CONTENT;
                 lp.bottomMargin = hotseatBarHeightPx;
+                //add begin by lilu 20140523
+                if (MuchConfig.SUPPORT_MUCH_STYLE) {
+                    lp.bottomMargin = lp.bottomMargin + 5;
+                }
+                //add end by lilu 20140523
                 pageIndicator.setLayoutParams(lp);
             }
         }

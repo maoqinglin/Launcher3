@@ -1008,6 +1008,19 @@ public class Launcher extends Activity
     }
 
     protected void startSettings() {
+        //add begin by lilu 20140523
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            try {
+                Intent intent = new Intent();
+                intent.setClassName("com.android.settings",
+                        "com.android.settings.Settings");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            } catch (ActivityNotFoundException e) {
+                // do nothing
+            }
+        }
+        //add end by lilu 20140523
     }
 
     public interface QSBScroller {
