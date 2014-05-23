@@ -2186,19 +2186,16 @@ public class Launcher extends Activity
         if (!mWorkspace.isFinishedSwitchingState()) {
             return;
         }
-
         if (v instanceof Workspace) {
             if (mWorkspace.isInOverviewMode()) {
                 mWorkspace.exitOverviewMode(true);
             }
             return;
         }
-        
-        if (v instanceof CellLayoutCreator) {
-            if (MuchConfig.SUPPORT_MUCH_STYLE) {
-                Log.e("lmq","onclick currpage = " + mWorkspace.getCurrentPage() + "-----count = " + mWorkspace.getChildCount());
+        //add by linmaoqing 2014-5-22
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            if (v instanceof CellLayoutCreator) {
                 if (mWorkspace.isInOverviewMode()) {
-                    Log.e("lmq", "CellLayoutCreator onclick");
                     mWorkspace.setAddCellLayoutFlag(true);
                     mWorkspace.addOrDeleteEmptyLayout(Workspace.State.OVERVIEW);
                     return;
@@ -2207,6 +2204,12 @@ public class Launcher extends Activity
         }
 
         if (v instanceof CellLayout) {
+            if(MuchConfig.SUPPORT_MUCH_STYLE){//add by linmaoqing 2014-5-22
+                CellLayout layout = (CellLayout)v;
+                if(mWorkspace.isInOverviewMode() && layout.getEmptyScreenHelper().isClickDelete()){
+                    return;
+                }
+            }
             if (mWorkspace.isInOverviewMode()) {
                 mWorkspace.exitOverviewMode(mWorkspace.indexOfChild(v), true);
             }
@@ -2214,10 +2217,9 @@ public class Launcher extends Activity
 
         Object tag = v.getTag();
         //add by linmaoqing
-        Log.e("lmq", "delet-state = "+MuchAppShakeAndShareManager.getInstance().unStartApp());
-        if (MuchAppShakeAndShareManager.getInstance().unStartApp() && !(tag instanceof FolderInfo)) {
+        if (MuchConfig.SUPPORT_MUCH_STYLE && MuchAppShakeAndShareManager.getInstance().unStartApp() && !(tag instanceof FolderInfo)) {
             showShareDialog(v);
-         return;
+            return;
         }//end by linmaoqing
         if (tag instanceof ShortcutInfo) {
             // Open shortcut
@@ -2259,7 +2261,6 @@ public class Launcher extends Activity
                 FolderIcon fi = (FolderIcon) v;
                 handleFolderClick(fi);
                 //begin add by linmaoqing
-                Log.e("lmq", "onclick handleClickToShake");
                 if(MuchConfig.SUPPORT_MUCH_STYLE){
                     MuchAppShakeAndShareManager.getInstance().handleClickToShake(false, false);
                 }//end by linmaoqing
@@ -2281,7 +2282,6 @@ public class Launcher extends Activity
     void showShareDialog(View v) {
         if (v instanceof BubbleTextView) {
             boolean isShow = ((BubbleTextView) v).getDeleteRect().isShowUninstallDialog();
-            Log.e("lmq", "isShow = " + isShow + "-----tag = " + v.getTag());
             if (!isShow) { // 如果显示了卸载对话框就不显示分享对话框
                 showUninstallSharePrompt((ItemInfo) v.getTag(), null);
                 mUninstallSharePrompt.shareItemInfo();

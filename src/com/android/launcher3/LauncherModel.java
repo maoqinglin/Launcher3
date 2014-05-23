@@ -1935,7 +1935,6 @@ public class LauncherModel extends BroadcastReceiver {
                         }
                     }
                 }
-
                 if (loadedOldDb) {
                     long maxScreenId = 0;
                     // If we're importing we use the old screen order.
@@ -1976,7 +1975,6 @@ public class LauncherModel extends BroadcastReceiver {
                             unusedScreens.remove(screenId);
                         }
                     }
-
                     // If there are any empty screens remove them, and update.
                     if (unusedScreens.size() != 0) {
                         sBgWorkspaceScreens.removeAll(unusedScreens);
@@ -2247,7 +2245,6 @@ public class LauncherModel extends BroadcastReceiver {
                 itemsIdMap.putAll(sBgItemsIdMap);
                 orderedScreenIds.addAll(sBgWorkspaceScreens);
             }
-
             ArrayList<ItemInfo> currentWorkspaceItems = new ArrayList<ItemInfo>();
             ArrayList<ItemInfo> otherWorkspaceItems = new ArrayList<ItemInfo>();
             ArrayList<LauncherAppWidgetInfo> currentAppWidgets =

@@ -538,7 +538,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         if (0 <= mCurrentPage && mCurrentPage < getPageCount()) {
             newX = getScrollForPage(mCurrentPage);
         }
-        Log.e("lmq", "newX = " + newX);
         scrollTo(newX, 0);
         mScroller.setFinalX(newX);
         mScroller.forceFinished(true);
@@ -577,7 +576,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
      * Sets the current page.
      */
     void setCurrentPage(int currentPage) {
-        Log.e("lmq", "setCurrentPage-----currentPage = " + currentPage);
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
             // We need to clean up the next page here to avoid
@@ -1115,8 +1113,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         } else {
             mMaxScrollX = 0;
         }
-        Log.e("lmq", "onLayout ---mChildCountOnLastLayout = " + mChildCountOnLastLayout + "--mRestorePage = "
-                + mRestorePage);
         if (mScroller.isFinished() && mChildCountOnLastLayout != getChildCount() && !mDeferringForDelete) {
             if (mRestorePage != INVALID_RESTORE_PAGE) {
                 setCurrentPage(mRestorePage);
@@ -1832,9 +1828,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         }
     }
 
-    public void setEnableFreeScroll(boolean freeScroll, int snapPage) { // modifyb
-                                                                        // linmaoqing
-                                                                        // 2014-5-20
+    public void setEnableFreeScroll(boolean freeScroll, int snapPage) {
         mFreeScroll = freeScroll;
 
         if (snapPage == -1) {
@@ -1921,7 +1915,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
             break;
 
         case MotionEvent.ACTION_MOVE:
-            Log.e("lmq", "move--mTouchState = " + mTouchState);
             if (mTouchState == TOUCH_STATE_SCROLLING) {
                 // Scroll to follow the motion event
                 final int pointerIndex = ev.findPointerIndex(mActivePointerId);
@@ -2057,7 +2050,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
             break;
 
         case MotionEvent.ACTION_UP:
-            Log.e("lmq", "up--mTouchState = " + mTouchState);
             if (mTouchState == TOUCH_STATE_SCROLLING) {
                 final int activePointerId = mActivePointerId;
                 final int pointerIndex = ev.findPointerIndex(activePointerId);
@@ -2128,7 +2120,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                     float scaleX = getScaleX();
                     int vX = (int) (-velocityX * scaleX);
                     int initialScrollX = (int) (getScrollX() * scaleX);
-                    Log.e("lmq", "initialScrollX = " + initialScrollX);
                     mScroller.fling(initialScrollX, getScrollY(), vX, 0, Integer.MIN_VALUE, Integer.MAX_VALUE, 0, 0);
                     invalidate();
                 }
@@ -2684,7 +2675,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     }
 
     protected void onStartReordering() {
-        Log.e("lmq", "onStartReordering");
         // Set the touch state to reordering (allows snapping to pages, dragging
         // a child, etc.)
         mTouchState = TOUCH_STATE_REORDERING;
@@ -2711,7 +2701,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     public boolean startReordering(View v) {
         int dragViewIndex = indexOfChild(v);
-        Log.e("lmq", "startReordering----mTouchState = " + mTouchState);
         if (mTouchState != TOUCH_STATE_REST)
             return false;
 

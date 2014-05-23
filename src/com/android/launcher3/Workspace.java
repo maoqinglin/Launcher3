@@ -127,9 +127,8 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     // The screen id used for the empty screen always present to the right.
     private final static long EXTRA_EMPTY_SCREEN_ID = -201;
     private final static long CUSTOM_CONTENT_SCREEN_ID = -301;
-    private final static long EXTRA_ADD_SCREEN_ID = -401; // add by linmaoqing
-                                                          // 2014-5-16
-
+    private final static long EXTRA_ADD_SCREEN_ID = -401; // add by linmaoqing 2014-5-16
+    private final static long EXTRA_NEW_SCREEN_ID = 1000;
     private HashMap<Long, CellLayout> mWorkspaceScreens = new HashMap<Long, CellLayout>();
     private ArrayList<Long> mScreenOrder = new ArrayList<Long>();
 
@@ -566,70 +565,63 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         newScreen.setOnClickListener(mLauncher);
         newScreen.setSoundEffectsEnabled(false);
         mWorkspaceScreens.put(screenId, newScreen);
-        Log.e("lmq", "insertNewWorkspaceScreen screenId = " + screenId);
         mScreenOrder.add(insertIndex, screenId);
         addView(newScreen, insertIndex);
         return screenId;
     }
 
+    //Much MUCH
     // add by linmaoqing
-    public long addNewScreen(long screenId, int insertIndex) {
-        Log.e("lmq", "addNewScreen  --screenId = " + screenId + "---insertIndex = " + insertIndex);
-        if (EXTRA_EMPTY_SCREEN_ID == screenId) {
-            if (mWorkspaceScreens.containsKey(screenId)) {
-                screenId = screenId * 10;
-            }
+    public long addNewScreen() {
+        long newId = LauncherAppState.getLauncherProvider().generateNewScreenId();
+        int insertIndex = getChildCount()-1;
+        if (mWorkspaceScreens.containsKey(newId)) {
+            throw new RuntimeException("Screen id " + newId + " already exists!");
         }
-        if (mWorkspaceScreens.containsKey(screenId)) {
-            throw new RuntimeException("Screen id " + screenId + " already exists!");
-        }
-
         CellLayout newScreen = (CellLayout) mLauncher.getLayoutInflater().inflate(R.layout.workspace_screen, null);
-        // ImageView image = new ImageView(getContext());
-        // image.setId((int)screenId);
-        // image.setBackground(getResources().getDrawable(R.drawable.much_preview_add_screen));
-        // newScreen.addView(image, new CellLayout.LayoutParams(3,3,1,1));
-        // image.setOnClickListener(mLauncher);
-        // image.setOnLongClickListener(mLongClickListener);
+        newScreen.getEmptyScreenHelper().setDelete(true);
         newScreen.setOnLongClickListener(mLongClickListener);
         newScreen.setOnClickListener(mLauncher);
         newScreen.setSoundEffectsEnabled(false);
-        mWorkspaceScreens.put(screenId, newScreen);
-        mScreenOrder.add(insertIndex, screenId);
-
+        mWorkspaceScreens.put(newId, newScreen);
+        mScreenOrder.add(insertIndex, newId);
+        mLauncher.getModel().updateWorkspaceScreenOrder(mLauncher, mScreenOrder);
         addView(newScreen, insertIndex);
-        newScreen.setBackgroundAlpha(mNewBackgroundAlphas[0]);
-        invalidate();
-        return screenId;
+        newScreen.setBackgroundAlpha(mNewBackgroundAlphas[0]); //设置背景透明度
+        setCurrentPage(Math.max(0, Math.min(insertIndex, getChildCount()-1))); //在overview状态重新设置当前页
+        return insertIndex;
+    }
+
+    //add by linmaoqing 2014-5-23
+    public void deleteNewEmptyScreen(View view){
+        if(view != null && view instanceof CellLayout){
+            CellLayout cl = (CellLayout)view;
+            long screenId = getIdForScreen(cl);
+            mWorkspaceScreens.remove(screenId);
+            mScreenOrder.remove(screenId);
+            removeView(cl);
+            mDragView = null;//dragview 需要置空，否则长按后会残留
+            mLauncher.getModel().updateWorkspaceScreenOrder(mLauncher, mScreenOrder);
+        }
     }
 
     // add by linmaoqing
     public long addCreatorScreen() {
-        Log.e("lmq", "addNewScreen  --screenId = " + EXTRA_ADD_SCREEN_ID + "---insertIndex = " + getChildCount());
         if (mWorkspaceScreens.containsKey(EXTRA_ADD_SCREEN_ID)) {
-            return -1;
-            // throw new RuntimeException("Screen id " + EXTRA_ADD_SCREEN_ID +
-            // " already exists!");
+             throw new RuntimeException("Screen id " + EXTRA_ADD_SCREEN_ID +" already exists!");
         }
 
         CellLayout newScreen = (CellLayoutCreator) mLauncher.getLayoutInflater().inflate(
                 R.layout.workspace_screen_creator, null);
-        ImageView image = new ImageView(getContext());
-        image.setBackground(getResources().getDrawable(R.drawable.much_preview_add_screen));
-        newScreen.addView(image, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        newScreen.setOnLongClickListener(mLongClickListener);
         newScreen.setOnClickListener(mLauncher);
         newScreen.setSoundEffectsEnabled(false);
         mWorkspaceScreens.put(EXTRA_ADD_SCREEN_ID, newScreen);
         mScreenOrder.add(getChildCount(), EXTRA_ADD_SCREEN_ID);
         addView(newScreen, getChildCount());
-        updateDragViewTranslationDuringDrag();
-        invalidate();
         return EXTRA_ADD_SCREEN_ID;
     }
 
-    public void deleteNewScreen(long screenId) {
-        Log.e("lmq", "deleteNewScreen  --screenId = " + screenId);
+    public void deleteCreatorScreen(long screenId) {
         CellLayout cl = mWorkspaceScreens.get(EXTRA_ADD_SCREEN_ID);
         mWorkspaceScreens.remove(EXTRA_ADD_SCREEN_ID);
         mScreenOrder.remove(EXTRA_ADD_SCREEN_ID);
@@ -734,7 +726,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     }
 
     public boolean addExtraEmptyScreen() {
-        Log.e("lmq", "addExtraEmptyScreen ---contain key = " + mWorkspaceScreens.containsKey(EXTRA_EMPTY_SCREEN_ID));
         if (!mWorkspaceScreens.containsKey(EXTRA_EMPTY_SCREEN_ID)) {
             insertNewWorkspaceScreen(EXTRA_EMPTY_SCREEN_ID);
             return true;
@@ -818,6 +809,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         int currentPage = getNextPage();
         ArrayList<Long> removeScreens = new ArrayList<Long>();
         for (Long id : mWorkspaceScreens.keySet()) {
+            if(MuchConfig.SUPPORT_MUCH_STYLE){
+                break;
+            }
             CellLayout cl = mWorkspaceScreens.get(id);
             if (id >= 0 && cl.getShortcutsAndWidgets().getChildCount() == 0) {
                 removeScreens.add(id);
@@ -847,8 +841,8 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 mScreenOrder.add(EXTRA_EMPTY_SCREEN_ID);
             }
         }
-
-        if (!removeScreens.isEmpty()) {
+        
+        if (MuchConfig.SUPPORT_MUCH_STYLE||!removeScreens.isEmpty()) {
             // Update the model if we have changed any screens
             mLauncher.getModel().updateWorkspaceScreenOrder(mLauncher, mScreenOrder);
         }
@@ -2040,7 +2034,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     }
 
     public boolean enterOverviewMode() {
-        Log.e("lmq", "enterOverviewMode mTouchState = " + mTouchState);
         if (mTouchState != TOUCH_STATE_REST) {
             return false;
         }
@@ -2130,32 +2123,47 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         this.addCellLayoutFlag = addCellLayoutFlag;
     }
 
+    //MUCH METHOD add by linmaoqing 2014-5-22
     public void addOrDeleteEmptyLayout(final State state) {
         if (MuchConfig.SUPPORT_MUCH_STYLE) {
-            Log.e("lmq", "mState==" + mState + "----contain key " + mWorkspaceScreens.containsKey(EXTRA_ADD_SCREEN_ID));
+            setEmptyScreenDeleteIcon(state);
             if (state == State.OVERVIEW && !mWorkspaceScreens.containsKey(EXTRA_ADD_SCREEN_ID)) {
                 addCreatorScreen();
                 setAddCellLayoutFlag(false);
                 return;
             }
             if (state == State.OVERVIEW && isAddCellLayoutFlag()) {
-                addNewScreen(EXTRA_EMPTY_SCREEN_ID, getChildCount() - 1);
+                addNewScreen();
                 setAddCellLayoutFlag(false);
                 return;
             }
             if (state == State.NORMAL && mWorkspaceScreens.containsKey(EXTRA_ADD_SCREEN_ID)) {
-                deleteNewScreen(EXTRA_ADD_SCREEN_ID);
+                deleteCreatorScreen(EXTRA_ADD_SCREEN_ID);
+            }
+        }
+    }
+
+    private void setEmptyScreenDeleteIcon(final State state) {
+        boolean isDelete = (state == State.OVERVIEW)?true:false;
+        int count = getChildCount();
+        for (int i = 0; i < count; i++) {
+            View child = getChildAt(i);
+            if(child instanceof CellLayoutCreator){
+                continue;
+            }
+            CellLayout cl = (CellLayout) child;
+            int childCount = cl.getShortcutsAndWidgets().getChildCount();
+            if(childCount == 0){
+                cl.getEmptyScreenHelper().setDelete(isDelete);
             }
         }
     }
 
     Animator getChangeStateAnimation(final State state, boolean animated, int delay, int snapPage) {
-        Log.e("lmq", "getChangeStateAnimation--state= " + state);
         if (MuchConfig.SUPPORT_MUCH_STYLE && isAddCellLayoutFlag()) {
 
         } else {
             if (mState == state) { // modify by linmaoqing
-                Log.e("lmq", "return ---mState = " + mState + "--state = " + state);
                 return null;
             }
         }
@@ -2187,7 +2195,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         boolean overviewToWorkspace = (oldStateIsOverview && stateIsNormal);
 
         mNewScale = 1.0f;
-        Log.e("lmq", "oldStateIsOverview = " + oldStateIsOverview + "---stateIsOverview = " + stateIsOverview);
         if (oldStateIsOverview) {
             disableFreeScroll(snapPage);
         } else if (stateIsOverview) {
@@ -4268,7 +4275,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+        if (MuchConfig.SUPPORT_MUCH_STYLE && !(mState == State.OVERVIEW)) {//modify by linmaoqing 2014-5-23
             // 因父类PagedView屏蔽了首页和尾页显示（getVisiblePages()/screenScrolled()）,父类dispatchDraw()只画可见的child
             boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING && mNextPage == INVALID_PAGE;
 
@@ -4281,6 +4288,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 int rightScreen;
                 boolean isScrollToRight = false;
                 int childCount = getChildCount();
+                if(childCount == 0){//add by linmaoqing 2014-5-22
+                    return ;
+                }
                 if (scrollPos < 0) {
                     leftScreen = childCount - 1;
                     rightScreen = 0;
@@ -4671,7 +4681,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     }
 
     private void moveToScreen(int page, boolean animate) {
-        Log.e("lmq", "moveToScreen---page = " + page);
         if (!isSmall()) {
             if (animate) {
                 snapToPage(page);

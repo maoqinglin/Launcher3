@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.Stack;
 
@@ -175,6 +176,10 @@ public class CellLayout extends ViewGroup {
     private final static PorterDuffXfermode sAddBlendMode =
             new PorterDuffXfermode(PorterDuff.Mode.ADD);
     private final static Paint sPaint = new Paint();
+    private DeleteEmptyScreenHelper mEmptyScreenHelper;  //add by linmaoqing 2014-5-22
+    public DeleteEmptyScreenHelper getEmptyScreenHelper() {
+        return mEmptyScreenHelper;
+    }
 
     public CellLayout(Context context) {
         this(context, null);
@@ -296,6 +301,9 @@ public class CellLayout extends ViewGroup {
                 mCountX, mCountY);
 
         addView(mShortcutsAndWidgets);
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            mEmptyScreenHelper = new DeleteEmptyScreenHelper(this);
+        }
     }
 
     public void enableHardwareLayer(boolean hasLayer) {
@@ -533,6 +541,10 @@ public class CellLayout extends ViewGroup {
                 canvas.restore();
             }
         }
+        //add by linmaoqing 2014-5-23
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            mEmptyScreenHelper.drawDeleteIcon(canvas, getScrollX(), getScrollY());
+        }//end by linmaoqing
     }
 
     @Override
@@ -3321,5 +3333,18 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
 
     public boolean lastDownOnOccupiedCell() {
         return mLastDownOnOccupiedCell;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // TODO Auto-generated method stub
+        boolean  result = super.onTouchEvent(event);
+        //add by linmaoqing 2014-5-22
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            if(mEmptyScreenHelper != null){
+                return mEmptyScreenHelper.onTouchEventDelete(result,event);
+            }
+        }//end by linmaoqing
+        return result;
     }
 }
