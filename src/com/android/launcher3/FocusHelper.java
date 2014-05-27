@@ -21,6 +21,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -28,6 +29,8 @@ import android.widget.TabWidget;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * A keyboard listener we set on all the workspace icons.
@@ -818,8 +821,15 @@ public class FocusHelper {
     static boolean handleFolderKeyEvent(View v, int keyCode, KeyEvent e) {
         ShortcutAndWidgetContainer parent = (ShortcutAndWidgetContainer) v.getParent();
         final CellLayout layout = (CellLayout) parent.getParent();
-        final ScrollView scrollView = (ScrollView) layout.getParent();
-        final Folder folder = (Folder) scrollView.getParent();
+        Folder folder = null; // delete final by linmaoqing 2014-5-27
+        if(MuchConfig.SUPPORT_MUCH_STYLE){ // add by linmaoqing 2014-5-27
+            final MuchFolderPageView pageView = (MuchFolderPageView)layout.getParent();
+            final LinearLayout linearLayout = (LinearLayout)pageView.getParent();
+            folder = (Folder)linearLayout.getParent();
+        }else{ // end by linmaoqing 2014-5-27
+            final ScrollView scrollView = (ScrollView) layout.getParent();
+            folder = (Folder) scrollView.getParent();
+        }
         View title = folder.mFolderName;
 
         final int action = e.getAction();

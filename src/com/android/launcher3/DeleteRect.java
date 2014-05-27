@@ -149,7 +149,6 @@ public class DeleteRect {
 			if (mIsTouchAlwaysInRect) {
 				mIsTouchAlwaysInRect = isTouchInRect(event);
 				if (mIsTouchAlwaysInRect) {
-					Log.e("lmq", "DeleteRect : " + mIsTouchAlwaysInRect);
 					isShowUninstallDialog = true;
 					deleteViewInScreen();
 					return true;

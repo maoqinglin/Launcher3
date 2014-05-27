@@ -807,7 +807,9 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
             // add begin by lilu 20140516
             if (MuchConfig.SUPPORT_MUCH_STYLE) {
                 // 首尾切换时，最后完成需要划动的距离
-                mCurrentPage = Math.max(0, Math.min((mNextPage + getPageCount()) % getPageCount(), getPageCount() - 1));
+                if(getPageCount() != 0){ //add by linmaoqing 2014-5-27
+                    mCurrentPage = Math.max(0, Math.min((mNextPage + getPageCount()) % getPageCount(), getPageCount() - 1));
+                }
                 final int newX = getScrollForPage(mCurrentPage);
                 scrollTo(newX, getScrollY());
             }
@@ -1696,7 +1698,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     // add begin by lilu 20140519
     protected int getOnePageOffset() {
-        if (mPageScrolls != null && mPageScrolls.length > 0) {
+        if (mPageScrolls != null && mPageScrolls.length > 1) {//modify by linmaoqing 2014-5-27 avoid divide by zero
             return (mPageScrolls[mPageScrolls.length - 1] - mPageScrolls[0]) / (mPageScrolls.length - 1);
         }
         return 0;

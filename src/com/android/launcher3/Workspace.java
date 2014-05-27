@@ -842,7 +842,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             }
         }
         
-        if (MuchConfig.SUPPORT_MUCH_STYLE||!removeScreens.isEmpty()) {
+        if (!removeScreens.isEmpty()) {
             // Update the model if we have changed any screens
             mLauncher.getModel().updateWorkspaceScreenOrder(mLauncher, mScreenOrder);
         }
@@ -967,6 +967,12 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (child instanceof DropTarget) {
             mDragController.addDropTarget((DropTarget) child);
         }
+        //add by linmaoqing 2014-5-26  新增的item也需要抖动
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            if(MuchAppShakeAndShareManager.getInstance().getDeleteState() != MuchAppShakeAndShareManager.ShakeState.DELETE_NONE){
+                MuchAppShakeAndShareManager.getInstance().toShake(child, true);
+            }
+        }//end by linmaoqing
     }
 
     /**
@@ -2280,6 +2286,11 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                         bgAnim.setInterpolator(mZoomInInterpolator);
                         bgAnim.addUpdateListener(new LauncherAnimatorUpdateListener() {
                             public void onAnimationUpdate(float a, float b) {
+                                if(MuchConfig.SUPPORT_MUCH_STYLE){ //add by linmaoqing 2014-5-27
+                                    if(i>=mOldBackgroundAlphas.length){
+                                        return;
+                                    }
+                                }//end by linmaoqing 2014-5-27
                                 cl.setBackgroundAlpha(a * mOldBackgroundAlphas[i] + b * mNewBackgroundAlphas[i]);
                             }
                         });
@@ -4071,7 +4082,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             } else {
                 cellLayout = getScreenWithId(mDragInfo.screenId);
             }
-            cellLayout.onDropChild(mDragInfo.cell);
+            if(MuchConfig.SUPPORT_MUCH_STYLE &&cellLayout!=null && mDragInfo.cell != null){//add by linmaoqing 2014-5-27 添加判空操作
+                cellLayout.onDropChild(mDragInfo.cell);
+            }
         }
         if ((d.cancelled || (beingCalledAfterUninstall && !mUninstallSuccessful)) && mDragInfo.cell != null) {
             mDragInfo.cell.setVisibility(VISIBLE);

@@ -120,7 +120,7 @@ public class MuchAppShakeAndShareManager {
       * @param state
       * @param isToDelete
       */
-    private void toShake(View view,boolean isShake){
+    void toShake(View view,boolean isShake){
         ShakeAnimationManager manager = ShakeAnimationManager.getInstance();
         if (view instanceof BubbleTextView) {
             BubbleTextView bubbleTextView = (BubbleTextView)view;
