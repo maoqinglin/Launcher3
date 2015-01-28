@@ -511,7 +511,7 @@ public class Launcher extends Activity
 
     /** To be overriden by subclasses to hint to Launcher that we have custom content */
     protected boolean hasCustomContentToLeft() {
-        return false;
+        return true;
     }
 
     /**
@@ -3733,6 +3733,9 @@ public class Launcher extends Activity
 
     @Override
     public void bindScreens(ArrayList<Long> orderedScreenIds) {
+    	 if (!mWorkspace.hasCustomContent() && hasCustomContentToLeft()) {
+             mWorkspace.createCustomContentPage();
+         }
         bindAddScreens(orderedScreenIds);
 
         // If there are no screens, we need to have an empty screen
@@ -3743,9 +3746,7 @@ public class Launcher extends Activity
         // Create the custom content page (this call updates mDefaultScreen which calls
         // setCurrentPage() so ensure that all pages are added before calling this).
         // The actual content of the custom page will be added during onFinishBindingItems().
-        if (!mWorkspace.hasCustomContent() && hasCustomContentToLeft()) {
-            mWorkspace.createCustomContentPage();
-        }
+       
     }
 
     @Override

@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
@@ -42,14 +40,12 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Region.Op;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.IBinder;
@@ -67,13 +63,13 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityManager;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.launcher3.FolderIcon.FolderRingAnimator;
 import com.android.launcher3.Launcher.CustomContentCallbacks;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.much.MuchConfig;
+import com.ireadygo.app.launcher.CustomPage;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of pages.
@@ -629,26 +625,43 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     }
 
     public void createCustomContentPage() {
-        CellLayout customScreen = (CellLayout) mLauncher.getLayoutInflater().inflate(R.layout.workspace_screen, null);
-
-        mWorkspaceScreens.put(CUSTOM_CONTENT_SCREEN_ID, customScreen);
-        mScreenOrder.add(0, CUSTOM_CONTENT_SCREEN_ID);
-
-        // We want no padding on the custom content
-        customScreen.setPadding(0, 0, 0, 0);
-
-        addFullScreenPage(customScreen);
-
-        // Ensure that the current page and default page are maintained.
-        mDefaultPage = mOriginalDefaultPage + 1;
-
-        // Update the custom content hint
-        mLauncher.updateCustomContentHintVisibility();
-        if (mRestorePage != INVALID_RESTORE_PAGE) {
-            mRestorePage = mRestorePage + 1;
-        } else {
-            setCurrentPage(getCurrentPage() + 1);
+//        CellLayout customScreen = (CellLayout)
+//                mLauncher.getLayoutInflater().inflate(R.layout.custom_page, null);
+//
+//        mWorkspaceScreens.put(CUSTOM_CONTENT_SCREEN_ID, customScreen);
+//        mScreenOrder.add(0, CUSTOM_CONTENT_SCREEN_ID);
+//
+//        // We want no padding on the custom content
+//        customScreen.setPadding(0, 0, 0, 0);
+//
+////        addFullScreenPage(customScreen);
+//        addView(customScreen, 0);
+//
+//        // Ensure that the current page and default page are maintained.
+//        mDefaultPage = mOriginalDefaultPage + 1;
+//
+//        // Update the custom content hint
+//        mLauncher.updateCustomContentHintVisibility();
+//        if (mRestorePage != INVALID_RESTORE_PAGE) {
+//            mRestorePage = mRestorePage + 1;
+//        } else {
+//            setCurrentPage(getCurrentPage() + 1);
+//        }
+    	long screenId = -1;
+    	int insertIndex = getChildCount();
+    	if (mWorkspaceScreens.containsKey(screenId)) {
+            throw new RuntimeException("Screen id " + screenId + " already exists!");
         }
+
+        CellLayout newScreen = (CellLayout)
+                mLauncher.getLayoutInflater().inflate(R.layout.custom_page, null);
+
+        newScreen.setOnLongClickListener(mLongClickListener);
+        newScreen.setOnClickListener(mLauncher);
+        newScreen.setSoundEffectsEnabled(false);
+        mWorkspaceScreens.put(screenId, newScreen);
+        mScreenOrder.add(insertIndex, screenId);
+        addView(newScreen, insertIndex);
     }
 
     public void removeCustomContentPage() {
@@ -813,6 +826,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 break;
             }
             CellLayout cl = mWorkspaceScreens.get(id);
+            if(cl instanceof CustomPage){
+            	continue;
+            }
             if (id >= 0 && cl.getShortcutsAndWidgets().getChildCount() == 0) {
                 removeScreens.add(id);
             }
@@ -3354,13 +3370,12 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         return distanceX * distanceX + distanceY * distanceY;
     }
 
-    /*
-     * 
-     * This method returns the CellLayout that is currently being dragged to. In
-     * order to drag to a CellLayout, either the touch point must be directly
-     * over the CellLayout, or as a second strategy, we see if the dragView is
-     * overlapping any CellLayout and choose the closest one
-     * 
+    /**
+     *
+     * This method returns the CellLayout that is currently being dragged to. In order to drag
+     * to a CellLayout, either the touch point must be directly over the CellLayout, or as a second
+     * strategy, we see if the dragView is overlapping any CellLayout and choose the closest one
+     *
      * Return null if no CellLayout is currently being dragged over
      */
     private CellLayout findMatchingPageForDragOver(DragView dragView, float originX, float originY, boolean exact) {
@@ -3518,6 +3533,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
         // Handle the drag over
         if (mDragTargetLayout != null) {
+        	if(mDragTargetLayout instanceof CustomPage){
+            	return;
+            }
             // We want the point to be mapped to the dragTarget.
             if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
                 mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);

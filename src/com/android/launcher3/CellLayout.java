@@ -2572,7 +2572,7 @@ public class CellLayout extends ViewGroup {
         return swapSolution.isSolution;
     }
 
-    int[] createArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
+ protected  int[] createArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY,
             View dragView, int[] result, int resultSpan[], int mode) {
         // First we determine if things have moved enough to cause a different layout
         result = findNearestArea(pixelX, pixelY, spanX, spanY, result);
@@ -3131,6 +3131,21 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
         }
     }
 
+    public void setAllOccupied(){
+    	for(int x = 0; x < mOccupied.length; x ++){
+    		boolean[] mOccupiedX = mOccupied[x];
+    		for(int y = 0; y < mOccupiedX.length; y ++){
+    			mOccupiedX[y] = true;
+    		}
+    	}
+    	for(int x = 0; x < mTmpOccupied.length; x ++){
+    		boolean[] mOccupiedX = mTmpOccupied[x];
+    		for(int y = 0; y < mTmpOccupied.length; y ++){
+    			mOccupiedX[y] = true;
+    		}
+    	}
+    }
+    
     @Override
     public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {
         return new CellLayout.LayoutParams(getContext(), attrs);
