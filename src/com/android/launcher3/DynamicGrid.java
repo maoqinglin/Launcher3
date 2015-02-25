@@ -311,9 +311,9 @@ class DeviceProfile {
                 transposeLayoutWithOrientation) {
             // Pad the left and right of the workspace with search/hotseat bar sizes
             if (MuchConfig.SUPPORT_MUCH_STYLE) {//增加横屏上部页面指示器的距离
-                padding.set(searchBarSpaceHeightPx,edgeMarginPx + (int)(0.5 * pageIndicatorHeightPx),
+                padding.set(searchBarSpaceHeightPx,edgeMarginPx,
                         hotseatBarHeightPx,
-                        edgeMarginPx);
+                        edgeMarginPx + (int)(0.5 * pageIndicatorHeightPx));
             } else {
                 padding.set(searchBarSpaceHeightPx, edgeMarginPx,
                         hotseatBarHeightPx, edgeMarginPx);
@@ -491,10 +491,10 @@ class DeviceProfile {
                 // Hide the page indicators when we have vertical search/hotseat
                 if (MuchConfig.SUPPORT_MUCH_STYLE) {
                     lp = (FrameLayout.LayoutParams) pageIndicator.getLayoutParams();
-                    lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.TOP;
+                    lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
                     lp.width = LayoutParams.WRAP_CONTENT;
                     lp.height = LayoutParams.WRAP_CONTENT;
-                    lp.bottomMargin = padding.height();
+                    lp.bottomMargin = 0;
                     pageIndicator.setLayoutParams(lp);
                 } else {
                     pageIndicator.setVisibility(View.GONE);
@@ -579,6 +579,10 @@ public class DynamicGrid {
         } else {
             //加载摩奇适配的配置文件
             deviceProfiles.add(new DeviceProfile("MUCH G2",
+            		670, 1230, 4, 4, 52, 11, 5, 52));
+            deviceProfiles.add(new DeviceProfile("MUCH Snail",
+            		670, 1230, 4, 4, 52, 11, 5, 52));
+            deviceProfiles.add(new DeviceProfile("W3D",
             		670, 1230, 4, 4, 52, 11, 5, 52));
         }
         //edit end by lilu 20140514

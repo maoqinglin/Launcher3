@@ -64,7 +64,7 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     private static final int INITIAL_ITEM_ANIMATION_DURATION = 350;
     private static final int FINAL_ITEM_ANIMATION_DURATION = 200;
     //added begin by lilu 20140515
-    private static final int MUCH_NUM_ITEMS_IN_PREVIEW = 16;
+    private static final int MUCH_NUM_ITEMS_IN_PREVIEW = 4;
     //added end by lilu 20140515
 
     // The degree to which the inner ring grows when accepting drop
@@ -514,10 +514,10 @@ public class FolderIcon extends LinearLayout implements FolderListener {
             PreviewItemDrawingParams params) {
         if(MuchConfig.SUPPORT_MUCH_STYLE) {
             int overlayAlpha = 80;
-            float totalScale = 0.25f;
+            float totalScale = 0.45f;
                         //因为Launcher3采用了相对坐标，因此需要加上getPaddingTop等偏移量
-            float transX = (index % 4) * (mIntrinsicIconSize * totalScale) + getPaddingLeft() - 2;
-            float transY = (index / 4) * (mIntrinsicIconSize * totalScale) + getPaddingTop() + 15;
+          float transX = (index % 2) * (mIntrinsicIconSize * totalScale) + getPaddingLeft() - 2;
+          float transY = (index / 2) * (mIntrinsicIconSize * totalScale) + getPaddingTop() + 15;
             if (params == null) {
                 params = new PreviewItemDrawingParams(transX, transY, totalScale, overlayAlpha);
             } else {
