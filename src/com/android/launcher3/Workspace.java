@@ -68,8 +68,8 @@ import android.widget.TextView;
 import com.android.launcher3.FolderIcon.FolderRingAnimator;
 import com.android.launcher3.Launcher.CustomContentCallbacks;
 import com.android.launcher3.LauncherSettings.Favorites;
+import com.android.launcher3.much.CustomPage;
 import com.android.launcher3.much.MuchConfig;
-import com.ireadygo.app.launcher.CustomPage;
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of pages.
