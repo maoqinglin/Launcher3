@@ -568,22 +568,15 @@ public class DynamicGrid {
         	// Larger tablet profiles always have system bars on the top & bottom
         	deviceProfiles.add(new DeviceProfile("Nexus 10",
         			727, 1207,  5, 8,  80, 14.4f,  9, 64));
-        	/*
-        deviceProfiles.add(new DeviceProfile("Nexus 7",
-                600, 960,  5, 5,  72, 14.4f,  5, 60));
-        deviceProfiles.add(new DeviceProfile("Nexus 10",
-                800, 1280,  5, 5,  80, 14.4f, (hasAA ? 7 : 6), 64));
-        	 */
         	deviceProfiles.add(new DeviceProfile("20-inch Tablet",
         			1527, 2527,  7, 7,  100, 20,  7, 72));
         } else {
             //加载摩奇适配的配置文件
-            deviceProfiles.add(new DeviceProfile("MUCH G2",
-            		670, 1230, 4, 4, 52, 11, 5, 52));
+//            deviceProfiles.add(new DeviceProfile("MUCH G2",
+//            		670, 1230, 4, 4, 52, 11, 5, 52));
             deviceProfiles.add(new DeviceProfile("MUCH Snail",
-            		670, 1230, 4, 4, 52, 11, 5, 52));
-            deviceProfiles.add(new DeviceProfile("W3D",
-            		670, 1230, 4, 4, 52, 11, 5, 52));
+            		670, 1230, 4, 4, 53, 11, 5, 53));
+
         }
         //edit end by lilu 20140514
         mMinWidth = dpiFromPx(minWidthPx, dm);

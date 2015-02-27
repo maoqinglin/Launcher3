@@ -18,6 +18,7 @@
 -->
 
 <resources>
+
     <style name="Theme.WallpaperCropper" parent="@android:style/Theme.Holo">
         <item name="android:actionBarStyle">@style/WallpaperCropperActionBar</item>
         <item name="android:windowFullscreen">true</item>
@@ -48,6 +49,7 @@
         <item name="android:textSize">16sp</item>
         <item name="android:background">@drawable/cling_button_bg</item>
     </style>
+
     <style name="ClingTitleText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -56,12 +58,14 @@
         <item name="android:textColor">#ffffff</item>
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
+
     <style name="ClingAltTitleText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">24sp</item>
         <item name="android:textColor">#49C0EC</item>
     </style>
+
     <style name="ClingText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -69,6 +73,7 @@
         <item name="android:textColor">#80000000</item>
         <item name="android:lineSpacingMultiplier">1.1</item>
     </style>
+
     <style name="ClingHintText">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -90,10 +95,17 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
-    <style name="WorkspaceIcon.Portrait">
+    <style name="StoreMenuTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center|bottom</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingBottom">11dp</item>
     </style>
-    <style name="WorkspaceIcon.Landscape">
-    </style>
+
+    <style name="WorkspaceIcon.Portrait"></style>
+
+    <style name="WorkspaceIcon.Landscape"></style>
 
     <style name="WorkspaceIcon.AppsCustomize">
         <item name="android:background">@null</item>
@@ -106,14 +118,16 @@
     <style name="QSBBar">
         <item name="android:orientation">horizontal</item>
     </style>
-    <style name="SearchDropTargetBar">
-    </style>
-    <style name="SearchButton">
-    </style>
+
+    <style name="SearchDropTargetBar"></style>
+
+    <style name="SearchButton"></style>
+
     <style name="DropTargetButtonContainer">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
     </style>
+
     <style name="DropTargetButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">match_parent</item>
@@ -146,6 +160,7 @@
         <item name="android:singleLine">true</item>
         <item name="android:ellipsize">end</item>
     </style>
+
     <style name="TabIndicator.AppsCustomize">
         <!-- Overridden in values-land -->
     </style>
@@ -162,8 +177,8 @@
     </style>
 
     <!-- Overridden in device overlays -->
-    <style name="CustomClingTitleText">
-    </style>
-    <style name="CustomClingText">
-    </style>
+    <style name="CustomClingTitleText"></style>
+
+    <style name="CustomClingText"></style>
+
 </resources>

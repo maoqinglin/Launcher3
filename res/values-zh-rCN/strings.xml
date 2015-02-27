@@ -132,4 +132,12 @@
     <string name="much_uninstall_app_dialog_title">提示!</string>
     <string name="much_uninstall_app_dialog_done">确定</string>
     <string name="much_uninstall_app_dialog_cancel">取消</string>
+
+        <!-- 首页菜单标题 -->
+    <string name="much_store_recommend_title">推荐</string>
+    <string name="much_store_category_title">分类</string>
+    <string name="much_store_collection_title">合集</string>
+    <string name="much_store_search_title">搜索</string>
+    <string name="much_store_manage_title">下载管理</string>
+    <string name="much_store_settings_title">商店设置</string>
 </resources>

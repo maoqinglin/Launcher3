@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingLeft="28dp"
+        android:paddingLeft="34dp"
         android:paddingTop="38dp" >
 
         <LinearLayout
@@ -16,25 +16,41 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/store_ad_large" />
+            <FrameLayout
+                android:layout_width="292dp"
+                android:layout_height="130dp" >
+
+                <com.android.launcher3.much.ui.widget.autoscrollviewpager.AutoScrollViewPager
+                    android:id="@+id/storeRecommendViewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:focusable="true" />
+
+                <LinearLayout
+                    android:id="@+id/storeRecommendDots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="5dp"
+                    android:orientation="horizontal" />
+            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
+                android:layout_marginTop="9dp"
                 android:orientation="horizontal" >
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/store_ad_right_1"
+                    android:layout_width="144dp"
+                    android:layout_height="70dp"
                     android:src="@drawable/store_ad_small1" />
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/store_ad_right_2"
+                    android:layout_width="144dp"
+                    android:layout_height="70dp"
                     android:layout_marginLeft="4dp"
                     android:src="@drawable/store_ad_small2" />
             </LinearLayout>
@@ -44,48 +60,110 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="26dp" >
+            android:paddingTop="29dp" >
 
-            <ImageView
+            <FrameLayout
                 android:id="@+id/recommend_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:src="@drawable/store_recommend_normal" />
+                android:layout_marginRight="29dp" >
 
-            <ImageView
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/store_recommend_normal" />
+
+                <TextView
+                    style="@style/StoreMenuTitle"
+                    android:text="@string/much_store_recommend_title" />
+            </FrameLayout>
+
+            <FrameLayout
                 android:id="@+id/category_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:src="@drawable/store_category_normal" />
+                android:layout_marginRight="29dp" >
 
-            <ImageView
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/store_category_normal" />
+
+                <TextView
+                    style="@style/StoreMenuTitle"
+                    android:text="@string/much_store_category_title" />
+            </FrameLayout>
+
+            <FrameLayout
                 android:id="@+id/collection_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:src="@drawable/store_collection_normal" />
+                android:layout_marginRight="29dp" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/store_collection_normal" />
+
+                <TextView
+                    style="@style/StoreMenuTitle"
+                    android:text="@string/much_store_collection_title" />
+            </FrameLayout>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="26dp"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:paddingTop="29dp" >
 
-            <ImageView
+            <FrameLayout
                 android:id="@+id/search_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="4dp"
-                android:src="@drawable/store_search_normal" />
+                android:layout_marginRight="29dp" >
 
-            <ImageView
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/store_search_normal" />
+
+                <TextView
+                    style="@style/StoreMenuTitle"
+                    android:text="@string/much_store_search_title" />
+            </FrameLayout>
+
+            <FrameLayout
                 android:id="@+id/manager_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/store_manage_normal" />
+                android:layout_marginRight="29dp" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/store_manage_normal" />
+
+                <TextView
+                    style="@style/StoreMenuTitle"
+                    android:text="@string/much_store_manage_title" />
+            </FrameLayout>
+
+            <FrameLayout
+                android:id="@+id/settings_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="29dp" >
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/store_settings_normal" />
+
+                <TextView
+                    style="@style/StoreMenuTitle"
+                    android:text="@string/much_store_settings_title" />
+            </FrameLayout>
         </LinearLayout>
     </LinearLayout>
 

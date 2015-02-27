@@ -107,6 +107,9 @@ public class IconDecorater {
         if (mThemeApps.contains(app)) {
             ThemeApp item = mThemeApps.get(mThemeApps.indexOf(app));
             icon = LoadThemeUtil.getThemeIcon(mContext, item);
+            if (LoadThemeUtil.THEME_APP_NEED_DECORATE && icon != null) {
+                icon = decorateIcon(mContext.getResources(), icon);
+            }
         }
 
         if (icon == null) {

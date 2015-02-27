@@ -22,11 +22,11 @@ import android.graphics.BitmapFactory;
 import com.android.launcher3.R;
 
 public class LoadThemeUtil {
+    public static final boolean THEME_APP_NEED_DECORATE = true;
     private static final String THEME = "much_theme.xml";
     private static final String SEPARATOR = "/";
-    private static final String THEME_ID = "appfilter";
+    private static final String THEME_ID = "appfilter_snail";
     private static final String THEME_ICON_PATTERN = THEME_ID + SEPARATOR + "much_icon_bg.png";
-    private static final String THEME_ICON_PATTERN_TRANSLUCENT = THEME_ID + SEPARATOR + "much_icon_translucent_bg.png";
     private static final String THEME_ICON_MASK = THEME_ID + SEPARATOR + "much_icon_mask.png";
 
     public static class ThemeApp {
@@ -123,12 +123,12 @@ public class LoadThemeUtil {
     }
 
     public static Bitmap getIconPattern(Context context) {
-        String path;
-        if(MuchConfig.getInstance().isLauncherShortcutNeedBg()){
-            path = THEME_ICON_PATTERN;
-        }else{
-            path = THEME_ICON_PATTERN_TRANSLUCENT;
-        }
+        String path = THEME_ICON_PATTERN;
+//        if(MuchConfig.getInstance().isLauncherShortcutNeedBg()){
+//            path = THEME_ICON_PATTERN;
+//        }else{
+//            path = THEME_ICON_PATTERN_TRANSLUCENT;
+//        }
         Bitmap bitmap = getThemeIcon(context, path);
         if (bitmap == null) {
             bitmap = BitmapFactory.decodeResource(context.getResources(),
