@@ -316,4 +316,5 @@ s -->
     <string name="much_store_search_title">Search</string>
     <string name="much_store_manage_title">Manage</string>
     <string name="much_store_settings_title">Settings</string>
+    <string name="much_free_app_store_title">Mian-Store</string>
 </resources>

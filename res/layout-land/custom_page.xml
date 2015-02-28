@@ -8,11 +8,31 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingTop="28dp" >
+        android:paddingTop="13dp" >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="6dp"
+                android:src="@drawable/ic_free_app_store" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/much_free_app_store_title"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
             android:orientation="horizontal" >
 
             <FrameLayout
@@ -70,7 +90,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/store_recommend_normal" />
+                    android:src="@drawable/store_recommend_selector" />
 
                 <TextView
                     style="@style/StoreMenuTitle"
@@ -86,7 +106,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/store_category_normal" />
+                    android:src="@drawable/store_category_selector" />
 
                 <TextView
                     style="@style/StoreMenuTitle"
@@ -102,7 +122,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/store_collection_normal" />
+                    android:src="@drawable/store_collection_selector" />
 
                 <TextView
                     style="@style/StoreMenuTitle"
@@ -118,7 +138,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/store_search_normal" />
+                    android:src="@drawable/store_search_selector" />
 
                 <TextView
                     style="@style/StoreMenuTitle"
@@ -134,7 +154,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/store_manage_normal" />
+                    android:src="@drawable/store_manage_selector" />
 
                 <TextView
                     style="@style/StoreMenuTitle"
@@ -150,7 +170,7 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/store_settings_normal" />
+                    android:src="@drawable/store_settings_selector" />
 
                 <TextView
                     style="@style/StoreMenuTitle"

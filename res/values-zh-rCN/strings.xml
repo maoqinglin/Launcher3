@@ -145,5 +145,6 @@
     <string name="much_store_search_title">搜索</string>
     <string name="much_store_manage_title">下载管理</string>
     <string name="much_store_settings_title">商店设置</string>
+    <string name="much_free_app_store_title">免商店</string>
 
 </resources>
