@@ -3849,14 +3849,14 @@ public class Launcher extends Activity
             }
 
             //add begin by lilu 20140521
-            if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
-                if(MuchConfig.SUPPORT_MUCH_STYLE && item.screenId == 0) {
-                    int max = Math.max(item.cellX, item.cellY);
-                    int min = Math.min(item.cellX, item.cellY);
-                    item.cellX = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? max : min;
-                    item.cellY = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? min : max;
-                }
-            }
+//            if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
+//                if(MuchConfig.SUPPORT_MUCH_STYLE && item.screenId == 0) {
+//                    int max = Math.max(item.cellX, item.cellY);
+//                    int min = Math.min(item.cellX, item.cellY);
+//                    item.cellX = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? max : min;
+//                    item.cellY = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE ? min : max;
+//                }
+//            }
             //add end by lilu 20140521
 
             switch (item.itemType) {

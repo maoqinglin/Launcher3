@@ -13,8 +13,8 @@ public class MuchFolderPagedViewIndicator extends PagedViewIndicator implements 
 
 	public MuchFolderPagedViewIndicator(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		mWhilteDot = BitmapFactory.decodeResource(getResources(), R.drawable.much_pagedview_indicator_selected);
-		mBlackDot = BitmapFactory.decodeResource(getResources(), R.drawable.much_pagedview_indicator_unselected);
+		mWhilteDot = BitmapFactory.decodeResource(getResources(), R.drawable.page_indicator_selected);
+		mBlackDot = BitmapFactory.decodeResource(getResources(), R.drawable.page_indicator_normal);
 		maxWidth = Math.max(mWhilteDot.getWidth(), mBlackDot.getWidth());
 		maxHeigth = Math.max(mWhilteDot.getHeight(), mBlackDot.getHeight());
 		mPadding = getResources().getDimensionPixelSize(R.dimen.much_workspace_indicator_item_padding);
@@ -22,7 +22,7 @@ public class MuchFolderPagedViewIndicator extends PagedViewIndicator implements 
 	}
 
 	public int getMaxHeigh() {
-		return maxHeigth + 6;
+		return maxHeigth + 12;
 	}
 
 	public MuchFolderPagedViewIndicator(Context context) {
@@ -31,8 +31,8 @@ public class MuchFolderPagedViewIndicator extends PagedViewIndicator implements 
 
 	public MuchFolderPagedViewIndicator(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mWhilteDot = BitmapFactory.decodeResource(getResources(), R.drawable.much_pagedview_indicator_selected);
-		mBlackDot = BitmapFactory.decodeResource(getResources(), R.drawable.much_pagedview_indicator_unselected);
+		mWhilteDot = BitmapFactory.decodeResource(getResources(), R.drawable.page_indicator_selected);
+		mBlackDot = BitmapFactory.decodeResource(getResources(), R.drawable.page_indicator_normal);
 		maxWidth = Math.max(mWhilteDot.getWidth(), mBlackDot.getWidth());
 		maxHeigth = Math.max(mWhilteDot.getHeight(), mBlackDot.getHeight());
 		mPadding = getResources().getDimensionPixelSize(R.dimen.much_workspace_indicator_item_padding);

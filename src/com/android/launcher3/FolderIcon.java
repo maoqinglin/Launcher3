@@ -153,7 +153,8 @@ public class FolderIcon extends LinearLayout implements FolderListener {
         // Offset the preview background to center this view accordingly
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) icon.mPreviewBackground.getLayoutParams();
-        lp.topMargin = grid.folderBackgroundOffset;
+//        lp.topMargin = grid.folderBackgroundOffset;
+        lp.topMargin = 0;
         lp.width = grid.folderIconSizePx;
         lp.height = grid.folderIconSizePx;
 
@@ -514,10 +515,10 @@ public class FolderIcon extends LinearLayout implements FolderListener {
             PreviewItemDrawingParams params) {
         if(MuchConfig.SUPPORT_MUCH_STYLE) {
             int overlayAlpha = 80;
-            float totalScale = 0.45f;
+            float totalScale = 0.37f;
                         //因为Launcher3采用了相对坐标，因此需要加上getPaddingTop等偏移量
-          float transX = (index % 2) * (mIntrinsicIconSize * totalScale) + getPaddingLeft() - 2;
-          float transY = (index / 2) * (mIntrinsicIconSize * totalScale) + getPaddingTop() + 15;
+          float transX = (index % 2) * (mIntrinsicIconSize * totalScale + (index + 1)) + getPaddingLeft() - 1;
+          float transY = (index / 2) * (mIntrinsicIconSize * totalScale + (index + 1)) + getPaddingTop() + 15;
             if (params == null) {
                 params = new PreviewItemDrawingParams(transX, transY, totalScale, overlayAlpha);
             } else {

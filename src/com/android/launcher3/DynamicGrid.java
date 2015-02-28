@@ -226,7 +226,8 @@ class DeviceProfile {
         folderCellWidthPx = cellWidthPx + 3 * edgeMarginPx;
         folderCellHeightPx = cellHeightPx + (int) ((3f/2f) * edgeMarginPx);
         folderBackgroundOffset = -edgeMarginPx;
-        folderIconSizePx = iconSizePx + 2 * -folderBackgroundOffset;
+//        folderIconSizePx = iconSizePx + 2 * -folderBackgroundOffset;
+        folderIconSizePx = iconSizePx;
     }
 
     void updateFromConfiguration(Resources resources, int wPx, int hPx,

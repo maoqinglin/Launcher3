@@ -109,7 +109,7 @@
     <dimen name="much_app_icon_size">53dp</dimen>
     <dimen name="folder_cell_width">74dp</dimen>
     <dimen name="folder_cell_height">80dp</dimen>
-    <dimen name="much_workspace_indicator_item_padding">6dp</dimen>
+    <dimen name="much_workspace_indicator_item_padding">10dp</dimen>
     
     <!-- Workspace cell size -->
     <dimen name="workspace_cell_width_land">106dp</dimen>

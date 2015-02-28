@@ -16,24 +16,14 @@
 
 package com.android.launcher3;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import java.util.ArrayList;
+
 import android.animation.LayoutTransition;
-import android.animation.TimeInterpolator;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import com.android.launcher3.R;
-
-import java.util.ArrayList;
 
 public class PageIndicator extends LinearLayout {
     @SuppressWarnings("unused")
@@ -54,8 +44,10 @@ public class PageIndicator extends LinearLayout {
         int inactiveId;
 
         public PageMarkerResources() {
-            activeId = R.drawable.ic_pageindicator_current;
-            inactiveId = R.drawable.ic_pageindicator_default;
+//            activeId = R.drawable.ic_pageindicator_current;
+//            inactiveId = R.drawable.ic_pageindicator_default;
+            activeId = R.drawable.page_indicator_selected;
+            inactiveId = R.drawable.page_indicator_normal;
         }
         public PageMarkerResources(int aId, int iaId) {
             activeId = aId;

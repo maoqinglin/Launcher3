@@ -1625,11 +1625,11 @@ public class LauncherModel extends BroadcastReceiver {
 
             // Make sure the default workspace is loaded, if needed
             //edit begin by lilu 20140514
-            if (Build.MODEL.startsWith("MUCH i")) {
-            	LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace_i5 : 0);
-            } else {
-            	LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace : 0);
-            }
+            LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace : 0);
+//            if (Build.MODEL.startsWith("MUCH i")) {
+//            	LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace_i5 : 0);
+//            } else {
+//            }
             //edit end by lilu 20140514
 
             // Check if we need to do any upgrade-path logic

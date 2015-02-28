@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
 /*
 * Copyright (C) 2008 The Android Open Source Project
 *
@@ -15,20 +15,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
- -->
+-->
 
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="application_name" msgid="5181331383435256801">"Launcher3"</string>
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="application_name" msgid="5181331383435256801">"蜗牛桌面"</string>
     <string name="home" msgid="7658288663002113681">"主屏"</string>
     <string name="uid_name" msgid="7820867637514617527">"Android 核心应用"</string>
     <string name="folder_name" msgid="7371454440695724752"></string>
     <string name="wallpaper_instructions" msgid="563973358787555519">"设置壁纸"</string>
-  <plurals name="number_of_items_selected">
-    <item quantity="zero" msgid="7464587177007785408">"已选择%1$d项"</item>
-    <item quantity="one" msgid="142482526010824029">"已选择%1$d项"</item>
-    <item quantity="other" msgid="1418352074806573570">"已选择%1$d项"</item>
-  </plurals>
+
+    <plurals name="number_of_items_selected">
+        <item msgid="7464587177007785408" quantity="zero">"已选择%1$d项"</item>
+        <item msgid="142482526010824029" quantity="one">"已选择%1$d项"</item>
+        <item msgid="1418352074806573570" quantity="other">"已选择%1$d项"</item>
+    </plurals>
+
     <string name="wallpaper_accessibility_name" msgid="1655953108132967972">"第%1$d张壁纸，共%2$d张"</string>
     <string name="announce_selection" msgid="8338254712932127413">"已选择<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="wallpaper_delete" msgid="8095005658756613921">"删除"</string>
@@ -123,8 +125,11 @@
     <string name="settings_button_text" msgid="8119458837558863227">"设置"</string>
 
     <!-- MUCH -->
+    <string name="much_folder_name_tool">工具</string>
+    <string name="much_folder_name_common">常用</string>
+    <string name="much_folder_name_attachment">附件</string>
     <string name="much_visit_mode">当前处于访客模式，不能进行该操作!</string>
-        <string name="much_share_message_with_url">我在#摩奇游戏手机#下载了"%1$s", 下载地址:"%2$s",  一起来玩吧！</string>
+    <string name="much_share_message_with_url">我在#摩奇游戏手机#下载了"%1$s", 下载地址:"%2$s",  一起来玩吧！</string>
     <string name="much_share_message_without_url">我用#摩奇游戏手机#正在玩"%1$s"，一起来玩吧！</string>
     <string name="much_share_subject">分享！</string>
     <string name="much_share_send_to_title">分享！</string>
@@ -133,11 +138,12 @@
     <string name="much_uninstall_app_dialog_done">确定</string>
     <string name="much_uninstall_app_dialog_cancel">取消</string>
 
-        <!-- 首页菜单标题 -->
+    <!-- 首页菜单标题 -->
     <string name="much_store_recommend_title">推荐</string>
     <string name="much_store_category_title">分类</string>
     <string name="much_store_collection_title">合集</string>
     <string name="much_store_search_title">搜索</string>
     <string name="much_store_manage_title">下载管理</string>
     <string name="much_store_settings_title">商店设置</string>
+
 </resources>
