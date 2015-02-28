@@ -53,6 +53,9 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 	@Override
 	public int getCount() {
 		// Infinite loop
+		if (getSize(mBannerImageList) == 0) {
+			return 0;
+		}
 		return isInfiniteLoop ? Integer.MAX_VALUE : getSize(mBannerImageList);
 	}
 
@@ -92,6 +95,7 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 		} else {
 			holder.imageView.setImageDrawable(mBannerImageList.get(getPosition(position)));
 		}
+		holder.imageView.setClickable(true);
 		holder.imageView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

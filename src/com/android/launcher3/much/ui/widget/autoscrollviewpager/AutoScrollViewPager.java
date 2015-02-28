@@ -8,6 +8,7 @@ import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.animation.Interpolator;
@@ -75,6 +76,9 @@ public class AutoScrollViewPager extends ViewPager {
 	private CustomDurationScroller scroller = null;
 
 	public static final int SCROLL_WHAT = 0;
+
+	private float mX;
+	private float mY;
 
 	public AutoScrollViewPager(Context paramContext) {
 		super(paramContext);
@@ -148,9 +152,28 @@ public class AutoScrollViewPager extends ViewPager {
 		}
 	}
 
+
 	@Override
-	public boolean onInterceptTouchEvent(MotionEvent arg0) {
-		return true;
+	public boolean onInterceptTouchEvent(MotionEvent event) {
+		int action = event.getAction();
+		switch (action) {
+		case MotionEvent.ACTION_DOWN:
+			mX = event.getX();
+			mY = event.getY();
+			break;
+		case MotionEvent.ACTION_MOVE:
+			if (Math.abs(event.getX() - mX) > 0) {
+				return true;
+			}
+			break;
+		case MotionEvent.ACTION_UP:
+			mX = 0;
+			mY = 0;
+			break;
+		default:
+			break;
+		}
+		return super.onInterceptTouchEvent(event);
 	}
 
 	/**

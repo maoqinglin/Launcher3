@@ -1,12 +1,17 @@
 package com.android.launcher3.much;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -26,6 +31,18 @@ public class CustomPage extends CellLayout implements OnClickListener {
 
 	private static final String ACTION_FREE_STORE = "com.ireadygo.app.freestore.STORE_DETAIL";
 	private static final String EXTRA_OUTSIDE_TAG = "EXTRA_OUTSIDE_TAG";
+	private static final String ACTION_BANNER_UPDATE = "com.ireadygo.app.gamelauncher.ACTION_INFO_BANNER_CHANGE";
+	private static final String BANNER_IMAGE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
+			+ "iReadyGo" + File.separator + "appstore" + File.separator
+			+ "banner";
+	private static final String AUTO_BANNER_IMAGE_PATH = BANNER_IMAGE_PATH + File.separator + "auto" + File.separator;
+	private static final String STATIC_BANNER_IMAGE_PATH = BANNER_IMAGE_PATH + File.separator + "static" + File.separator;
+	private static final String ACTION_BANNER_CLICK = "com.ireadygo.app.gamelauncher.ACTION_BANNER_CLICK";
+	private static final String EXTRA_POSITION = "EXTRA_POSITION";
+	private static final String EXTRA_INDEX = "EXTRA_INDEX";
+	private static final String ACTION_GET_BANNER = "com.ireadygo.app.gamelauncher.ACTION_GET_BANNER";
+	private static final int BANNER_LEFT = 1;
+	private static final int BANNER_RIGHT = 2;
 	private Context mContext;
 	private AutoScrollViewPager mAutoScrollViewPager;
 	private ImageView mAdImageRT;
@@ -52,6 +69,7 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		super(context);
 		mContext = context;
 	}
+
 
 	@Override
 	protected int[] createArea(int pixelX, int pixelY, int minSpanX, int minSpanY, int spanX, int spanY, View dragView,
@@ -80,7 +98,12 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		case R.id.settings_btn:
 			jumpToFreeStoreMenu(Destination.STORE_SETTINGS.toString());
 			break;
-
+		case R.id.store_ad_right_1:
+			clickFreeStoreBanner(BANNER_RIGHT, 0);
+			break;
+		case R.id.store_ad_right_2:
+			clickFreeStoreBanner(BANNER_RIGHT, 1);
+			break;
 		default:
 			break;
 		}
@@ -103,15 +126,26 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		settingsBtn.setOnClickListener(this);
 
 		initViewPager();
-		addTestData();
+		addDefaultBannerImage();
 		updateLeftAdBanner();
 		updateRightAdBanner();
 		updateDotLayout();
 		initListener();
+		initBroadcast();
+		updateBannerData();
+		fetchBannerImage();
 	}
 
 	private void initViewPager() {
 		mAutoScrollViewPager = (AutoScrollViewPager)findViewById(R.id.storeRecommendViewPager);
+		mImagePagerAdapter = new ImagePagerAdapter(mContext, mAdLeftBannerList);
+		mImagePagerAdapter.setOnClickListener(mLeftBannerOnClickListener);
+		mImagePagerAdapter.setInfiniteLoop(true);
+		mAutoScrollViewPager.setAdapter(mImagePagerAdapter);
+		mAutoScrollViewPager.setCurrentItem(mAdLeftBannerList.size() * 10000);
+		mAutoScrollViewPager.setBorderAnimation(true);
+		mAutoScrollViewPager.setScrollDurationFactor(4.0);
+		mAutoScrollViewPager.startAutoScroll();
 		mDotsLayout = (ViewGroup)findViewById(R.id.storeRecommendDots);
 		mAdImageRT = (ImageView)findViewById(R.id.store_ad_right_1);
 		mAdImageRB = (ImageView)findViewById(R.id.store_ad_right_2);
@@ -119,32 +153,56 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		mAdImageRB.setOnClickListener(this);
 	}
 
+	private void initBroadcast() {
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(ACTION_BANNER_UPDATE);
+		mContext.registerReceiver(mReceiver, intentFilter);
+	}
+
 	private void updateLeftAdBanner() {
-		if (!mAdLeftBannerList.isEmpty()) {
-			mImagePagerAdapter = new ImagePagerAdapter(mContext, mAdLeftBannerList);
-			mImagePagerAdapter.setOnClickListener(mLeftBannerOnClickListener);
-			mImagePagerAdapter.setInfiniteLoop(true);
-			mAutoScrollViewPager.setAdapter(mImagePagerAdapter);
-			mAutoScrollViewPager.setCurrentItem(mAdLeftBannerList.size() * 10000);
-			mAutoScrollViewPager.setBorderAnimation(true);
-			mAutoScrollViewPager.setScrollDurationFactor(4.0);
-			mAutoScrollViewPager.startAutoScroll();
+		if (mImagePagerAdapter != null) {
+			mImagePagerAdapter.notifyDataSetChanged();
 		}
 	}
 
-	private void addTestData() {
-		mAdLeftBannerList.add((BitmapDrawable)mContext.getResources().getDrawable(R.drawable.store_ad_large));
-		mAdLeftBannerList.add((BitmapDrawable)mContext.getResources().getDrawable(R.drawable.store_ad_large));
-		mAdLeftBannerList.add((BitmapDrawable)mContext.getResources().getDrawable(R.drawable.store_ad_large));
-		mAdRightBannerList.add((BitmapDrawable)mContext.getResources().getDrawable(R.drawable.store_ad_small1));
-		mAdRightBannerList.add((BitmapDrawable)mContext.getResources().getDrawable(R.drawable.store_ad_small2));
+
+	private void updateBannerData() {
+		mAdLeftBannerList.clear();
+		mAdRightBannerList.clear();
+		//读取auto类型文件
+		File autoFile = new File(AUTO_BANNER_IMAGE_PATH);
+		if (autoFile.exists() && autoFile.list() != null) {
+			String [] fileNames = autoFile.list();
+			for (String fileName : fileNames) {
+				mAdLeftBannerList.add(new BitmapDrawable(getResources(), AUTO_BANNER_IMAGE_PATH + fileName));
+			}
+		}
+		//读取static类型
+		File staticFile = new File(STATIC_BANNER_IMAGE_PATH);
+		if (staticFile.exists() && staticFile.list() != null) {
+			String [] fileNames = staticFile.list();
+			for (String fileName : fileNames) {
+				mAdRightBannerList.add(new BitmapDrawable(getResources(), STATIC_BANNER_IMAGE_PATH + fileName));
+			}
+		}
+		if (mAdLeftBannerList.size() > 0) {
+			updateLeftAdBanner();
+			updateDotLayout();
+		}
+		if (mAdRightBannerList.size() > 0) {
+			updateRightAdBanner();
+		}
 	}
 
 	private void updateRightAdBanner() {
-		if (mAdRightBannerList.size() == 2) {
+		if (mAdRightBannerList.size() >= 2) {
 			mAdImageRT.setImageDrawable(mAdRightBannerList.get(0));
 			mAdImageRB.setImageDrawable(mAdRightBannerList.get(1));
 		}
+	}
+
+	private void addDefaultBannerImage() {
+		mAdLeftBannerList.add((BitmapDrawable)getResources().getDrawable(R.drawable.store_ad_large));
 	}
 
 	private void updateDotLayout() {
@@ -167,6 +225,7 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		
 		@Override
 		public void onItemChildViewClick(View view, int index) {
+			clickFreeStoreBanner(BANNER_LEFT, index);
 		}
 	};
 
@@ -176,8 +235,11 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		mContext.startActivity(intent);
 	}
 
-	private void clickFreeStoreBanner(int position,int count) {
-		
+	private void clickFreeStoreBanner(int position,int index) {
+		Intent intent = new Intent(ACTION_BANNER_CLICK);
+		intent.putExtra(EXTRA_POSITION, position);
+		intent.putExtra(EXTRA_INDEX, index);
+		mContext.sendBroadcast(intent);
 	}
 
 
@@ -210,6 +272,26 @@ public class CustomPage extends CellLayout implements OnClickListener {
 			}
 		});
 	}
+
+	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+			if (ACTION_BANNER_UPDATE.equals(action)) {
+				new Handler().post(new Runnable() {
+					@Override
+					public void run() {
+						updateBannerData();
+					}
+				});
+			}
+		}
+	};
+
+	private void fetchBannerImage() {
+		Intent intent = new Intent(ACTION_GET_BANNER);
+		mContext.sendBroadcast(intent);
+	}
+
 
 	public enum Destination {
 		GAME_DETAIL, STORE_RECOMMEND, STORE_CATEGORY, STORE_COLLECTION, STORE_SEARCH, STORE_GAME_MANAGE, //

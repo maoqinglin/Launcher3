@@ -42,14 +42,14 @@
 
                 <ImageView
                     android:id="@+id/store_ad_right_1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="150dp"
+                    android:layout_height="73dp"
                     android:src="@drawable/store_ad_small1" />
 
                 <ImageView
                     android:id="@+id/store_ad_right_2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="150dp"
+                    android:layout_height="73dp"
                     android:layout_marginTop="4dp"
                     android:src="@drawable/store_ad_small2" />
             </LinearLayout>
