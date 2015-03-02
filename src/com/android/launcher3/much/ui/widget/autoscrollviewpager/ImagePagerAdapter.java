@@ -53,7 +53,7 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 	@Override
 	public int getCount() {
 		// Infinite loop
-		if (getSize(mBannerImageList) == 0) {
+		if (mBannerImageList.size() == 0) {
 			return 0;
 		}
 		return isInfiniteLoop ? Integer.MAX_VALUE : getSize(mBannerImageList);
@@ -66,9 +66,9 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 	 * @return
 	 */
 	private int getPosition(int position) {
-	    if(mSize == 0){
-	        return 0;
-	    }
+//	    if(mSize == 0){
+//	        return 0;
+//	    }
 		return isInfiniteLoop ? position % mSize : position;
 	}
 

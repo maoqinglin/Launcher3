@@ -126,7 +126,6 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		settingsBtn.setOnClickListener(this);
 
 		initViewPager();
-		addDefaultBannerImage();
 		updateLeftAdBanner();
 		updateRightAdBanner();
 		updateDotLayout();
@@ -134,6 +133,9 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		initBroadcast();
 		updateBannerData();
 		fetchBannerImage();
+		if (mAdLeftBannerList.size() == 0) {
+			addDefaultBannerImage();
+		}
 	}
 
 	private void initViewPager() {
@@ -202,7 +204,9 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	}
 
 	private void addDefaultBannerImage() {
+		mAdLeftBannerList.clear();
 		mAdLeftBannerList.add((BitmapDrawable)getResources().getDrawable(R.drawable.store_ad_large));
+		mImagePagerAdapter.notifyDataSetChanged();
 	}
 
 	private void updateDotLayout() {
