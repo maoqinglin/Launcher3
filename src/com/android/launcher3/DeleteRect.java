@@ -55,7 +55,8 @@ public class DeleteRect {
 			return;
 		}
 
-		Drawable shadowIcon = mContext.getResources().getDrawable(R.drawable.much_share_shadow);
+		//modify by lilu 隐藏分享图标
+		//Drawable shadowIcon = mContext.getResources().getDrawable(R.drawable.much_share_shadow);
 		Drawable deleteIcon = mContext.getResources().getDrawable(R.drawable.much_delete_circle_x);
 		int drawableWidth = deleteIcon.getIntrinsicWidth();
 		int drawableHeight = deleteIcon.getIntrinsicHeight();
@@ -87,11 +88,11 @@ public class DeleteRect {
 		rect.set(left, top, left + drawableWidth, top + drawableHeight);
 		offRect.set(rect.left-drawableWidth/2, rect.top-drawableHeight/2, rect.right+drawableWidth/2, rect.bottom+drawableHeight/2);
 		// end
-		shadowIcon.setBounds(iconRect);
+		//shadowIcon.setBounds(iconRect);
 		deleteIcon.setBounds(rect);
 		canvas.save();
 		canvas.translate(scrollX, scrollY);
-		shadowIcon.draw(canvas);
+		//shadowIcon.draw(canvas);
 		deleteIcon.draw(canvas);
 		canvas.translate(-scrollX, -scrollY);
 		canvas.restore();

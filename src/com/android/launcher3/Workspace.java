@@ -2173,7 +2173,12 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             if(child instanceof CellLayoutCreator){
                 continue;
             }
+            //modify by lilu 自定义页不需要画删除图标
             CellLayout cl = (CellLayout) child;
+            if (cl instanceof CustomPage) {
+            	continue;
+            }
+            //end modify
             int childCount = cl.getShortcutsAndWidgets().getChildCount();
             if(childCount == 0){
                 cl.getEmptyScreenHelper().setDelete(isDelete);

@@ -2229,11 +2229,13 @@ public class Launcher extends Activity
         }
 
         Object tag = v.getTag();
-        //add by linmaoqing
-        if (MuchConfig.SUPPORT_MUCH_STYLE && MuchAppShakeAndShareManager.getInstance().unStartApp() && !(tag instanceof FolderInfo)) {
-            showShareDialog(v);
-            return;
-        }//end by linmaoqing
+        //modify by lilu 屏蔽点击分享的功能
+//        //add by linmaoqing
+//        if (MuchConfig.SUPPORT_MUCH_STYLE && MuchAppShakeAndShareManager.getInstance().unStartApp() && !(tag instanceof FolderInfo)) {
+//            showShareDialog(v);
+//            return;
+//        }//end by linmaoqing
+        //end by lilu 
         if (tag instanceof ShortcutInfo) {
             // Open shortcut
             final ShortcutInfo shortcut = (ShortcutInfo) tag;
