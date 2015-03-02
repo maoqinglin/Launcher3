@@ -267,14 +267,15 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     };
 
     public void onClick(View v) {
+        //modify by lilu 屏蔽分享功能
         //begin add by linmaoqing 2014-5-14
-        if(MuchConfig.SUPPORT_MUCH_STYLE){
-            if(MuchAppShakeAndShareManager.getInstance().unStartApp()){
-                mLauncher.showShareDialog(v);
-                return;
-            }
-        }//end by linmaoqing
-
+//        if(MuchConfig.SUPPORT_MUCH_STYLE){
+//            if(MuchAppShakeAndShareManager.getInstance().unStartApp()){
+//                mLauncher.showShareDialog(v);
+//                return;
+//            }
+//        }//end by linmaoqing
+        //end by lilu
         Object tag = v.getTag();
         if (tag instanceof ShortcutInfo) {
             mLauncher.onClick(v);
@@ -904,7 +905,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     }
 
     private void updateItemLocationsInDatabase() {
-        ArrayList<View> list = getItemsInReadingOrder();
+        //modify by lilu 修复第二页图标不显示的问题
+//        ArrayList<View> list = getItemsInReadingOrder();
+        ArrayList<View> list = getItemsInReadingOrderWithAbCoord();
+        //end by lilu
         for (int i = 0; i < list.size(); i++) {
             View v = list.get(i);
             ItemInfo info = (ItemInfo) v.getTag();
@@ -914,7 +918,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     }
 
     private void updateItemLocationsInDatabaseBatch() {
-        ArrayList<View> list = getItemsInReadingOrder();
+        //modify by lilu 修复第二页图标不显示的问题
+//      ArrayList<View> list = getItemsInReadingOrder();
+      ArrayList<View> list = getItemsInReadingOrderWithAbCoord();
+      //end by lilu
         ArrayList<ItemInfo> items = new ArrayList<ItemInfo>();
         for (int i = 0; i < list.size(); i++) {
             View v = list.get(i);
@@ -1176,7 +1183,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
         for (int i = 0; i < list.size(); i++) {
             View v = list.get(i);
-            mContent.getVacantCell(vacant, 1, 1);
+            //modify by lilu 修复第二页图标不显示的问题
+//            mContent.getVacantCell(vacant, 1, 1);
+            mContent.getVacantCellAbCoord(vacant, 1, 1);
+            //end by lilu
             CellLayout.LayoutParams lp = (CellLayout.LayoutParams) v.getLayoutParams();
             lp.cellX = vacant[0];
             lp.cellY = vacant[1];

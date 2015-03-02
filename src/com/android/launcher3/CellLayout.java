@@ -620,6 +620,7 @@ public class CellLayout extends ViewGroup {
     public boolean addViewToCellLayout(View child, int index, int childId, LayoutParams params,
             boolean markCells) {
         final LayoutParams lp = params;
+//        Log.e("lilu", "mShortcutsAndWidgets size:"+mShortcutsAndWidgets.getChildCount());
 
         // Hotseat icons - remove text
         if (child instanceof BubbleTextView) {
