@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -226,7 +227,6 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	}
 
 	private OnChildClickListener mLeftBannerOnClickListener = new OnChildClickListener() {
-		
 		@Override
 		public void onItemChildViewClick(View view, int index) {
 			clickFreeStoreBanner(BANNER_LEFT, index);
@@ -236,7 +236,11 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	private void jumpToFreeStoreMenu(String extra) {
 		Intent intent = new Intent(ACTION_FREE_STORE);
 		intent.putExtra(EXTRA_OUTSIDE_TAG, extra);
-		mContext.startActivity(intent);
+		try {
+			mContext.startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			//do nothing
+		}
 	}
 
 	private void clickFreeStoreBanner(int position,int index) {
