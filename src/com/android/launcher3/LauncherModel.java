@@ -1519,7 +1519,10 @@ public class LauncherModel extends BroadcastReceiver {
             }
             if (!added.isEmpty()) {
                 Callbacks cb = mCallbacks != null ? mCallbacks.get() : null;
-                addAndBindAddedApps(context, added, cb, null);
+                //modify by lilu 修复桌面报错的问题
+//                addAndBindAddedApps(context, added, cb, null);
+                addAndBindAddedApps(context, added, cb, new ArrayList<AppInfo>());
+                //end by lilu
             }
         }
 
