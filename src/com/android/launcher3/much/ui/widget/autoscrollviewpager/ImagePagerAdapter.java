@@ -10,7 +10,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 import com.android.launcher3.R;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
@@ -30,20 +30,24 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 public class ImagePagerAdapter extends RecyclingPagerAdapter {
 
 	private Context mContext;
-	private List<BitmapDrawable> mBannerImageList = new ArrayList<BitmapDrawable>();
+	private List<String> mBannerImageUrlList = new ArrayList<String>();
 
 	private int mSize;
 	private boolean isInfiniteLoop;
 	private OnChildClickListener mClickListener;
 	
 	private Drawable mDefaultDrawable;
+	private Drawable mEmptyDrawable;
+	private ImageLoader mImageLoader;
 
-	public ImagePagerAdapter(Context context, List<BitmapDrawable> bannerImages) {
+	public ImagePagerAdapter(Context context, List<String> bannerImages, ImageLoader imageLoader) {
 		mContext = context;
-		mBannerImageList = bannerImages;
-		mSize = getSize(mBannerImageList);
+		mBannerImageUrlList = bannerImages;
+		mSize = getSize(mBannerImageUrlList);
 		isInfiniteLoop = false;
-		mDefaultDrawable = context.getResources().getDrawable(R.drawable.much_app_icon_bg);
+		mImageLoader = imageLoader;
+		mDefaultDrawable = context.getResources().getDrawable(R.drawable.store_ad_large);
+		mEmptyDrawable = context.getResources().getDrawable(R.drawable.store_banner_default);
 	}
 
 	public interface OnChildClickListener {
@@ -53,10 +57,7 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 	@Override
 	public int getCount() {
 		// Infinite loop
-		if (mBannerImageList.size() == 0) {
-			return 0;
-		}
-		return isInfiniteLoop ? Integer.MAX_VALUE : getSize(mBannerImageList);
+		return isInfiniteLoop ? Integer.MAX_VALUE : getSize(mBannerImageUrlList);
 	}
 
 	/**
@@ -66,9 +67,6 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 	 * @return
 	 */
 	private int getPosition(int position) {
-//	    if(mSize == 0){
-//	        return 0;
-//	    }
 		return isInfiniteLoop ? position % mSize : position;
 	}
 
@@ -88,12 +86,10 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 		} else {
 			holder = (ViewHolder) view.getTag();
 		}
-
-		BitmapDrawable bitmapDrawable = mBannerImageList.get(getPosition(position));
-		if (bitmapDrawable == null) {
+		if (mSize == 0) {
 			holder.imageView.setImageDrawable(mDefaultDrawable);
 		} else {
-			holder.imageView.setImageDrawable(mBannerImageList.get(getPosition(position)));
+			mImageLoader.displayImage(mBannerImageUrlList.get(getPosition(position)), holder.imageView,getDisplayImageOptions());
 		}
 		holder.imageView.setClickable(true);
 		holder.imageView.setOnClickListener(new OnClickListener() {
@@ -103,6 +99,16 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
             }
         });
 		return view;
+	}
+
+	public DisplayImageOptions getDisplayImageOptions() {
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+		.cacheInMemory(true).cacheOnDisc(true)
+		.bitmapConfig(Bitmap.Config.RGB_565)
+		.showImageOnFail(mEmptyDrawable)
+		.showImageForEmptyUri(mEmptyDrawable)
+		.build();
+		return options;
 	}
 
 	private static class ViewHolder {
@@ -132,7 +138,7 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public void notifyDataSetChanged() {
-        mSize = getSize(mBannerImageList);
+        mSize = getSize(mBannerImageUrlList);
         super.notifyDataSetChanged();
     }
 	

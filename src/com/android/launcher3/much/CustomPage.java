@@ -1,25 +1,22 @@
 package com.android.launcher3.much;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.ActivityManager;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.Environment;
-import android.os.Handler;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.android.launcher3.CellLayout;
@@ -27,33 +24,39 @@ import com.android.launcher3.R;
 import com.android.launcher3.much.ui.widget.autoscrollviewpager.AutoScrollViewPager;
 import com.android.launcher3.much.ui.widget.autoscrollviewpager.ImagePagerAdapter;
 import com.android.launcher3.much.ui.widget.autoscrollviewpager.ImagePagerAdapter.OnChildClickListener;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 
 public class CustomPage extends CellLayout implements OnClickListener {
 
 	private static final String ACTION_FREE_STORE = "com.ireadygo.app.freestore.STORE_DETAIL";
 	private static final String EXTRA_OUTSIDE_TAG = "EXTRA_OUTSIDE_TAG";
 	private static final String ACTION_BANNER_UPDATE = "com.ireadygo.app.gamelauncher.ACTION_INFO_BANNER_CHANGE";
-	private static final String BANNER_IMAGE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator
-			+ "iReadyGo" + File.separator + "appstore" + File.separator
-			+ "banner";
-	private static final String AUTO_BANNER_IMAGE_PATH = BANNER_IMAGE_PATH + File.separator + "auto" + File.separator;
-	private static final String STATIC_BANNER_IMAGE_PATH = BANNER_IMAGE_PATH + File.separator + "static" + File.separator;
 	private static final String ACTION_BANNER_CLICK = "com.ireadygo.app.gamelauncher.ACTION_BANNER_CLICK";
 	private static final String EXTRA_POSITION = "EXTRA_POSITION";
 	private static final String EXTRA_INDEX = "EXTRA_INDEX";
 	private static final String ACTION_GET_BANNER = "com.ireadygo.app.gamelauncher.ACTION_GET_BANNER";
 	private static final int BANNER_LEFT = 1;
 	private static final int BANNER_RIGHT = 2;
+	private static final String URL_DIVIDER = ",";
+	private static final String EXTRA_AUTO_URL = "EXTRA_AUTO_URL";
+	private static final String EXTRA_STATIC_URL = "EXTRA_STATIC_URL";
+	private static final int BANNER_SCROLL_DELAY = 8 * 1000;
 	private Context mContext;
 	private AutoScrollViewPager mAutoScrollViewPager;
 	private ImageView mAdImageRT;
 	private ImageView mAdImageRB;
 	private ViewGroup mDotsLayout;
-	private List<BitmapDrawable> mAdLeftBannerList = new ArrayList<BitmapDrawable>();
-	private List<BitmapDrawable> mAdRightBannerList = new ArrayList<BitmapDrawable>();
+	private List<String> mAdLeftBannerUrlList = new ArrayList<String>();
+	private List<String> mAdRightBannerUrlList = new ArrayList<String>();
 	private int mCurrentSelectedIndex = 0;
 	private ArrayList<ImageView> mDotViewList = new ArrayList<ImageView>();
 	private ImagePagerAdapter mImagePagerAdapter;
+	private ImageLoader mImageLoader;
+	private Drawable mDefaultDrawable;
 
 
 	public CustomPage(Context context, AttributeSet attrs, int defStyle) {
@@ -126,29 +129,26 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		managerBtn.setOnClickListener(this);
 		settingsBtn.setOnClickListener(this);
 
+		mImageLoader = ImageLoader.getInstance();
+		configImageLoader();
+		mDefaultDrawable = mContext.getResources().getDrawable(R.drawable.store_banner_default);
+
 		initViewPager();
-		updateLeftAdBanner();
-		updateRightAdBanner();
-		updateDotLayout();
 		initListener();
 		initBroadcast();
-		updateBannerData();
 		fetchBannerImage();
-		if (mAdLeftBannerList.size() == 0) {
-			addDefaultBannerImage();
-		}
 	}
 
 	private void initViewPager() {
 		mAutoScrollViewPager = (AutoScrollViewPager)findViewById(R.id.storeRecommendViewPager);
-		mImagePagerAdapter = new ImagePagerAdapter(mContext, mAdLeftBannerList);
+		mImagePagerAdapter = new ImagePagerAdapter(mContext, mAdLeftBannerUrlList,mImageLoader);
 		mImagePagerAdapter.setOnClickListener(mLeftBannerOnClickListener);
 		mImagePagerAdapter.setInfiniteLoop(true);
 		mAutoScrollViewPager.setAdapter(mImagePagerAdapter);
-		mAutoScrollViewPager.setCurrentItem(mAdLeftBannerList.size() * 10000);
+		mAutoScrollViewPager.setCurrentItem(mAdLeftBannerUrlList.size() * 10000);
 		mAutoScrollViewPager.setBorderAnimation(true);
-		mAutoScrollViewPager.setScrollDurationFactor(4.0);
-		mAutoScrollViewPager.startAutoScroll();
+		mAutoScrollViewPager.setScrollDurationFactor(10.0);
+		mAutoScrollViewPager.startAutoScroll(BANNER_SCROLL_DELAY);
 		mDotsLayout = (ViewGroup)findViewById(R.id.storeRecommendDots);
 		mAdImageRT = (ImageView)findViewById(R.id.store_ad_right_1);
 		mAdImageRB = (ImageView)findViewById(R.id.store_ad_right_2);
@@ -168,53 +168,28 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		}
 	}
 
-
-	private void updateBannerData() {
-		mAdLeftBannerList.clear();
-		mAdRightBannerList.clear();
-		//读取auto类型文件
-		File autoFile = new File(AUTO_BANNER_IMAGE_PATH);
-		if (autoFile.exists() && autoFile.list() != null) {
-			String [] fileNames = autoFile.list();
-			for (String fileName : fileNames) {
-				mAdLeftBannerList.add(new BitmapDrawable(getResources(), AUTO_BANNER_IMAGE_PATH + fileName));
-			}
-		}
-		//读取static类型
-		File staticFile = new File(STATIC_BANNER_IMAGE_PATH);
-		if (staticFile.exists() && staticFile.list() != null) {
-			String [] fileNames = staticFile.list();
-			for (String fileName : fileNames) {
-				mAdRightBannerList.add(new BitmapDrawable(getResources(), STATIC_BANNER_IMAGE_PATH + fileName));
-			}
-		}
-		if (mAdLeftBannerList.size() > 0) {
-			updateLeftAdBanner();
-			updateDotLayout();
-		}
-		if (mAdRightBannerList.size() > 0) {
-			updateRightAdBanner();
-		}
+	@Override
+	protected void onDetachedFromWindow() {
+		mContext.unregisterReceiver(mReceiver);
+		super.onDetachedFromWindow();
 	}
+
+
+
 
 	private void updateRightAdBanner() {
-		if (mAdRightBannerList.size() >= 2) {
-			mAdImageRT.setImageDrawable(mAdRightBannerList.get(0));
-			mAdImageRB.setImageDrawable(mAdRightBannerList.get(1));
+		if (mAdRightBannerUrlList.size() >= 2) {
+			mImageLoader.displayImage(mAdRightBannerUrlList.get(0), mAdImageRT,getDisplayImageOptions());
+			mImageLoader.displayImage(mAdRightBannerUrlList.get(1), mAdImageRB,getDisplayImageOptions());
 		}
 	}
 
-	private void addDefaultBannerImage() {
-		mAdLeftBannerList.clear();
-		mAdLeftBannerList.add((BitmapDrawable)getResources().getDrawable(R.drawable.store_ad_large));
-		mImagePagerAdapter.notifyDataSetChanged();
-	}
 
 	private void updateDotLayout() {
-		if (!mAdLeftBannerList.isEmpty()) {
+		if (!mAdLeftBannerUrlList.isEmpty()) {
 			mDotViewList.clear();
 			mDotsLayout.removeAllViews();
-			int count = mAdLeftBannerList.size();
+			int count = mAdLeftBannerUrlList.size();
 			for (int i = 0; i < count; i++) {
 				ImageView dot = new ImageView(mContext);
 				dot.setImageResource(R.drawable.page_indicator_normal);
@@ -257,13 +232,13 @@ public class CustomPage extends CellLayout implements OnClickListener {
 
 			@Override
 			public void onPageSelected(int index) {
-				if (mAdLeftBannerList.size() == 0) {
+				if (mAdLeftBannerUrlList.size() == 0) {
 					return;
 				}
 				if (mDotViewList == null || mDotViewList.size() == 0) {
 					return;
 				}
-				int actualIndex = index % mAdLeftBannerList.size();
+				int actualIndex = index % mAdLeftBannerUrlList.size();
 				mDotViewList.get(mCurrentSelectedIndex).setImageResource(R.drawable.page_indicator_normal);
 				mDotViewList.get(actualIndex).setImageResource(R.drawable.page_indicator_selected);
 				mCurrentSelectedIndex = actualIndex;
@@ -285,19 +260,68 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 			if (ACTION_BANNER_UPDATE.equals(action)) {
-				new Handler().post(new Runnable() {
-					@Override
-					public void run() {
-						updateBannerData();
-					}
-				});
+				String autoUrl = intent.getStringExtra(EXTRA_AUTO_URL);
+				String staticUrl = intent.getStringExtra(EXTRA_STATIC_URL);
+				decodeAutoBannerUrl(autoUrl);
+				decodeStaticBannerUrl(staticUrl);
+				updateData();
 			}
 		}
 	};
 
+	private void updateData() {
+		updateLeftAdBanner();
+		updateDotLayout();
+		updateRightAdBanner();
+	}
+
+	private void decodeAutoBannerUrl(String url) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		mAdLeftBannerUrlList.clear();
+		String [] urls = url.split(URL_DIVIDER);
+		for (String bannerUrl : urls) {
+			mAdLeftBannerUrlList.add(bannerUrl);
+		}
+	}
+
+	private void decodeStaticBannerUrl(String url) {
+		if (TextUtils.isEmpty(url)) {
+			return;
+		}
+		mAdRightBannerUrlList.clear();
+		String [] urls = url.split(URL_DIVIDER);
+		for (String bannerUrl : urls) {
+			mAdRightBannerUrlList.add(bannerUrl);
+		}
+	}
+
 	private void fetchBannerImage() {
 		Intent intent = new Intent(ACTION_GET_BANNER);
 		mContext.sendBroadcast(intent);
+	}
+
+	private void configImageLoader() {
+		ActivityManager am = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+		DisplayImageOptions options = getDisplayImageOptions();
+
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(mContext)
+				.memoryCacheSize(am.getMemoryClass() * 1024 * 1024 / 8).threadPoolSize(5)
+				.denyCacheImageMultipleSizesInMemory().discCacheFileNameGenerator(new Md5FileNameGenerator())
+				.tasksProcessingOrder(QueueProcessingType.LIFO).threadPriority(Thread.MIN_PRIORITY)
+				.defaultDisplayImageOptions(options).build();
+		mImageLoader.init(config);
+	}
+
+	public DisplayImageOptions getDisplayImageOptions() {
+		DisplayImageOptions options = new DisplayImageOptions.Builder()
+		.cacheInMemory(true).cacheOnDisc(true)
+		.bitmapConfig(Bitmap.Config.RGB_565)
+		.showImageOnFail(mDefaultDrawable)
+		.showImageForEmptyUri(mDefaultDrawable)
+		.build();
+		return options;
 	}
 
 

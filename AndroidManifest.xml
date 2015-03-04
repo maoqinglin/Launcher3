@@ -18,8 +18,8 @@
 */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="100000"
-    android:versionName="1.0.0"
+    android:versionCode="100001"
+    android:versionName="1.0.1"
     package="com.android.launcher3" >
 
     <permission
@@ -72,6 +72,7 @@
     <uses-permission android:name="com.android.launcher3.permission.READ_SETTINGS" />
     <uses-permission android:name="com.android.launcher3.permission.WRITE_SETTINGS" />
     <uses-permission android:name="com.android.launcher3.permission.RECEIVE_LAUNCH_BROADCASTS" />
+    <uses-permission android:name="android.permission.INTERNET" /><!-- add by lilu 2015-03-04 -->
 
     <application
         android:name="com.android.launcher3.LauncherApplication"
