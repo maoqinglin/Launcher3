@@ -1084,9 +1084,9 @@ public class Launcher extends Activity
         if (keyCode == KeyEvent.KEYCODE_MENU && event.isLongPress()) {
             return true;
         }
-
         return handled;
     }
+
 
     private String getTypedText() {
         return mDefaultKeySsb.toString();
@@ -2133,11 +2133,23 @@ public class Launcher extends Activity
                         return true;
                     }
                     break;
+                case KeyEvent.KEYCODE_BUTTON_A:
+                    KeyEvent newEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_CENTER);
+                    return super.dispatchKeyEvent(newEvent);
+                case KeyEvent.KEYCODE_BUTTON_B:
+                    KeyEvent newCancelEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
+                    return super.dispatchKeyEvent(newCancelEvent);
             }
         } else if (event.getAction() == KeyEvent.ACTION_UP) {
             switch (event.getKeyCode()) {
                 case KeyEvent.KEYCODE_HOME:
                     return true;
+                case KeyEvent.KEYCODE_BUTTON_A:
+                    KeyEvent newEvent = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER);
+                    return super.dispatchKeyEvent(newEvent);
+                case KeyEvent.KEYCODE_BUTTON_B:
+                    KeyEvent newCancelEvent = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK);
+                    return super.dispatchKeyEvent(newCancelEvent);
             }
         }
 
@@ -2183,6 +2195,7 @@ public class Launcher extends Activity
             mAppWidgetHost.startListening();
         }
     }
+
 
     /**
      * Launches the intent referred by the clicked shortcut.

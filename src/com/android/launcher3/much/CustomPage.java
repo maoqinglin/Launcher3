@@ -44,7 +44,7 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	private static final String URL_DIVIDER = ",";
 	private static final String EXTRA_AUTO_URL = "EXTRA_AUTO_URL";
 	private static final String EXTRA_STATIC_URL = "EXTRA_STATIC_URL";
-	private static final int BANNER_SCROLL_DELAY = 8 * 1000;
+	private static final long BANNER_SCROLL_DELAY = 8 * 1000;
 	private Context mContext;
 	private AutoScrollViewPager mAutoScrollViewPager;
 	private ImageView mAdImageRT;
@@ -148,7 +148,8 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		mAutoScrollViewPager.setCurrentItem(mAdLeftBannerUrlList.size() * 10000);
 		mAutoScrollViewPager.setBorderAnimation(true);
 		mAutoScrollViewPager.setScrollDurationFactor(10.0);
-		mAutoScrollViewPager.startAutoScroll(BANNER_SCROLL_DELAY);
+		mAutoScrollViewPager.setInterval(BANNER_SCROLL_DELAY);
+		mAutoScrollViewPager.startAutoScroll();
 		mDotsLayout = (ViewGroup)findViewById(R.id.storeRecommendDots);
 		mAdImageRT = (ImageView)findViewById(R.id.store_ad_right_1);
 		mAdImageRB = (ImageView)findViewById(R.id.store_ad_right_2);
