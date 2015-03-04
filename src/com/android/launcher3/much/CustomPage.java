@@ -57,6 +57,7 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	private ImagePagerAdapter mImagePagerAdapter;
 	private ImageLoader mImageLoader;
 	private Drawable mDefaultDrawable;
+	private Drawable mEmptyDrawable;
 
 
 	public CustomPage(Context context, AttributeSet attrs, int defStyle) {
@@ -116,6 +117,16 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	@Override
 	protected void onFinishInflate() {
 		super.onFinishInflate();
+		mImageLoader = ImageLoader.getInstance();
+		configImageLoader();
+		mDefaultDrawable = mContext.getResources().getDrawable(R.drawable.store_banner_default);
+		mEmptyDrawable = mContext.getResources().getDrawable(R.drawable.store_ad_large);
+		initView();
+		initBroadcast();
+		fetchBannerImage();
+	}
+
+	private void initView() {
 		View recommendBtn = (View)findViewById(R.id.recommend_btn);
 		View cotegoryBtn = (View)findViewById(R.id.category_btn);
 		View collectionBtn = (View)findViewById(R.id.collection_btn);
@@ -128,33 +139,27 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		searchBtn.setOnClickListener(this);
 		managerBtn.setOnClickListener(this);
 		settingsBtn.setOnClickListener(this);
-
-		mImageLoader = ImageLoader.getInstance();
-		configImageLoader();
-		mDefaultDrawable = mContext.getResources().getDrawable(R.drawable.store_banner_default);
-
-		initViewPager();
-		initListener();
-		initBroadcast();
-		fetchBannerImage();
-	}
-
-	private void initViewPager() {
-		mAutoScrollViewPager = (AutoScrollViewPager)findViewById(R.id.storeRecommendViewPager);
-		mImagePagerAdapter = new ImagePagerAdapter(mContext, mAdLeftBannerUrlList,mImageLoader);
-		mImagePagerAdapter.setOnClickListener(mLeftBannerOnClickListener);
-		mImagePagerAdapter.setInfiniteLoop(true);
-		mAutoScrollViewPager.setAdapter(mImagePagerAdapter);
-		mAutoScrollViewPager.setCurrentItem(mAdLeftBannerUrlList.size() * 10000);
-		mAutoScrollViewPager.setBorderAnimation(true);
-		mAutoScrollViewPager.setScrollDurationFactor(10.0);
-		mAutoScrollViewPager.setInterval(BANNER_SCROLL_DELAY);
-		mAutoScrollViewPager.startAutoScroll();
 		mDotsLayout = (ViewGroup)findViewById(R.id.storeRecommendDots);
 		mAdImageRT = (ImageView)findViewById(R.id.store_ad_right_1);
 		mAdImageRB = (ImageView)findViewById(R.id.store_ad_right_2);
 		mAdImageRT.setOnClickListener(this);
 		mAdImageRB.setOnClickListener(this);
+	}
+
+	private void updateAutoViewPaper() {
+		if (!mAdLeftBannerUrlList.isEmpty()) {
+			mAutoScrollViewPager = (AutoScrollViewPager)findViewById(R.id.storeRecommendViewPager);
+			mImagePagerAdapter = new ImagePagerAdapter(mContext, mAdLeftBannerUrlList,mImageLoader);
+			mImagePagerAdapter.setOnClickListener(mLeftBannerOnClickListener);
+			mImagePagerAdapter.setInfiniteLoop(true);
+			mAutoScrollViewPager.setOnPageChangeListener(mAutoScrollListener);
+			mAutoScrollViewPager.setAdapter(mImagePagerAdapter);
+			mAutoScrollViewPager.setCurrentItem(mAdLeftBannerUrlList.size() * 10000);
+			mAutoScrollViewPager.setBorderAnimation(true);
+			mAutoScrollViewPager.setScrollDurationFactor(10.0);
+			mAutoScrollViewPager.setInterval(BANNER_SCROLL_DELAY);
+			mAutoScrollViewPager.startAutoScroll();
+		}
 	}
 
 	private void initBroadcast() {
@@ -164,6 +169,7 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	}
 
 	private void updateLeftAdBanner() {
+		updateAutoViewPaper();
 		if (mImagePagerAdapter != null) {
 			mImagePagerAdapter.notifyDataSetChanged();
 		}
@@ -172,6 +178,10 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	@Override
 	protected void onDetachedFromWindow() {
 		mContext.unregisterReceiver(mReceiver);
+		mImageLoader.clearMemoryCache();
+		if (mAutoScrollViewPager != null) {
+			mAutoScrollViewPager.stopAutoScroll();
+		}
 		super.onDetachedFromWindow();
 	}
 
@@ -227,35 +237,31 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	}
 
 
-
-	private void initListener(){
-		mAutoScrollViewPager.setOnPageChangeListener(new OnPageChangeListener() {
-
-			@Override
-			public void onPageSelected(int index) {
-				if (mAdLeftBannerUrlList.size() == 0) {
-					return;
-				}
-				if (mDotViewList == null || mDotViewList.size() == 0) {
-					return;
-				}
-				int actualIndex = index % mAdLeftBannerUrlList.size();
-				mDotViewList.get(mCurrentSelectedIndex).setImageResource(R.drawable.page_indicator_normal);
-				mDotViewList.get(actualIndex).setImageResource(R.drawable.page_indicator_selected);
-				mCurrentSelectedIndex = actualIndex;
+	private OnPageChangeListener mAutoScrollListener = new OnPageChangeListener() {
+		@Override
+		public void onPageSelected(int index) {
+			if (mAdLeftBannerUrlList.size() == 0) {
+				return;
 			}
-
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {
-
+			if (mDotViewList == null || mDotViewList.size() == 0) {
+				return;
 			}
+			int actualIndex = index % mAdLeftBannerUrlList.size();
+			mDotViewList.get(mCurrentSelectedIndex).setImageResource(R.drawable.page_indicator_normal);
+			mDotViewList.get(actualIndex).setImageResource(R.drawable.page_indicator_selected);
+			mCurrentSelectedIndex = actualIndex;
+		}
 
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
+		@Override
+		public void onPageScrolled(int arg0, float arg1, int arg2) {
 
-			}
-		});
-	}
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int arg0) {
+
+		}
+	};
 
 	private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		public void onReceive(Context context, Intent intent) {
@@ -277,10 +283,11 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	}
 
 	private void decodeAutoBannerUrl(String url) {
+		mAdLeftBannerUrlList.clear();
 		if (TextUtils.isEmpty(url)) {
+			mAdLeftBannerUrlList.add("");
 			return;
 		}
-		mAdLeftBannerUrlList.clear();
 		String [] urls = url.split(URL_DIVIDER);
 		for (String bannerUrl : urls) {
 			mAdLeftBannerUrlList.add(bannerUrl);
@@ -288,10 +295,11 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	}
 
 	private void decodeStaticBannerUrl(String url) {
+		mAdRightBannerUrlList.clear();
 		if (TextUtils.isEmpty(url)) {
+			mAdRightBannerUrlList.add("");
 			return;
 		}
-		mAdRightBannerUrlList.clear();
 		String [] urls = url.split(URL_DIVIDER);
 		for (String bannerUrl : urls) {
 			mAdRightBannerUrlList.add(bannerUrl);
@@ -320,7 +328,8 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		.cacheInMemory(true).cacheOnDisc(true)
 		.bitmapConfig(Bitmap.Config.RGB_565)
 		.showImageOnFail(mDefaultDrawable)
-		.showImageForEmptyUri(mDefaultDrawable)
+		.showImageOnLoading(mDefaultDrawable)
+		.showImageForEmptyUri(mEmptyDrawable)
 		.build();
 		return options;
 	}

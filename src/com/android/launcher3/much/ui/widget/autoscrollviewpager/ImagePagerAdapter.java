@@ -67,6 +67,9 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 	 * @return
 	 */
 	private int getPosition(int position) {
+		if (mSize == 0) {
+			return 0;
+		}
 		return isInfiniteLoop ? position % mSize : position;
 	}
 
@@ -86,11 +89,11 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 		} else {
 			holder = (ViewHolder) view.getTag();
 		}
-		if (mSize == 0) {
-			holder.imageView.setImageDrawable(mDefaultDrawable);
-		} else {
-			mImageLoader.displayImage(mBannerImageUrlList.get(getPosition(position)), holder.imageView,getDisplayImageOptions());
-		}
+//		if (getSize(mBannerImageUrlList) == 0) {
+//		} else {
+//		}
+		holder.imageView.setImageDrawable(mDefaultDrawable);
+		mImageLoader.displayImage(mBannerImageUrlList.get(getPosition(position)), holder.imageView,getDisplayImageOptions());
 		holder.imageView.setClickable(true);
 		holder.imageView.setOnClickListener(new OnClickListener() {
             @Override
@@ -106,6 +109,7 @@ public class ImagePagerAdapter extends RecyclingPagerAdapter {
 		.cacheInMemory(true).cacheOnDisc(true)
 		.bitmapConfig(Bitmap.Config.RGB_565)
 		.showImageOnFail(mEmptyDrawable)
+		.showImageOnLoading(mEmptyDrawable)
 		.showImageForEmptyUri(mEmptyDrawable)
 		.build();
 		return options;
