@@ -442,8 +442,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         mWallpaperOffset = new WallpaperOffsetInterpolator();
         Display display = mLauncher.getWindowManager().getDefaultDisplay();
         display.getSize(mDisplaySize);
-
-        mMaxDistanceForFolderCreation = (0.55f * grid.iconSizePx);
+      //solve onLongClick appIcon but not easy create folder by linmaoqing 2015-03-17
+//        mMaxDistanceForFolderCreation = (0.55f * grid.iconSizePx);
+        mMaxDistanceForFolderCreation = (0.81f * grid.iconSizePx);
         mFlingThresholdVelocity = (int) (FLING_THRESHOLD_VELOCITY * mDensity);
     }
 
@@ -2800,7 +2801,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
         if (dropOverView != null) {
             CellLayout.LayoutParams lp = (CellLayout.LayoutParams) dropOverView.getLayoutParams();
-            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.tmpCellY)) {
+            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.cellY)) {
                 return false;
             }
         }
@@ -2809,7 +2810,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (mDragInfo != null) {
             hasntMoved = dropOverView == mDragInfo.cell;
         }
-
         if (dropOverView == null || hasntMoved || (considerTimeout && !mCreateUserFolderOnDrop)) {
             return false;
         }
@@ -2827,7 +2827,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
         if (dropOverView != null) {
             CellLayout.LayoutParams lp = (CellLayout.LayoutParams) dropOverView.getLayoutParams();
-            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.tmpCellY)) {
+            if (lp.useTmpCoords && (lp.tmpCellX != lp.cellX || lp.tmpCellY != lp.cellY)) {
                 return false;
             }
         }
