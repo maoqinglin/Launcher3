@@ -14,6 +14,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -122,8 +123,6 @@ public class CustomPage extends CellLayout implements OnClickListener {
 		mDefaultDrawable = mContext.getResources().getDrawable(R.drawable.store_banner_default);
 		mEmptyDrawable = mContext.getResources().getDrawable(R.drawable.store_ad_large);
 		initView();
-		initBroadcast();
-		fetchBannerImage();
 	}
 
 	private void initView() {
@@ -174,6 +173,12 @@ public class CustomPage extends CellLayout implements OnClickListener {
 			mImagePagerAdapter.notifyDataSetChanged();
 		}
 	}
+
+    @Override
+    protected void onAttachedToWindow() {
+        initBroadcast();
+        fetchBannerImage();
+    };
 
 	@Override
 	protected void onDetachedFromWindow() {
