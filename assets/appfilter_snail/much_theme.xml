@@ -42,9 +42,9 @@
         packageName="com.android.contacts" />
 
     <application
-        className="com.android.contacts.activities.DialtactsActivity"
+        className="com.android.dialer.DialtactsActivity"
         iconName="phone.png"
-        packageName="com.android.contacts" />
+        packageName="com.android.dialer" />
 
     <application
         className="com.ireadygo.app.appstore.Entry"

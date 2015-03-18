@@ -518,7 +518,7 @@ public class FolderIcon extends LinearLayout implements FolderListener {
             float totalScale = 0.37f;
                         //因为Launcher3采用了相对坐标，因此需要加上getPaddingTop等偏移量
           float transX = (index % 2) * (mIntrinsicIconSize * totalScale + (index + 1)) + getPaddingLeft() - 1;
-          float transY = (index / 2) * (mIntrinsicIconSize * totalScale + (index + 1)) + getPaddingTop() + 15;
+          float transY = (index / 2) * (mIntrinsicIconSize * totalScale + (index + 1)) + getPaddingTop() + 22;
             if (params == null) {
                 params = new PreviewItemDrawingParams(transX, transY, totalScale, overlayAlpha);
             } else {

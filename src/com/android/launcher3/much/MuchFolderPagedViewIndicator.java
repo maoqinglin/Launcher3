@@ -22,7 +22,7 @@ public class MuchFolderPagedViewIndicator extends PagedViewIndicator implements 
 	}
 
 	public int getMaxHeigh() {
-		return maxHeigth + 12;
+		return maxHeigth + 18;
 	}
 
 	public MuchFolderPagedViewIndicator(Context context) {
