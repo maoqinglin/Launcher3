@@ -2678,7 +2678,6 @@ public class Launcher extends Activity
                 ScreenCapture capture = new ScreenCapture(context);
                 Bitmap screenBmp = capture.captureScreen();
 //              Bitmap screenBmp = BitmapFactory.decodeResource(getResources(), R.drawable.screen);
-                Log.w(TAG, "w = "+screenBmp.getWidth()+" --- h = "+screenBmp.getHeight());
                 ImageHelper.blur(context,folder,screenBmp);
                 return true;
             }

@@ -28,20 +28,24 @@ public class ScreenCapture {
     }
 
     /**
-     * 3.x以上调用
+     * 4.3以上调用
      * 
      * @return
      */
     public Bitmap captureScreen() {
-        WindowManager manager = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager manager = (WindowManager) mContext
+                .getSystemService(Context.WINDOW_SERVICE);
         Display display = manager.getDefaultDisplay();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         display.getMetrics(displayMetrics);
 
         if (Surface.ROTATION_0 == display.getRotation()) {
             try {
-                Method method = Surface.class.getDeclaredMethod("screenshot", int.class, int.class);
-                Bitmap bm = (Bitmap) method.invoke(null, displayMetrics.widthPixels, displayMetrics.heightPixels);
+                Method method = Class.forName("android.view.SurfaceControl").getDeclaredMethod("screenshot",
+                        int.class, int.class);
+                Bitmap bm = (Bitmap) method
+                        .invoke(null, displayMetrics.widthPixels,
+                                displayMetrics.heightPixels);
                 return bm;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -49,7 +53,8 @@ public class ScreenCapture {
             }
         }
 
-        float[] dims = { displayMetrics.widthPixels, displayMetrics.heightPixels };
+        float[] dims = { displayMetrics.widthPixels,
+                displayMetrics.heightPixels };
         Matrix matrix = new Matrix();
         matrix.reset();
         matrix.preRotate(display.getRotation() * 90);
@@ -59,8 +64,10 @@ public class ScreenCapture {
 
         Bitmap capBitmap = null;
         try {
-            Method method = Surface.class.getDeclaredMethod("screenshot", int.class, int.class);
-            capBitmap = (Bitmap) method.invoke(null, (int) dims[0], (int) dims[1]);
+            Method method = Class.forName("android.view.SurfaceControl").getDeclaredMethod("screenshot",
+                    int.class, int.class);
+            capBitmap = (Bitmap) method.invoke(null, (int) dims[0],
+                    (int) dims[1]);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,8 +76,8 @@ public class ScreenCapture {
             return capBitmap;
         }
 
-        Bitmap destBitmap = Bitmap.createBitmap(displayMetrics.widthPixels, displayMetrics.heightPixels,
-                Bitmap.Config.ARGB_8888);
+        Bitmap destBitmap = Bitmap.createBitmap(displayMetrics.widthPixels,
+                displayMetrics.heightPixels, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(destBitmap);
         canvas.translate(destBitmap.getWidth() / 2, destBitmap.getHeight() / 2);
         canvas.rotate(-display.getRotation() * 90);

@@ -22,6 +22,9 @@ public class ImageHelper {
     private static final float radius = 4; // 设置模糊度
     
     public static void blur(Context context, Folder folder, Bitmap bkg) {
+        if(bkg == null){
+            return;
+        }
         LinearLayout folderFrame = folder.getFolderFrameLayout();
         Bitmap overlay = Bitmap.createBitmap((int) (folderFrame.getWidth() / scaleFactor),
                 (int) (folderFrame.getHeight() / scaleFactor), Bitmap.Config.ARGB_8888);
