@@ -22,7 +22,7 @@
         packageName="com.android.mms" />
 
     <application
-        className="com.android.gallery3d.app.Gallery"
+        className="com.android.gallery3d.app.GalleryActivity"
         iconName="photo.png"
         packageName="com.android.gallery3d" />
 

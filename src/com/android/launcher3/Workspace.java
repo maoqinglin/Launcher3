@@ -125,6 +125,8 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     private final static long CUSTOM_CONTENT_SCREEN_ID = -301;
     private final static long EXTRA_ADD_SCREEN_ID = -401; // add by linmaoqing 2014-5-16
     private final static long EXTRA_NEW_SCREEN_ID = 1000;
+    public final static int CUSTOM_PAGE_SCREEN_POS = 1;
+    public final static long CUSTOM_PAGE_SCREEN_ID = 1L;
     private HashMap<Long, CellLayout> mWorkspaceScreens = new HashMap<Long, CellLayout>();
     private ArrayList<Long> mScreenOrder = new ArrayList<Long>();
 
@@ -544,6 +546,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (insertIndex < 0) {
             insertIndex = mScreenOrder.size();
         }
+        Log.d("lmq", "insertNewWorkspaceScreenBeforeEmptyScreen---screenId = "+screenId+"---insertIndex= "+insertIndex);
         return insertNewWorkspaceScreen(screenId, insertIndex);
     }
 
@@ -555,6 +558,14 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (mWorkspaceScreens.containsKey(screenId)) {
             throw new RuntimeException("Screen id " + screenId + " already exists!");
         }
+
+        //add by linmaoqing 2015-3-19 add custom page 
+        if(insertIndex == CUSTOM_PAGE_SCREEN_POS){
+            if (!hasCustomContent()) {
+                createCustomContentPage();
+                return CUSTOM_PAGE_SCREEN_ID;
+            }
+        }//end by linmaoqing
 
         CellLayout newScreen = (CellLayout) mLauncher.getLayoutInflater().inflate(R.layout.workspace_screen, null);
 

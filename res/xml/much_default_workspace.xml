@@ -1,6 +1,177 @@
 <?xml version="1.0" encoding="utf-8"?>
 <favorites xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3" >
 
+    <appwidget
+        launcher:className="com.android.alarmclock.DigitalAppWidgetProvider"
+        launcher:packageName="com.android.deskclock"
+        launcher:screen="0"
+        launcher:spanX="4"
+        launcher:spanY="2"
+        launcher:x="0"
+        launcher:y="0" />
+
+    <favorite
+        launcher:className="com.android.settings.Settings"
+        launcher:packageName="com.android.settings"
+        launcher:screen="0"
+        launcher:x="0"
+        launcher:y="3" />
+    <favorite
+        launcher:className="com.android.camera.CameraLauncher"
+        launcher:packageName="com.android.gallery3d"
+        launcher:screen="0"
+        launcher:x="1"
+        launcher:y="3" />
+    <favorite
+        launcher:className="com.android.gallery3d.app.GalleryActivity"
+        launcher:packageName="com.android.gallery3d"
+        launcher:screen="0"
+        launcher:x="2"
+        launcher:y="3" />
+    <favorite
+        launcher:className="com.android.music.MusicBrowserActivity"
+        launcher:packageName="com.android.music"
+        launcher:screen="0"
+        launcher:x="3"
+        launcher:y="3" />
+
+    <folder
+        launcher:container="-100"
+        launcher:screen="2"
+        launcher:title="@string/much_folder_name_common"
+        launcher:x="0"
+        launcher:y="0" >
+        <favorite
+            launcher:className="com.mediatek.notebook.NotesList"
+            launcher:packageName="com.mediatek.notebook"
+            launcher:screen="2"
+            launcher:x="0"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.mediatek.todos.TodosActivity"
+            launcher:packageName="com.mediatek.todos"
+            launcher:screen="2"
+            launcher:x="1"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.mediatek.filemanager.FileManagerOperationActivity"
+            launcher:packageName="com.mediatek.filemanager"
+            launcher:screen="2"
+            launcher:x="2"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.mediatek.videoplayer.MovieListActivity"
+            launcher:packageName="com.mediatek.videoplayer"
+            launcher:screen="2"
+            launcher:x="3"
+            launcher:y="0" />
+    </folder>
+    <folder
+        launcher:container="-100"
+        launcher:screen="2"
+        launcher:title="@string/much_folder_name_tool"
+        launcher:x="1"
+        launcher:y="0" >
+        <favorite
+            launcher:className="com.android.providers.downloads.ui.DownloadList"
+            launcher:packageName="com.android.providers.downloads.ui"
+            launcher:screen="2"
+            launcher:x="0"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.android.calendar.AllInOneActivity"
+            launcher:packageName="com.android.calendar"
+            launcher:screen="32"
+            launcher:x="1"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.android.soundrecorder.SoundRecorder"
+            launcher:packageName="com.android.soundrecorder"
+            launcher:screen="2"
+            launcher:x="2"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.mediatek.FMRadio.FMRadioActivity"
+            launcher:packageName="com.mediatek.FMRadio"
+            launcher:screen="2"
+            launcher:x="3"
+            launcher:y="0" />
+    </folder>
+    <folder
+        launcher:container="-100"
+        launcher:screen="2"
+        launcher:title="@string/much_folder_name_attachment"
+        launcher:x="2"
+        launcher:y="0" >
+        <favorite
+            launcher:className="com.android.quicksearchbox.SearchActivity"
+            launcher:packageName="com.android.quicksearchbox"
+            launcher:screen="2"
+            launcher:x="0"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.mediatek.datatransfer.BootActivity"
+            launcher:packageName="com.mediatek.datatransfer"
+            launcher:screen="2"
+            launcher:x="1"
+            launcher:y="0" />
+        <favorite
+            launcher:className="com.android.settings.Settings$WifiSettingsActivity"
+            launcher:packageName="com.android.settings"
+            launcher:screen="2"
+            launcher:x="2"
+            launcher:y="0" />
+        <favorite
+        launcher:className="com.android.videoeditor.ProjectsActivity"
+        launcher:packageName="com.android.videoeditor"
+        launcher:screen="2"
+        launcher:x="3"
+        launcher:y="0" />
+    </folder>
+
+    <favorite
+        launcher:className="com.ireadygo.app.systemupgrade.activity.UpgradeHomeActivity"
+        launcher:packageName="com.ireadygo.app.systemupgrade"
+        launcher:screen="2"
+        launcher:x="3"
+        launcher:y="0" />
+    <favorite
+        launcher:className="com.ireadygo.app.key.guide.Appstart"
+        launcher:packageName="com.ireadygo.app.key.ui"
+        launcher:screen="2"
+        launcher:x="0"
+        launcher:y="1" />
+     <favorite
+        launcher:className="com.android.settings.com.ireadygo.settings.breathinglight.ui.MainActivity"
+        launcher:packageName="com.android.settings"
+        launcher:screen="2"
+        launcher:x="1"
+        launcher:y="1" />
+    <favorite
+        launcher:className="com.android.flashlight.FlashLight"
+        launcher:packageName="com.android.flashlight"
+        launcher:screen="2"
+        launcher:x="2"
+        launcher:y="1" />
+    <favorite
+        launcher:className="com.android.deskclock.DeskClock"
+        launcher:packageName="com.android.deskclock"
+        launcher:screen="2"
+        launcher:x="3"
+        launcher:y="1" />
+    <favorite
+        launcher:className="com.android.email.activity.Welcome"
+        launcher:packageName="com.android.email"
+        launcher:screen="2"
+        launcher:x="0"
+        launcher:y="2" />
+    <favorite
+        launcher:className="com.android.calculator2.Calculator"
+        launcher:packageName="com.android.calculator2"
+        launcher:screen="2"
+        launcher:x="1"
+        launcher:y="2" />
+    <!-- Hotseat (We use the screen as the position of the item in the hotseat) -->
     <favorite
         launcher:className="com.android.dialer.DialtactsActivity"
         launcher:container="-101"
@@ -16,13 +187,6 @@
         launcher:x="1"
         launcher:y="0" />
     <favorite
-        launcher:className="com.ireadygo.app.gamelauncher.ui.store.StoreDetailActivity"
-        launcher:container="-101"
-        launcher:packageName="com.ireadygo.app.freeappstore"
-        launcher:screen="2"
-        launcher:x="2"
-        launcher:y="0" />
-    <favorite
         launcher:className="com.android.contacts.activities.PeopleActivity"
         launcher:container="-101"
         launcher:packageName="com.android.contacts"
@@ -36,202 +200,5 @@
         launcher:screen="4"
         launcher:x="4"
         launcher:y="0" />
-
-    <folder
-        launcher:container="-100"
-        launcher:screen="0"
-        launcher:title="@string/much_folder_name_tool"
-        launcher:x="1"
-        launcher:y="0" >
-        <favorite
-            launcher:className="com.google.android.maps.MapsActivity"
-            launcher:packageName="com.google.android.apps.maps"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.google.android.maps.PlacesActivity"
-            launcher:packageName="com.google.android.apps.maps"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.google.android.maps.driveabout.app.DestinationActivity"
-            launcher:packageName="com.google.android.apps.maps"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.providers.downloads.ui.DownloadList"
-            launcher:packageName="com.android.providers.downloads.ui"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.calendar.AllInOneActivity"
-            launcher:packageName="com.android.calendar"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.soundrecorder.SoundRecorder"
-            launcher:packageName="com.android.soundrecorder"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.mediatek.FMRadio.FMRadioActivity"
-            launcher:packageName="com.mediatek.FMRadio"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.settings.Settings$WifiSettingsActivity"
-            launcher:packageName="com.android.settings"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.vending.AssetBrowserActivity"
-            launcher:packageName="com.android.vending"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-    </folder>
-    <folder
-        launcher:container="-100"
-        launcher:screen="0"
-        launcher:title="@string/much_folder_name_common"
-        launcher:x="0"
-        launcher:y="0" >
-        <favorite
-            launcher:className="com.mediatek.notebook.NotesList"
-            launcher:packageName="com.mediatek.notebook"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.mediatek.filemanager.FileManagerOperationActivity"
-            launcher:packageName="com.mediatek.filemanager"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.mediatek.videoplayer.MovieListActivity"
-            launcher:packageName="com.mediatek.videoplayer"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-    </folder>
-    <folder
-        launcher:container="-100"
-        launcher:screen="0"
-        launcher:title="@string/much_folder_name_attachment"
-        launcher:x="2"
-        launcher:y="0" >
-        <favorite
-            launcher:className="com.android.quicksearchbox.SearchActivity"
-            launcher:packageName="com.android.quicksearchbox"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.cellbroadcastreceiver.CellBroadcastListActivity"
-            launcher:packageName="com.android.cellbroadcastreceiver"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.mediatek.datatransfer.BootActivity"
-            launcher:packageName="com.mediatek.datatransfer"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.mediatek.todos.TodosActivity"
-            launcher:packageName="com.mediatek.todos"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.mediatek.bluetooth.hid.BluetoothHidActivity"
-            launcher:packageName="com.mediatek.bluetooth"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.stk.StkLauncherActivity"
-            launcher:packageName="com.android.stk"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-        <favorite
-            launcher:className="com.android.stk.StkLauncherActivityII"
-            launcher:packageName="com.android.stk"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" />
-    </folder>
-
-    <favorite
-        launcher:className="com.ireadygo.app.systemupgrade.activity.UpgradeHomeActivity"
-        launcher:packageName="com.ireadygo.app.systemupgrade"
-        launcher:screen="0"
-        launcher:x="3"
-        launcher:y="0" />
-    <favorite
-        launcher:className="com.android.camera.CameraLauncher"
-        launcher:packageName="com.android.gallery3d"
-        launcher:screen="0"
-        launcher:x="0"
-        launcher:y="1" />
-    <favorite
-        launcher:className="com.android.settings.Settings"
-        launcher:packageName="com.android.settings"
-        launcher:screen="0"
-        launcher:x="1"
-        launcher:y="1" />
-    <favorite
-        launcher:className="com.ireadygo.app.key.guide.Appstart"
-        launcher:packageName="com.ireadygo.app.key.ui"
-        launcher:screen="0"
-        launcher:x="2"
-        launcher:y="1" />
-    <favorite
-        launcher:className="com.android.gallery3d.app.Gallery"
-        launcher:packageName="com.android.gallery3d"
-        launcher:screen="0"
-        launcher:x="3"
-        launcher:y="1" />
-    <favorite
-        launcher:className="com.android.flashlight.FlashLight"
-        launcher:packageName="com.android.flashlight"
-        launcher:screen="0"
-        launcher:x="0"
-        launcher:y="2" />
-    <favorite
-        launcher:className="com.android.calculator2.Calculator"
-        launcher:packageName="com.android.calculator2"
-        launcher:screen="0"
-        launcher:x="1"
-        launcher:y="2" />
-    <favorite
-        launcher:className="com.android.deskclock.DeskClock"
-        launcher:packageName="com.android.deskclock"
-        launcher:screen="0"
-        launcher:x="2"
-        launcher:y="2" />
-    <favorite
-        launcher:className="com.android.music.MusicBrowserActivity"
-        launcher:packageName="com.android.music"
-        launcher:screen="0"
-        launcher:x="3"
-        launcher:y="2" />
-    <favorite
-        launcher:className="com.android.email.activity.Welcome"
-        launcher:packageName="com.android.email"
-        launcher:screen="0"
-        launcher:x="0"
-        launcher:y="3" />
 
 </favorites>

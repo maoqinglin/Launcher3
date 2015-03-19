@@ -3747,9 +3747,8 @@ public class Launcher extends Activity
 
     @Override
     public void bindScreens(ArrayList<Long> orderedScreenIds) {
-    	 if (!mWorkspace.hasCustomContent() && hasCustomContentToLeft()) {
-             mWorkspace.createCustomContentPage();
-         }
+
+    	orderedScreenIds.add(Workspace.CUSTOM_PAGE_SCREEN_POS, Workspace.CUSTOM_PAGE_SCREEN_ID);
         bindAddScreens(orderedScreenIds);
 
         // If there are no screens, we need to have an empty screen

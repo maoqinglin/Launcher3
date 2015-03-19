@@ -214,13 +214,6 @@
             launcher:screen="3"
             launcher:x="3"
             launcher:y="0" />
-        <!-- <favorite
-            launcher:className="com.google.android.apps.inputmethod.libs.framework.core.LauncherActivity"
-            launcher:packageName="com.google.android.inputmethod.pinyin"
-            launcher:screen="3"
-            launcher:x="3"
-            launcher:y="0" /> -->
-            <!-- hide google pinyin icon  -->
     </folder>
 
     <favorite
@@ -283,14 +276,5 @@
         launcher:screen="1"
         launcher:x="0"
         launcher:y="3" />
-<!--     <shortcut
-        launcher:title = "@string/much_game_shortcut_title"
-        launcher:icon = "@drawable/ic_launcher_trashcan_normal_holo"
-        launcher:uri = "#Intent;action=com.tencent.mm.action.BIZSHORTCUT;launchFlags=0x4000000;B.LauncherUI.From.Biz.Shortcut=true;S.LauncherUI.Shortcut.Username=gh_e3cb827e11a9;end"
-        launcher:className="com.tencent.mm.ui.LauncherUI"
-        launcher:packageName="com.tencent.mm"
-        launcher:screen="1"
-        launcher:x="1"
-        launcher:y="3" /> -->
 
 </favorites>
