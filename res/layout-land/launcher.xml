@@ -57,12 +57,42 @@
             layout="@layout/overview_panel"
             android:visibility="gone" />
 
-        <include
-            android:id="@+id/page_indicator"
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            layout="@layout/page_indicator" />
+            android:paddingLeft="30dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:paddingRight="118dp" >
+
+            <TextView
+                android:id="@+id/launcher_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|center_vertical"
+                android:drawableLeft="@drawable/sun_icon"
+                android:text="@string/much_confirm"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+
+            <include
+                android:id="@+id/page_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                layout="@layout/page_indicator" />
+
+            <TextView
+                android:id="@+id/launcher_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:drawableLeft="@drawable/moon_icon"
+                android:text="@string/much_goback"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
+        </FrameLayout>
 
         <!--
              The Workspace cling must appear under the AppsCustomizePagedView below to ensure

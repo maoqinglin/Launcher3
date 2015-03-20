@@ -95,14 +95,6 @@
         <item name="android:fontFamily">sans-serif-condensed</item>
     </style>
 
-    <style name="StoreMenuTitle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center|bottom</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:paddingBottom">11dp</item>
-    </style>
-
     <style name="WorkspaceIcon.Portrait"></style>
 
     <style name="WorkspaceIcon.Landscape"></style>

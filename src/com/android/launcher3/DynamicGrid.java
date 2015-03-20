@@ -16,6 +16,10 @@
 
 package com.android.launcher3;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 import android.appwidget.AppWidgetHostView;
 import android.content.ComponentName;
 import android.content.Context;
@@ -26,16 +30,12 @@ import android.graphics.Paint.FontMetrics;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import com.android.launcher3.much.MuchConfig;
 
@@ -489,17 +489,22 @@ class DeviceProfile {
         View pageIndicator = launcher.findViewById(R.id.page_indicator);
         if (pageIndicator != null) {
             if (hasVerticalBarLayout) {
-                // Hide the page indicators when we have vertical search/hotseat
-                if (MuchConfig.SUPPORT_MUCH_STYLE) {
-                    lp = (FrameLayout.LayoutParams) pageIndicator.getLayoutParams();
-                    lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-                    lp.width = LayoutParams.WRAP_CONTENT;
-                    lp.height = LayoutParams.WRAP_CONTENT;
-                    lp.bottomMargin = 0;
-                    pageIndicator.setLayoutParams(lp);
-                } else {
-                    pageIndicator.setVisibility(View.GONE);
-                }
+				// edit begin by liu.js 2015/03/19
+				ViewGroup indicatorLayout = (ViewGroup) pageIndicator.getParent();
+				if (indicatorLayout != null) {
+					// Hide the page indicators when we have vertical
+					// search/hotseat
+					if (MuchConfig.SUPPORT_MUCH_STYLE) {
+						lp = (FrameLayout.LayoutParams) indicatorLayout.getLayoutParams();
+						lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
+						lp.width = LayoutParams.MATCH_PARENT;
+						lp.height = LayoutParams.WRAP_CONTENT;
+						lp.bottomMargin = 0;
+						indicatorLayout.setLayoutParams(lp);
+					} else {
+						indicatorLayout.setVisibility(View.GONE);
+					}
+				}
             } else {
                 // Put the page indicators above the hotseat
                 lp = (FrameLayout.LayoutParams) pageIndicator.getLayoutParams();
