@@ -1061,6 +1061,28 @@ public class Launcher extends Activity
         return !inputManager.isFullscreenMode();
     }
 
+    //add by linmaoqing 2015-3-20 增加左右L1,R1键翻页
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(MuchConfig.SUPPORT_MUCH_STYLE) {
+            hideUninstallSharePrompt();
+            //MUCH增加左右L1,R1键翻页
+            switch (keyCode) {
+                case MuchConfig.KEYCODE_BUTTON_L1:
+                    mWorkspace.scrollLeft();
+                    mDragLayer.clearAllResizeFrames();
+                    break;
+                case MuchConfig.KEYCODE_BUTTON_R1:
+                    mWorkspace.scrollRight();
+                    mDragLayer.clearAllResizeFrames();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         final int uniChar = event.getUnicodeChar();
@@ -1086,7 +1108,6 @@ public class Launcher extends Activity
         }
         return handled;
     }
-
 
     private String getTypedText() {
         return mDefaultKeySsb.toString();
@@ -3747,8 +3768,9 @@ public class Launcher extends Activity
 
     @Override
     public void bindScreens(ArrayList<Long> orderedScreenIds) {
-
-    	orderedScreenIds.add(Workspace.CUSTOM_PAGE_SCREEN_POS, Workspace.CUSTOM_PAGE_SCREEN_ID);
+        if(MuchConfig.SUPPORT_MUCH_STYLE && orderedScreenIds.size() > 0){
+            orderedScreenIds.add(Workspace.CUSTOM_PAGE_SCREEN_POS, Workspace.CUSTOM_PAGE_SCREEN_ID);
+        }
         bindAddScreens(orderedScreenIds);
 
         // If there are no screens, we need to have an empty screen

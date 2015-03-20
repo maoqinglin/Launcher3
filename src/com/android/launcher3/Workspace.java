@@ -546,7 +546,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (insertIndex < 0) {
             insertIndex = mScreenOrder.size();
         }
-        Log.d("lmq", "insertNewWorkspaceScreenBeforeEmptyScreen---screenId = "+screenId+"---insertIndex= "+insertIndex);
         return insertNewWorkspaceScreen(screenId, insertIndex);
     }
 
@@ -560,10 +559,10 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         }
 
         //add by linmaoqing 2015-3-19 add custom page 
-        if(insertIndex == CUSTOM_PAGE_SCREEN_POS){
+        if(MuchConfig.SUPPORT_MUCH_STYLE && insertIndex == CUSTOM_PAGE_SCREEN_POS){
             if (!hasCustomContent()) {
                 createCustomContentPage();
-                return CUSTOM_PAGE_SCREEN_ID;
+                return CUSTOM_PAGE_SCREEN_ID; 
             }
         }//end by linmaoqing
 
@@ -1136,7 +1135,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
     protected void onPageBeginMoving() {
         super.onPageBeginMoving();
-
         if (isHardwareAccelerated()) {
             updateChildrenLayersEnabled(false);
         } else {
