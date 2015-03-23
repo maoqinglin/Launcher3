@@ -187,6 +187,13 @@
         launcher:x="1"
         launcher:y="0" />
     <favorite
+        launcher:className="com.ireadygo.app.gamelauncher.ui.store.StoreDetailActivity"
+        launcher:container="-101"
+        launcher:packageName="com.ireadygo.app.freeappstore"
+        launcher:screen="2"
+        launcher:x="2"
+        launcher:y="0" />
+    <favorite
         launcher:className="com.android.contacts.activities.PeopleActivity"
         launcher:container="-101"
         launcher:packageName="com.android.contacts"
