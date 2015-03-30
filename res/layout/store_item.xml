@@ -20,6 +20,8 @@
         android:layout_gravity="center_horizontal|bottom"
         android:layout_marginBottom="8dp"
         android:duplicateParentState="true"
+        android:shadowColor="#7F000000"
+        android:shadowRadius="5"
         android:text="@string/much_store_category_title"
         android:textColor="@color/store_title_selector"
         android:textSize="14sp" />
@@ -27,8 +29,8 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="3dp"
         android:layout_gravity="center"
+        android:layout_margin="3dp"
         android:background="@drawable/store_item_press_selector"
         android:duplicateParentState="true" />
 
