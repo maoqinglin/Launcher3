@@ -1,5 +1,7 @@
 package com.android.launcher3;
 
+import android.content.ComponentCallbacks;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Canvas;
@@ -106,7 +108,10 @@ public class DeleteRect {
 		ItemInfo item = (ItemInfo) view.getTag();
 		if (item instanceof ShortcutInfo) {
 			ShortcutInfo info = (ShortcutInfo) item;
-			isSystemApp = isSysApp(info.getIntent().getComponent().getPackageName()); //modify by linmaoqing 2014-5-14
+			ComponentName componentName = info.getIntent().getComponent();//modify by linmaoqing 2015-3-31 修复空指针问题
+            if (componentName != null) {
+                isSystemApp = isSysApp(componentName.getPackageName()); //modify by linmaoqing 2014-5-14
+            }
 		}else if(item instanceof LauncherAppWidgetInfo){
 			LauncherAppWidgetInfo info = (LauncherAppWidgetInfo)item;
 			if(MuchConfig.APP_WIDGET_SYSTEM_MESSAGE.equals(info.providerName.getClassName())){

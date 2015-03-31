@@ -1,6 +1,7 @@
 
 package com.android.launcher3;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -138,7 +139,12 @@ public class MuchUninstallSharePrompt {
     private void checkUninstallShareNeedShow() {
         if (mDragInfo instanceof ShortcutInfo) {
             ShortcutInfo info = (ShortcutInfo) mDragInfo;
-            mPackageName = info.getIntent().getComponent().getPackageName();
+            ComponentName componentName = info.getIntent().getComponent();//modify by linmaoqing 2015-3-31 修复空指针问题
+            if(componentName == null){
+                mPackageName = "";
+                return ;
+            }
+            mPackageName = componentName.getPackageName();
             mLabel = info.title.toString();
             try {
                 mShowUninstall = !mMuchItemInfoManager.isSystemApp(mPackageName);

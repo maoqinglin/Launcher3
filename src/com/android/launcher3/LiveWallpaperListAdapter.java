@@ -37,6 +37,8 @@ import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import com.android.launcher3.much.MuchConfig;
+
 import java.io.IOException;
 import java.text.Collator;
 import java.util.ArrayList;
@@ -169,7 +171,10 @@ public class LiveWallpaperListAdapter extends BaseAdapter implements ListAdapter
                     Log.w(LOG_TAG, "Skipping wallpaper " + resolveInfo.serviceInfo, e);
                     continue;
                 }
-
+                //modify by linmaoqing 2015-3-31 屏蔽相同的视频壁纸
+                if(MuchConfig.SUPPORT_MUCH_STYLE && "com.mediatek.vlw".equals(info.getPackageName())){
+                    continue ;
+                }
 
                 Drawable thumb = info.loadThumbnail(packageManager);
                 Intent launchIntent = new Intent(WallpaperService.SERVICE_INTERFACE);
