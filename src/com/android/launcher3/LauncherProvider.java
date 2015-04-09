@@ -246,13 +246,27 @@ public class LauncherProvider extends ContentProvider {
 
         sJustLoadedFromOldDb = false;
         if (sp.getBoolean(UPGRADED_FROM_OLD_DATABASE, false)) {
-
-            SharedPreferences.Editor editor = sp.edit();
-            editor.remove(UPGRADED_FROM_OLD_DATABASE);
-            editor.commit();
+//modiby by linmaoqing 2015-4-9 
+//            SharedPreferences.Editor editor = sp.edit();
+//            editor.remove(UPGRADED_FROM_OLD_DATABASE);
+//            editor.commit();
             loadedOldDb = true;
         }
         return loadedOldDb;
+    }
+
+    /**
+     * 移除加载旧数据标示 add by linmaoqing 2015-4-9
+     */
+    synchronized public void removeFlagLoadedOldDb() {
+        String spKey = LauncherAppState.getSharedPreferencesKey();
+        SharedPreferences sp = getContext().getSharedPreferences(spKey, Context.MODE_PRIVATE);
+
+        if (sp.getBoolean(UPGRADED_FROM_OLD_DATABASE, false)) {
+            SharedPreferences.Editor editor = sp.edit();
+            editor.remove(UPGRADED_FROM_OLD_DATABASE);
+            editor.commit();
+        }
     }
 
     /**

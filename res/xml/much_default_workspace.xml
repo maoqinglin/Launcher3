@@ -81,7 +81,7 @@
         <favorite
             launcher:className="com.android.calendar.AllInOneActivity"
             launcher:packageName="com.android.calendar"
-            launcher:screen="32"
+            launcher:screen="2"
             launcher:x="1"
             launcher:y="0" />
         <favorite

@@ -1939,6 +1939,8 @@ public class LauncherModel extends BroadcastReceiver {
                     }
                 }
                 if (loadedOldDb) {
+                    //add by linmaoqing 2015-4-9
+                    LauncherAppState.getLauncherProvider().removeFlagLoadedOldDb();
                     long maxScreenId = 0;
                     // If we're importing we use the old screen order.
                     for (ItemInfo item: sBgItemsIdMap.values()) {
