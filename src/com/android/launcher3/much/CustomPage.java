@@ -166,10 +166,10 @@ public class CustomPage extends CellLayout implements OnClickListener {
 			mAutoScrollViewPager = (AutoScrollViewPager) findViewById(R.id.storeRecommendViewPager);
 			mImagePagerAdapter = new ImagePagerAdapter(getContext(), mAdLeftBannerUrlList, mImageLoader);
 			mImagePagerAdapter.setOnClickListener(mLeftBannerOnClickListener);
-			mImagePagerAdapter.setInfiniteLoop(true);
+			mImagePagerAdapter.setInfiniteLoop(false);
 			mAutoScrollViewPager.setOnPageChangeListener(mAutoScrollListener);
 			mAutoScrollViewPager.setAdapter(mImagePagerAdapter);
-			mAutoScrollViewPager.setCurrentItem(mAdLeftBannerUrlList.size() * 10000);
+			mAutoScrollViewPager.setCurrentItem(0);
 			mAutoScrollViewPager.setBorderAnimation(true);
 			mAutoScrollViewPager.setScrollDurationFactor(10.0);
 			mAutoScrollViewPager.setInterval(BANNER_SCROLL_DELAY);
