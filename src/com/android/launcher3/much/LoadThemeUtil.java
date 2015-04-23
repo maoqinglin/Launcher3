@@ -132,7 +132,7 @@ public class LoadThemeUtil {
         Bitmap bitmap = getThemeIcon(context, path);
         if (bitmap == null) {
             bitmap = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.much_app_icon_bg);
+                    R.drawable.much_icon_bg);
         }
         return bitmap;
     }
@@ -141,7 +141,7 @@ public class LoadThemeUtil {
         Bitmap bitmap = getThemeIcon(context, THEME_ICON_MASK);
         if (bitmap == null) {
             bitmap = BitmapFactory.decodeResource(context.getResources(),
-                    R.drawable.much_app_icon_mask);
+                    R.drawable.much_icon_mask);
         }
         return bitmap;
     }

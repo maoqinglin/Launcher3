@@ -61,17 +61,21 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	private ImageLoader mImageLoader;
 	private Drawable mDefaultDrawable;
 	private Drawable mEmptyDrawable;
+	private Context mContext;
 
 	public CustomPage(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		mContext = context;
 	}
 
 	public CustomPage(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		mContext = context;
 	}
 
 	public CustomPage(Context context) {
 		super(context);
+		mContext = context;
 	}
 
 	@Override
@@ -151,7 +155,8 @@ public class CustomPage extends CellLayout implements OnClickListener {
 	private void initItem(View item, int titleId, int iconId) {
 		if(getResources().getConfiguration().orientation != Configuration.ORIENTATION_LANDSCAPE){
 			android.widget.LinearLayout.LayoutParams params = (android.widget.LinearLayout.LayoutParams)item.getLayoutParams();
-			params.rightMargin = 64;
+//			params.rightMargin = 64;
+			params.rightMargin = mContext.getResources().getDimensionPixelOffset(R.dimen.custom_page_padding_right);
 			item.setLayoutParams(params);
 		}
 		item.setOnClickListener(this);
