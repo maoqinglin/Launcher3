@@ -326,6 +326,12 @@ public class LauncherModel extends BroadcastReceiver {
 
                         // Short-circuit this logic if the icon exists somewhere on the workspace
                         if (LauncherModel.shortcutExists(context, name, launchIntent)) {
+                            Log.w("lmq", "shortcutExists delete launchIntent = "+launchIntent);
+                           //modify by linmaoqing 2015-5-8 修复3G卡、4G卡导致桌面重复图标问题
+                            final ContentResolver cr = context.getContentResolver();
+                            final Uri uriToDelete = LauncherSettings.Favorites.getContentUri(a.id, false);
+                            cr.delete(uriToDelete, null, null);
+                            deleteItemFromDatabase(context, a);
                             continue;
                         }
 
@@ -368,7 +374,7 @@ public class LauncherModel extends BroadcastReceiver {
                         } else {
                             throw new RuntimeException("Unexpected info type");
                         }
-
+                        Log.w("lmq", "addAndBindAddedApps---id = "+shortcutInfo.id);
                         // Add the shortcut to the db
                         addItemToDatabase(context, shortcutInfo,
                                 LauncherSettings.Favorites.CONTAINER_DESKTOP,
@@ -748,9 +754,13 @@ public class LauncherModel extends BroadcastReceiver {
      */
     static boolean shortcutExists(Context context, String title, Intent intent) {
         final ContentResolver cr = context.getContentResolver();
+//        Cursor c = cr.query(LauncherSettings.Favorites.CONTENT_URI,
+//            new String[] { "title", "intent" }, "title=? and intent=?",
+//            new String[] { title, intent.toUri(0) }, null);
+        //modify by linmaoqing 2015-5-8 修复3G卡、4G卡导致桌面重复图标问题
         Cursor c = cr.query(LauncherSettings.Favorites.CONTENT_URI,
-            new String[] { "title", "intent" }, "title=? and intent=?",
-            new String[] { title, intent.toUri(0) }, null);
+                new String[] { "intent" }, "intent=?",
+                new String[] { intent.toUri(0) }, null);
         boolean result = false;
         try {
             result = c.moveToFirst();
@@ -869,7 +879,6 @@ public class LauncherModel extends BroadcastReceiver {
         item.id = LauncherAppState.getLauncherProvider().generateNewItemId();
         values.put(LauncherSettings.Favorites._ID, item.id);
         item.updateValuesWithCoordinates(values, item.cellX, item.cellY);
-
         Runnable r = new Runnable() {
             public void run() {
                 cr.insert(notify ? LauncherSettings.Favorites.CONTENT_URI :
@@ -1637,7 +1646,6 @@ public class LauncherModel extends BroadcastReceiver {
 
             // Check if we need to do any upgrade-path logic
             boolean loadedOldDb = LauncherAppState.getLauncherProvider().justLoadedOldDb();
-
             synchronized (sBgLock) {
                 clearSBgDataStructures();
 
