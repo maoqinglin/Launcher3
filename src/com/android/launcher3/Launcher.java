@@ -4174,20 +4174,21 @@ public class Launcher extends Activity
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void bindComponentsRemoved(final ArrayList<String> packageNames,
-                                      final ArrayList<AppInfo> appInfos,
-                                      final boolean packageRemoved) {
+                                      final ArrayList<AppInfo> appInfos) {
         Runnable r = new Runnable() {
             public void run() {
-                bindComponentsRemoved(packageNames, appInfos, packageRemoved);
+                bindComponentsRemoved(packageNames, appInfos);
             }
         };
         if (waitUntilResume(r)) {
             return;
         }
 
-        if (packageRemoved) {
+        if (!packageNames.isEmpty()) {
             mWorkspace.removeItemsByPackageName(packageNames);
-        } else {
+        }
+
+        if (!appInfos.isEmpty()) {
             mWorkspace.removeItemsByApplicationInfo(appInfos);
         }
 
@@ -4779,7 +4780,7 @@ public class Launcher extends Activity
 //                bindAppsRemoved(del, true);
                 ArrayList<AppInfo> appInfos = new ArrayList<AppInfo>();
                 appInfos.add(mUninstallSharePrompt.getAppInfo());
-                bindComponentsRemoved(del, appInfos, true);
+                bindComponentsRemoved(del, appInfos);
                 dialog.dismiss();
             }
         });
