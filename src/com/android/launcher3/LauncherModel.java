@@ -56,7 +56,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -325,7 +324,6 @@ public class LauncherModel extends BroadcastReceiver {
 
                         // Short-circuit this logic if the icon exists somewhere on the workspace
                         if (LauncherModel.shortcutExists(context, name, launchIntent)) {
-                            Log.w("lmq", "shortcutExists delete launchIntent = "+launchIntent);
                            //modify by linmaoqing 2015-5-8 修复3G卡、4G卡导致桌面重复图标问题
                             final ContentResolver cr = context.getContentResolver();
                             final Uri uriToDelete = LauncherSettings.Favorites.getContentUri(a.id, false);
@@ -373,7 +371,6 @@ public class LauncherModel extends BroadcastReceiver {
                         } else {
                             throw new RuntimeException("Unexpected info type");
                         }
-                        Log.w("lmq", "addAndBindAddedApps---id = "+shortcutInfo.id);
                         // Add the shortcut to the db
                         addItemToDatabase(context, shortcutInfo,
                                 LauncherSettings.Favorites.CONTAINER_DESKTOP,
@@ -1061,7 +1058,6 @@ public class LauncherModel extends BroadcastReceiver {
         if (DEBUG_LOADERS) Log.d(TAG, "onReceive intent=" + intent);
 
         final String action = intent.getAction();
-
         if (Intent.ACTION_PACKAGE_CHANGED.equals(action)
                 || Intent.ACTION_PACKAGE_REMOVED.equals(action)
                 || Intent.ACTION_PACKAGE_ADDED.equals(action)) {
@@ -1074,7 +1070,7 @@ public class LauncherModel extends BroadcastReceiver {
                 // they sent us a bad intent
                 return;
             }
-
+            
             if (Intent.ACTION_PACKAGE_CHANGED.equals(action)) {
                 op = PackageUpdatedTask.OP_UPDATE;
             } else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
@@ -1633,7 +1629,6 @@ public class LauncherModel extends BroadcastReceiver {
             DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
             int countX = (int) grid.numColumns;
             int countY = (int) grid.numRows;
-
             // Make sure the default workspace is loaded, if needed
             //edit begin by lilu 20140514
             LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace : 0);
@@ -2942,6 +2937,7 @@ public class LauncherModel extends BroadcastReceiver {
         if (info == null) {
             return null;
         }
+        
         addItemToDatabase(context, info, container, screen, cellX, cellY, notify);
 
         return info;

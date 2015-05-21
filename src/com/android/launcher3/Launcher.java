@@ -862,7 +862,7 @@ public class Launcher extends Activity
             Log.v(TAG, "Launcher.onResume()");
         }
         super.onResume();
-
+        
         // Restore the previous launcher state
         if (mOnResumeState == State.WORKSPACE) {
             showWorkspace(false);
@@ -1395,7 +1395,6 @@ public class Launcher extends Activity
             showOutOfSpaceMessage(isHotseatLayout(layout));
             return;
         }
-
         LauncherModel.addItemToDatabase(this, info, container, screenId, cellXY[0], cellXY[1], false);
 
         if (!mRestoring) {
@@ -1930,7 +1929,8 @@ public class Launcher extends Activity
         if (selectInitialQuery) {
             intent.putExtra(SearchManager.EXTRA_SELECT_QUERY, selectInitialQuery);
         }
-        intent.setSourceBounds(sourceBounds);
+        //modify by linmaoqing 2015-05-21 修复intent不一致导致图标重复问题
+//        intent.setSourceBounds(sourceBounds);
         try {
             startActivity(intent);
         } catch (ActivityNotFoundException ex) {
@@ -2101,7 +2101,6 @@ public class Launcher extends Activity
             int cellY) {
         final FolderInfo folderInfo = new FolderInfo();
         folderInfo.title = getText(R.string.folder_name);
-
         // Update the model
         LauncherModel.addItemToDatabase(Launcher.this, folderInfo, container, screenId, cellX, cellY,
                 false);
@@ -2294,8 +2293,9 @@ public class Launcher extends Activity
             // Start activities
             int[] pos = new int[2];
             v.getLocationOnScreen(pos);
-            intent.setSourceBounds(new Rect(pos[0], pos[1],
-                    pos[0] + v.getWidth(), pos[1] + v.getHeight()));
+            //modify by linmaoqing 2015-5-21 修复intent导致的重复图标
+//            intent.setSourceBounds(new Rect(pos[0], pos[1],
+//                    pos[0] + v.getWidth(), pos[1] + v.getHeight()));
 
             boolean success = startActivitySafely(v, intent, tag);
 
