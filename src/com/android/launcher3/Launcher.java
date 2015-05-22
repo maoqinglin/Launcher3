@@ -68,6 +68,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Point;
@@ -3959,7 +3960,30 @@ public class Launcher extends Activity
                 }
             }
         }
+
+        updateSMSIcon();
         workspace.requestLayout();
+    }
+
+    //更新未读信息显示
+    private void updateSMSIcon() {
+    	String smsClsName = "com.android.mms.ui.BootActivity";
+        int unReadSMSNum = getNewMmsCount(this);
+        if(unReadSMSNum > 0) {
+        	LauncherAppState.getInstance().getIconDecorater().updateSMSUnReadDisplay(smsClsName, unReadSMSNum);
+        }
+    }
+
+    private int getNewMmsCount(Context context) {
+        int result = 0;  
+        Cursor csr = getContentResolver().query(Uri.parse("content://sms"), null,  
+                "type = 1 and read = 0", null, null);
+        if (csr != null) {  
+            result = csr.getCount();  
+            csr.close();  
+        }
+        Log.i("chenrui", "Launcher~~~Unread : " + result);
+        return result;  
     }
 
     /**

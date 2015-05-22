@@ -21,6 +21,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.PixelFormat;
 import android.graphics.PorterDuff.Mode;
@@ -190,36 +191,40 @@ public class IconDecorater {
         public void onReceive(Context context, Intent intent) {
             ComponentName componentName = (ComponentName) intent.getExtras()
                     .get(MTK_EXTRA_UNREAD_COMPONENT);
-            int unreadNum = intent.getIntExtra(
-                    MTK_EXTRA_UNREAD_NUMBER, 0);
+            int unreadNum = intent.getIntExtra(MTK_EXTRA_UNREAD_NUMBER, 0);
             String clsName = componentName.getClassName();
 
-            synchronized (mObservedTextViews) {
-                WeakReference<TextView> wTextView = mObservedTextViews.get(clsName);
-                if (wTextView != null) {
-                    final TextView textView = wTextView.get();
-
-                    if (textView == null) {
-                        mObservedTextViews.remove(clsName);
-                        mObservedIcons.remove(clsName);
-                        return;
-                    }
-                    final Bitmap mask = markCountIcon(mContext.getResources(),
-                            mObservedIcons.get(clsName),
-                            unreadNum);
-                    textView.post(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            textView.setCompoundDrawablesWithIntrinsicBounds(null,
-                                    new FastBitmapDrawable(mask), null, null);
-                        }
-                    });
-
-                }
-            }
+            updateSMSUnReadDisplay(clsName, unreadNum);
         }
     };
+
+    //更新未读显示
+    public void updateSMSUnReadDisplay(String clsName, int unreadNum) {
+    	synchronized (mObservedTextViews) {
+            WeakReference<TextView> wTextView = mObservedTextViews.get(clsName);
+            if (wTextView != null) {
+                final TextView textView = wTextView.get();
+
+                if (textView == null) {
+                    mObservedTextViews.remove(clsName);
+                    mObservedIcons.remove(clsName);
+                    return;
+                }
+                final Bitmap mask = markCountIcon(mContext.getResources(),
+                        mObservedIcons.get(clsName),
+                        unreadNum);
+                textView.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        textView.setCompoundDrawablesWithIntrinsicBounds(null,
+                                new FastBitmapDrawable(mask), null, null);
+                    }
+                });
+
+            }
+        }
+    }
 
     public Bitmap decorateIcon(Resources resources, Bitmap icon) {
         return decorateIcon(resources, icon, mIconPattern);
@@ -332,17 +337,15 @@ public class IconDecorater {
         Paint countPaint = new Paint(Paint.ANTI_ALIAS_FLAG
                 | Paint.DEV_KERN_TEXT_FLAG);
         countPaint.setColor(Color.WHITE);
-        countPaint.setTextSize(20f);
+        countPaint.setTextSize(30f);
         countPaint.setTypeface(Typeface.DEFAULT_BOLD);
         if (count < 10) {
-            canvas.drawText(String.valueOf(count), appIconSize - 2 * indicate.getWidth() / 3, 25,
-                    countPaint);
+            canvas.drawText(String.valueOf(count), appIconSize - 2 * indicate.getWidth() / 3, 40, countPaint);
         } else {
             if (count > 99) {
                 count = 99;
             }
-            canvas.drawText(String.valueOf(count), appIconSize - 6 * indicate.getWidth() / 7, 25,
-                    countPaint);
+            canvas.drawText(String.valueOf(count), appIconSize - 6 * indicate.getWidth() / 7, 40, countPaint);
         }
         return contactIcon;
     }
