@@ -88,7 +88,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="29dp" >
+            android:paddingTop="20dp" >
 
             <include
                 android:id="@+id/store_recommend"
@@ -107,7 +107,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="29dp" >
+            android:paddingTop="20dp" >
 
             <include
                 android:id="@+id/store_search"
