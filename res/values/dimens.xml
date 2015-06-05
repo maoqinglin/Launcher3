@@ -125,4 +125,7 @@
     <dimen name="custom_page_padding_right">21dp</dimen>
     <!-- folder icon -->
     <dimen name="folder_icon_item_padding_top">7dp</dimen>
+
+    <!-- unread text size -->
+    <dimen name="unread_text_size">12sp</dimen>
 </resources>

@@ -341,15 +341,21 @@ public class IconDecorater {
         Paint countPaint = new Paint(Paint.ANTI_ALIAS_FLAG
                 | Paint.DEV_KERN_TEXT_FLAG);
         countPaint.setColor(Color.WHITE);
-        countPaint.setTextSize(30f);
+        countPaint.setTextSize(resources.getDimensionPixelSize(R.dimen.unread_text_size));
         countPaint.setTypeface(Typeface.DEFAULT_BOLD);
         if (count < 10) {
-            canvas.drawText(String.valueOf(count), appIconSize - 2 * indicate.getWidth() / 3, 40, countPaint);
+            canvas.drawText(String.valueOf(count),
+                    appIconSize - 2 * indicate.getWidth() / 3,
+                    3 * indicate.getHeight() / 4,
+                    countPaint);
         } else {
             if (count > 99) {
                 count = 99;
             }
-            canvas.drawText(String.valueOf(count), appIconSize - 6 * indicate.getWidth() / 7, 40, countPaint);
+            canvas.drawText(String.valueOf(count),
+                    appIconSize - 7 * indicate.getWidth() / 8,
+                    3 * indicate.getHeight() / 4,
+                    countPaint);
         }
         return contactIcon;
     }
