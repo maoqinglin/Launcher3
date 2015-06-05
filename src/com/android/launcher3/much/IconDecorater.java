@@ -52,7 +52,7 @@ public class IconDecorater {
     private final String MTK_EXTRA_UNREAD_NUMBER = "com.mediatek.intent.extra.UNREAD_NUMBER";
 
     private final String MMS_CLASSNAME = "com.android.mms.ui.BootActivity";
-    private final String CONTACTS_CLASSNAME = "com.android.contacts.activities.DialtactsActivity";
+    private final String CONTACTS_CLASSNAME = "com.android.dialer.DialtactsActivity";
     private final String EMAIL_CLASSNAME = "com.android.email.activity.Welcome";
     private final String CALENDAR_CLASSNAME = "com.android.calendar.AllInOneActivity";
 
@@ -125,7 +125,7 @@ public class IconDecorater {
         return icon;
     }
 
-    public void observeIconNeedUpdated(TextView textView, Bitmap icon, ComponentName componentName) {
+    public void observeIconNeedUpdated(final TextView textView, Bitmap icon, ComponentName componentName) {
         String className = componentName == null ? "" : componentName.getClassName();
         if (!canIconBeObserved(className)) {
             textView.setCompoundDrawablesWithIntrinsicBounds(null,
@@ -134,15 +134,20 @@ public class IconDecorater {
             return;
         }
 
-        Bitmap bitmap = decorateIconNum(icon, className);
-        textView.setCompoundDrawablesWithIntrinsicBounds(null,
-                new FastBitmapDrawable(bitmap),
-                null, null);
         synchronized (mObservedTextViews) {
             mObservedTextViews.remove(className);
             mObservedIcons.remove(className);
             mObservedTextViews.put(className, new WeakReference<TextView>(textView));
             mObservedIcons.put(className, icon);
+        final Bitmap bitmap = decorateIconNum(icon, className);
+        textView.post(new Runnable() {
+
+            @Override
+            public void run() {
+                textView.setCompoundDrawablesWithIntrinsicBounds(null,
+                        new FastBitmapDrawable(bitmap), null, null);
+            }
+        });
         }
     }
 
@@ -193,7 +198,6 @@ public class IconDecorater {
                     .get(MTK_EXTRA_UNREAD_COMPONENT);
             int unreadNum = intent.getIntExtra(MTK_EXTRA_UNREAD_NUMBER, 0);
             String clsName = componentName.getClassName();
-
             updateSMSUnReadDisplay(clsName, unreadNum);
         }
     };
