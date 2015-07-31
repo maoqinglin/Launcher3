@@ -739,7 +739,6 @@ public class Launcher extends Activity
             final int requestCode, final int resultCode, final Intent data) {
         // Reset the startActivity waiting flag
         mWaitingForResult = false;
-
         if (requestCode == REQUEST_BIND_APPWIDGET) {
             int appWidgetId = data != null ?
                     data.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) : -1;
@@ -2059,8 +2058,12 @@ public class Launcher extends Activity
                 success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
                         info.componentName, options);
             } else {
-                success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
-                        info.componentName);
+                try {
+                    success = mAppWidgetManager.bindAppWidgetIdIfAllowed(appWidgetId,
+                            info.componentName);
+                } catch (IllegalArgumentException e) {
+                    Toast.makeText(this, getResources().getString(R.string.much_widget_add_fail), Toast.LENGTH_SHORT).show();
+                }
             }
             if (success) {
                 addAppWidgetImpl(appWidgetId, info, null, info.info);

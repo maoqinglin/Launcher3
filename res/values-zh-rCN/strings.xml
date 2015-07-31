@@ -148,4 +148,7 @@
     <string name="much_free_app_store_title">免商店</string>
 	<string name="much_confirm">确定</string>
     <string name="much_goback">返回</string>
+    
+    <!-- widget添加失败提示 -->
+    <string name="much_widget_add_fail">挂件添加失败：挂件格式错误！</string>
 </resources>

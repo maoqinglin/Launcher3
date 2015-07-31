@@ -590,13 +590,18 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
                         mWidgetCleanupState = WIDGET_BOUND;
                     }
                 } else {
-                    if (AppWidgetManager.getInstance(mLauncher).bindAppWidgetIdIfAllowed(
-                            mWidgetLoadingId, info.componentName, options)) {
-                        mWidgetCleanupState = WIDGET_BOUND;
+                    try {
+                        if (AppWidgetManager.getInstance(mLauncher).bindAppWidgetIdIfAllowed(
+                                mWidgetLoadingId, info.componentName, options)) {
+                            mWidgetCleanupState = WIDGET_BOUND;
+                        }
+                    } catch (IllegalArgumentException e) {
+                        Toast.makeText(mLauncher, getResources().getString(R.string.much_widget_add_fail), Toast.LENGTH_SHORT).show();
                     }
                 }
             }
         };
+
         post(mBindWidgetRunnable);
 
         mInflateWidgetRunnable = new Runnable() {

@@ -319,4 +319,7 @@ s -->
     <string name="much_free_app_store_title">Mian-Store</string>
     <string name="much_confirm">Confirm</string>
     <string name="much_goback">Cancel</string>
+    
+    <!-- widget添加失败提示 -->
+    <string name="much_widget_add_fail">Widget add Failed,Widget format error!</string>
 </resources>
