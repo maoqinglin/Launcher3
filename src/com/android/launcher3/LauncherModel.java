@@ -1200,10 +1200,8 @@ public class LauncherModel extends BroadcastReceiver {
                 isLaunching = isLaunching || stopLoaderLocked();
                 mLoaderTask = new LoaderTask(mApp.getContext(), isLaunching);
                 if (synchronousBindPage > -1 && mAllAppsLoaded && mWorkspaceLoaded) {
-                	Log.i("chenrui", "~~~~~~~111~~~~~~~~");
                     mLoaderTask.runBindSynchronousPage(synchronousBindPage);
                 } else {
-                	Log.i("chenrui", "~~~~~~~222~~~~~~~~");
                     sWorkerThread.setPriority(Thread.NORM_PRIORITY);
                     sWorker.post(mLoaderTask);
                 }

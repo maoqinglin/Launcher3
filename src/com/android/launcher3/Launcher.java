@@ -3985,7 +3985,6 @@ public class Launcher extends Activity
             result = csr.getCount();  
             csr.close();  
         }
-        Log.i("chenrui", "Launcher~~~Unread : " + result);
         return result;  
     }
 
