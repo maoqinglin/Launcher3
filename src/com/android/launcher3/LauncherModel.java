@@ -66,6 +66,7 @@ import android.os.SystemClock;
 import android.provider.BaseColumns;
 import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
 import com.android.launcher3.InstallWidgetReceiver.WidgetMimeTypeHandlerData;
 import com.android.launcher3.much.MuchConfig;
@@ -1633,7 +1634,17 @@ public class LauncherModel extends BroadcastReceiver {
             int countY = (int) grid.numRows;
             // Make sure the default workspace is loaded, if needed
             //edit begin by lilu 20140514
-            LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace : 0);
+            Uri contentUri = LauncherSettings.Favorites.CONTENT_URI;
+            Cursor cursor = contentResolver.query(contentUri, null, null, null, null);
+            try {
+                if(cursor == null || cursor.getCount() == 0){
+                    LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace : 0);
+                }
+            } finally{
+                if(cursor != null){
+                    cursor.close();
+                }
+            }
 //            if (Build.MODEL.startsWith("MUCH i")) {
 //            	LauncherAppState.getLauncherProvider().loadDefaultFavoritesIfNecessary(MuchConfig.SUPPORT_MUCH_STYLE ? R.xml.much_default_workspace_i5 : 0);
 //            } else {
@@ -1646,7 +1657,7 @@ public class LauncherModel extends BroadcastReceiver {
                 clearSBgDataStructures();
 
                 final ArrayList<Long> itemsToRemove = new ArrayList<Long>();
-                final Uri contentUri = LauncherSettings.Favorites.CONTENT_URI;
+//                final Uri contentUri = LauncherSettings.Favorites.CONTENT_URI;
                 if (DEBUG_LOADERS) Log.d(TAG, "loading model from " + contentUri);
                 final Cursor c = contentResolver.query(contentUri, null, null, null, null);
 
