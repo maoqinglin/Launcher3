@@ -201,6 +201,25 @@ public class AutoScrollViewPager extends ViewPager {
 		}
 	}
 
+    public void scrollRight() {
+        PagerAdapter adapter = getAdapter();
+        int currentItem = getCurrentItem();
+        if (currentItem == adapter.getCount()) {
+            return;
+        }
+        int nextItem = ++currentItem;
+        setCurrentItem(nextItem, true);
+    }
+
+    public void scrollLeft() {
+        int currentItem = getCurrentItem();
+        if (currentItem == 0) {
+            return;
+        }
+        int nextItem = --currentItem;
+        setCurrentItem(nextItem, true);
+    }
+
 	/**
 	 * <ul>
 	 * if stopScrollWhenTouch is true
