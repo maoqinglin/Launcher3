@@ -322,4 +322,9 @@ s -->
     
     <!-- widget添加失败提示 -->
     <string name="much_widget_add_fail">Widget add Failed,Widget format error!</string>
+    
+    <!-- 浮动菜单 -->
+    <string name="much_menu_delete">Delete</string>
+    <string name="much_menu_share">Share</string>
+    <string name="much_menu_keydiy">DIY</string>
 </resources>

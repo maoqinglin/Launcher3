@@ -276,6 +276,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 //            }
 //        }//end by linmaoqing
         //end by lilu
+        if(MuchConfig.SUPPORT_MUCH_STYLE && mLauncher.getFloatMenuManager().isFloatMenuOpen()){
+            mLauncher.getFloatMenuManager().closeFloatMenu();
+            return;
+        }
         Object tag = v.getTag();
         if (tag instanceof ShortcutInfo) {
             mLauncher.onClick(v);
@@ -283,6 +287,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     }
 
     public boolean onLongClick(View v) {
+        
         // Return if global dragging is not enabled
         if (!mLauncher.isDraggingEnabled()) return true;
 
@@ -306,7 +311,14 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
             //add by linmaoqing 2014-4-5-14
             if(MuchConfig.SUPPORT_MUCH_STYLE){
-                MuchAppShakeAndShareManager.getInstance().handleClickToShake(true, false);
+//                MuchAppShakeAndShareManager.getInstance().handleClickToShake(true, false);
+                
+                int flocation[] = new int[2];
+                v.getLocationOnScreen(flocation);
+                CellLayout.LayoutParams lp = (com.android.launcher3.CellLayout.LayoutParams)v.getLayoutParams();
+                mLauncher.getFloatMenuManager().setFolderPoint(flocation);
+                mLauncher.getFloatMenuManager().createFloatMenu(v,item.cellX,item.cellY);
+                
             }//end by linmaoqing
 
             //add by linmaoqing 2014-5-13
@@ -725,6 +737,8 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             scrollOffset = mScrollView.getScrollY();
 		}//end by linmaoqing
         final float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, dragView, null);
+        int left = mContent.getLeft();
+        int top = mContent.getLeft();
         r[0] -= getPaddingLeft();
         r[1] -= getPaddingTop();
         //add by linmaoqing 2014-5-13
@@ -757,6 +771,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             if (isLayoutRtl()) {
                 mTargetCell[0] = mContent.getCountX() - mTargetCell[0] - 1;
             }
+            
             if (mTargetCell[0] != mPreviousTargetCell[0]
                     || mTargetCell[1] != mPreviousTargetCell[1]) {
                 mReorderAlarm.cancelAlarm();

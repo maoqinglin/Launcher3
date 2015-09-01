@@ -1056,6 +1056,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 }
             }
         }
+        
         return super.onInterceptTouchEvent(ev);
     }
 
@@ -1164,6 +1165,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 ((CellLayout) getPageAt(i)).setShortcutAndWidgetAlpha(1f);
             }
         }
+        mLauncher.getFloatMenuManager().closeFloatMenu();
     }
 
     protected void onPageEndMoving() {
@@ -2636,7 +2638,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (!child.isInTouchMode()) {
             return;
         }
-
+       
         mDragInfo = cellInfo;
         child.setVisibility(INVISIBLE);
         CellLayout layout = (CellLayout) child.getParent().getParent();
@@ -2690,10 +2692,8 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             BubbleTextView icon = (BubbleTextView) child;
             icon.clearPressedOrFocusedBackground();
         }
-
         mDragController.startDrag(b, dragLayerX, dragLayerY, source, child.getTag(), DragController.DRAG_ACTION_MOVE,
                 dragVisualizeOffset, dragRect, scale);
-
         if (child.getParent() instanceof ShortcutAndWidgetContainer) {
             mDragSourceInternal = (ShortcutAndWidgetContainer) child.getParent();
         }
@@ -3493,7 +3493,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         // Skip drag over events while we are dragging over side pages
         if (mInScrollArea || mIsSwitchingState || mState == State.SMALL)
             return;
-
+        
         Rect r = new Rect();
         CellLayout layout = null;
         ItemInfo item = (ItemInfo) d.dragInfo;
@@ -3503,7 +3503,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             throw new RuntimeException("Improper spans found");
         mDragViewVisualCenter = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, d.dragView,
                 mDragViewVisualCenter);
-
         final View child = (mDragInfo == null) ? null : mDragInfo.cell;
         // Identify whether we have dragged over a side page
         if (isSmall()) {
@@ -3550,6 +3549,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         	if(mDragTargetLayout instanceof CustomPage){
             	return;
             }
+        	
             // We want the point to be mapped to the dragTarget.
             if (mLauncher.isHotseatLayout(mDragTargetLayout)) {
                 mapPointFromSelfToHotseatLayout(mLauncher.getHotseat(), mDragViewVisualCenter);
@@ -3575,7 +3575,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
             float targetCellDistance = mDragTargetLayout.getDistanceFromCell(mDragViewVisualCenter[0],
                     mDragViewVisualCenter[1], mTargetCell);
-
             final View dragOverView = mDragTargetLayout.getChildAt(mTargetCell[0], mTargetCell[1]);
 
             manageFolderFeedback(info, mDragTargetLayout, mTargetCell, targetCellDistance, dragOverView);

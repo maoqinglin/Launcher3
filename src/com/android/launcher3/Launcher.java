@@ -118,6 +118,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.launcher3.DropTarget.DragObject;
+import com.android.launcher3.floatmenu.FloatingActionMenu;
 import com.android.launcher3.much.ImageHelper;
 import com.android.launcher3.much.MuchConfig;
 import com.android.launcher3.much.ScreenCapture;
@@ -128,7 +129,7 @@ import com.umeng.analytics.MobclickAgent;
  */
 public class Launcher extends Activity
         implements View.OnClickListener, OnLongClickListener, LauncherModel.Callbacks,
-                   View.OnTouchListener {
+                   View.OnTouchListener{
     static final String TAG = "Launcher";
     static final boolean LOGD = false;
 
@@ -342,6 +343,12 @@ public class Launcher extends Activity
     private HomeKeyListenerReceiver mHomeKeyListenerReceiver;
     public final static int CREATE_UNINSTALL_DIALOG = 111;
     //end by linmaoqing
+    
+    public FloatMenuManager mFloatMenuManager;
+    
+    public FloatMenuManager getFloatMenuManager() {
+        return mFloatMenuManager;
+    }
 
     private HideFromAccessibilityHelper mHideFromAccessibilityHelper
         = new HideFromAccessibilityHelper();
@@ -369,6 +376,8 @@ public class Launcher extends Activity
     }
 
     private Stats mStats;
+    
+    private List<FloatingActionMenu> mMenuList = new ArrayList<FloatingActionMenu>();
 
     private static boolean isPropertyEnabled(String propertyName) {
         return Log.isLoggable(propertyName, Log.VERBOSE);
@@ -503,6 +512,9 @@ public class Launcher extends Activity
         if(MuchConfig.SUPPORT_MUCH_STYLE) {
             registerHomeKeyReceiver(); //add by linmaoqing 2014-4-16
         }
+
+        mFloatMenuManager = new FloatMenuManager();
+        mFloatMenuManager.init(this,mHandler);//add by linmaoqing 2015-8-27
     }
 
     protected void onUserLeaveHint() {
@@ -1850,6 +1862,10 @@ public class Launcher extends Activity
         mWorkspace.removeAllViews();
         mWorkspace = null;
         mDragController = null;
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            mFloatMenuManager.onDestory();
+            mFloatMenuManager = null;
+        }
 
         LauncherAnimUtils.onDestroyActivity();
     }
@@ -2227,12 +2243,12 @@ public class Launcher extends Activity
      * @param v The view representing the clicked shortcut.
      */
     public void onClick(View v) {
+        Log.e("lmq", "Launcher onclick");
         // Make sure that rogue clicks don't get through while allapps is launching, or after the
         // view has detached (it's possible for this to happen if the view is removed mid touch).
         if (v.getWindowToken() == null) {
             return;
         }
-
         if (!mWorkspace.isFinishedSwitchingState()) {
             return;
         }
@@ -2240,6 +2256,10 @@ public class Launcher extends Activity
             if (mWorkspace.isInOverviewMode()) {
                 mWorkspace.exitOverviewMode(true);
             }
+            return;
+        }
+        if(MuchConfig.SUPPORT_MUCH_STYLE && mFloatMenuManager.isFloatMenuOpen()){
+            mFloatMenuManager.closeFloatMenu();// add by linmaoqing 2015-8-27
             return;
         }
         //add by linmaoqing 2014-5-22
@@ -2314,9 +2334,9 @@ public class Launcher extends Activity
                 FolderIcon fi = (FolderIcon) v;
                 handleFolderClick(fi);
                 //begin add by linmaoqing
-                if(MuchConfig.SUPPORT_MUCH_STYLE){
-                    MuchAppShakeAndShareManager.getInstance().handleClickToShake(false, false);
-                }//end by linmaoqing
+//                if(MuchConfig.SUPPORT_MUCH_STYLE){
+//                    MuchAppShakeAndShareManager.getInstance().handleClickToShake(false, false);
+//                }//end by linmaoqing
             }
         } else if (v == mAllAppsButton) {
             if (isAllAppsVisible()) {
@@ -2710,13 +2730,16 @@ public class Launcher extends Activity
     }
     
     public void closeFolder() {
+        if(MuchConfig.SUPPORT_MUCH_STYLE && mFloatMenuManager.isFloatMenuOpen()){
+            mFloatMenuManager.closeFloatMenu();
+        }
         Folder folder = mWorkspace.getOpenFolder();
         if (folder != null) {
             //add by linmaoqing
-            if (MuchAppShakeAndShareManager.getInstance().getDeleteState() == MuchAppShakeAndShareManager.ShakeState.DELETE_DESKTOP) {
-//                mWorkspace.toShakeOpenFolder(Workspace.DELETE_DESKTOP,false);
-                MuchAppShakeAndShareManager.getInstance().toShakeOpenFolder(MuchAppShakeAndShareManager.ShakeState.DELETE_DESKTOP, false);
-            }
+//            if (MuchAppShakeAndShareManager.getInstance().getDeleteState() == MuchAppShakeAndShareManager.ShakeState.DELETE_DESKTOP) {
+////                mWorkspace.toShakeOpenFolder(Workspace.DELETE_DESKTOP,false);
+//                MuchAppShakeAndShareManager.getInstance().toShakeOpenFolder(MuchAppShakeAndShareManager.ShakeState.DELETE_DESKTOP, false);
+//            }
             if (folder.isEditingName()) {
                 folder.dismissEditingName();
             }
@@ -2743,9 +2766,16 @@ public class Launcher extends Activity
     }
 
     public boolean onLongClick(View v) {
+        Log.e("lmq", "Launcher ----onLongClick---v = "+v);
         if (!isDraggingEnabled()) return false;
         if (isWorkspaceLocked()) return false;
         if (mState != State.WORKSPACE) return false;
+
+        // add by linmaoqing 2015-8-27
+        if (MuchConfig.SUPPORT_MUCH_STYLE && mFloatMenuManager.isFloatMenuOpen()) {
+            mFloatMenuManager.closeFloatMenu();
+            return true;
+        }
 
         if (v instanceof Workspace) {
             if (!mWorkspace.isInOverviewMode()) {
@@ -2758,13 +2788,13 @@ public class Launcher extends Activity
                 }
             }
         }
-
         if (!(v instanceof CellLayout)) {
-            v = (View) v.getParent().getParent();
+            v = (View) v.getParent().getParent(); 
         }
 
         resetAddInfo();
         CellLayout.CellInfo longClickCellInfo = (CellLayout.CellInfo) v.getTag();
+        Log.e("lmq", "onLongClick---longClickCellInfo = "+longClickCellInfo);
         // This happens when long clicking an item with the dpad/trackball
         if (longClickCellInfo == null) {
             return true;
@@ -2788,20 +2818,27 @@ public class Launcher extends Activity
             } else {
                 if (!(itemUnderLongClick instanceof Folder)) {
                     //add by linmaoqing
-                    if(MuchConfig.SUPPORT_MUCH_STYLE){
-                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true,true);
+//                    if(MuchConfig.SUPPORT_MUCH_STYLE){
+//                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true,true);
+//                    }
+                    
+                    if(itemUnderLongClick instanceof BubbleTextView){ //add by linmaoqing
+                        mFloatMenuManager.createFloatMenu(longClickCellInfo.cell,longClickCellInfo.cellX,longClickCellInfo.cellY);
                     }
                     // User long pressed on an item
                     mWorkspace.startDrag(longClickCellInfo);
                 }else if(itemUnderLongClick instanceof Folder){
-                    if(MuchConfig.SUPPORT_MUCH_STYLE){
-                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true, false);
-                    }//end by linmaoqing
+//                    if(MuchConfig.SUPPORT_MUCH_STYLE){
+//                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true, false);
+//                    }//end by linmaoqing
                 }
             }
         }
+        
+        
         return true;
     }
+
     /**
      * add by linmaoqing 2014-5-14
      * @param item
@@ -2843,6 +2880,9 @@ public class Launcher extends Activity
                 return null;
             }
         } else {
+            if(mWorkspace == null){
+                return null;
+            }
             return (CellLayout) mWorkspace.getScreenWithId(screenId);
         }
     }
@@ -4830,6 +4870,7 @@ public class Launcher extends Activity
         AlertDialog dialog = builder.create();
         return dialog;
     }
+
 }
 
 interface LauncherTransitionable {

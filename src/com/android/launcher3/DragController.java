@@ -16,6 +16,8 @@
 
 package com.android.launcher3;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -33,9 +35,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 
-import com.android.launcher3.R;
-
-import java.util.ArrayList;
+import com.android.launcher3.much.MuchConfig;
 
 /**
  * Class for initiating a drag within a view or across multiple views.
@@ -586,6 +586,14 @@ public class DragController {
             handleMoveEvent(dragLayerX, dragLayerY);
             break;
         case MotionEvent.ACTION_MOVE:
+            if(MuchConfig.SUPPORT_MUCH_STYLE) {
+                if(ev.getPointerCount() == 2) {
+                    mLauncher.getFloatMenuManager().closeFloatMenu();
+                } else if (Math.abs(mMotionDownX - dragLayerX) > 15 || Math.abs(mMotionDownY - dragLayerY) > 15){
+                    mLauncher.getFloatMenuManager().closeFloatMenu();
+                }
+            }
+            
             handleMoveEvent(dragLayerX, dragLayerY);
             break;
         case MotionEvent.ACTION_UP:

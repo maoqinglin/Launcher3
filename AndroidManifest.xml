@@ -207,6 +207,15 @@
             </intent-filter>
         </receiver>
 
+        <!-- 导航栏监听广播 -->
+        <receiver android:name="com.android.launcher3.much.MuchNavBroadcast">
+            <intent-filter >
+                <action android:name="much.display_navigation"/>
+                <action android:name="much.dis_hide_navigation"/>
+            </intent-filter>
+            
+        </receiver>
+        
         <!-- The settings provider contains Home's data, like the workspace favorites -->
         <provider
             android:name="com.android.launcher3.LauncherProvider"

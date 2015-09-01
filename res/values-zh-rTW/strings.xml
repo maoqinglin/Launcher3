@@ -149,4 +149,9 @@
     
     <!-- widget添加失败提示 -->
     <string name="much_widget_add_fail">掛件添加失敗：掛件格式錯誤！</string>
+    
+    <!-- 浮动菜单 -->
+    <string name="much_menu_delete">删除</string>
+    <string name="much_menu_share">分享</string>
+    <string name="much_menu_keydiy">按鍵DIY</string>
 </resources>
