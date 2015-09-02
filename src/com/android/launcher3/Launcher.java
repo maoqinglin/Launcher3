@@ -2243,7 +2243,6 @@ public class Launcher extends Activity
      * @param v The view representing the clicked shortcut.
      */
     public void onClick(View v) {
-        Log.e("lmq", "Launcher onclick");
         // Make sure that rogue clicks don't get through while allapps is launching, or after the
         // view has detached (it's possible for this to happen if the view is removed mid touch).
         if (v.getWindowToken() == null) {
@@ -2766,7 +2765,6 @@ public class Launcher extends Activity
     }
 
     public boolean onLongClick(View v) {
-        Log.e("lmq", "Launcher ----onLongClick---v = "+v);
         if (!isDraggingEnabled()) return false;
         if (isWorkspaceLocked()) return false;
         if (mState != State.WORKSPACE) return false;
@@ -2794,7 +2792,6 @@ public class Launcher extends Activity
 
         resetAddInfo();
         CellLayout.CellInfo longClickCellInfo = (CellLayout.CellInfo) v.getTag();
-        Log.e("lmq", "onLongClick---longClickCellInfo = "+longClickCellInfo);
         // This happens when long clicking an item with the dpad/trackball
         if (longClickCellInfo == null) {
             return true;

@@ -737,8 +737,16 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             scrollOffset = mScrollView.getScrollY();
 		}//end by linmaoqing
         final float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, dragView, null);
-        int left = mContent.getLeft();
-        int top = mContent.getLeft();
+        int centerCoordinateOffset[] = new int[2];
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            if(LauncherAppState.isScreenLandscape(mLauncher)){
+                centerCoordinateOffset[0] =  getResources().getDimensionPixelOffset(R.dimen.landscape_folder_item_drag_x_coordinate_offset);
+                centerCoordinateOffset[1] = getResources().getDimensionPixelOffset(R.dimen.landscape_folder_item_drag_x_coordinate_offset);
+            } else {
+                centerCoordinateOffset[0] = getResources().getDimensionPixelOffset(R.dimen.portait_folder_item_drag_x_coordinate_offset);
+                centerCoordinateOffset[1] = getResources().getDimensionPixelOffset(R.dimen.portait_folder_item_drag_y_coordinate_offset);
+            }
+        }
         r[0] -= getPaddingLeft();
         r[1] -= getPaddingTop();
         //add by linmaoqing 2014-5-13
@@ -767,7 +775,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             mReorderAlarm.cancelAlarm();
         } else {
             mTargetCell = mContent.findNearestArea(
-                    (int) r[0], (int) r[1] + scrollOffset, 1, 1, mTargetCell);
+                    (int) r[0]-centerCoordinateOffset[0], (int) r[1] + scrollOffset-centerCoordinateOffset[1], 1, 1, mTargetCell);
             if (isLayoutRtl()) {
                 mTargetCell[0] = mContent.getCountX() - mTargetCell[0] - 1;
             }

@@ -1,16 +1,22 @@
 package com.android.launcher3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ComponentInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -22,10 +28,10 @@ import com.android.launcher3.floatmenu.FloatingActionMenu;
 import com.android.launcher3.floatmenu.FloatingActionMenu.MenuItemClickListener;
 import com.android.launcher3.floatmenu.SubActionButton;
 import com.android.launcher3.much.MuchNavBroadcast;
+import com.umeng.analytics.MobclickAgent;
 
 public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListener, MenuItemClickListener {
 
-    private List<FloatingActionMenu> mMenuList = new ArrayList<FloatingActionMenu>();
     private FloatingActionMenu mCurrentMenu;
     private Launcher mLauncher;
     private Handler mHandler;
@@ -41,7 +47,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
     private static final int DIY_MENU_ID = 10002;
 
     public FloatMenuManager() {
-        
+
     }
 
     public void setFolderPoint(int[] folderPoint) {
@@ -68,10 +74,9 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         mLauncher = launcher;
         mHandler = handler;
         registerLocalBroadcast();
-        mMenuList.clear();
     }
 
-    public void createFloatMenu(final View cell, final int cellX,final int cellY) {
+    public void createFloatMenu(final View cell, final int cellX, final int cellY) {
         if (cell == null || !(cell instanceof BubbleTextView)) {
             return;
         }
@@ -102,7 +107,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
                 if (cellX > 3) {
                     direction = MenuDirection.LEFT_UP;
                 }
-            } else if(container == LauncherSettings.Favorites.CONTAINER_DESKTOP){
+            } else if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 if (cellX > 2) {
                     direction = MenuDirection.LEFT_UP;
                     if (cellY < 1) {
@@ -123,7 +128,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
                 if (cellY > 3) {
                     direction = MenuDirection.LEFT_UP;
                 }
-            } else if(container == LauncherSettings.Favorites.CONTAINER_DESKTOP){
+            } else if (container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                 if (cellY < 1) {
                     direction = MenuDirection.RIGHT_DOWN;
                 }
@@ -154,7 +159,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         default:
             break;
         }
-        
+
         final FloatingActionMenu floatMenu = new FloatingActionMenu.Builder(mLauncher)
                 .addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
                 .addSubActionView(rLSubBuilder.setContentView(shareLayout).setId(SHARE_MENU_ID).setTag(tag).build())
@@ -162,13 +167,13 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
                 .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
                 .setMenuItemClickListener(this).build();
         mCurrentMenu = floatMenu;
-        
-        if(isIsFolderCell()){
+
+        if (isIsFolderCell()) {
             mCurrentMenu.setFolderCell(true);
             mCurrentMenu.setFolderPoint(mFolderPoint);
         }
-        mIsFolderCell = false; //置位
-        
+        mIsFolderCell = false; // 置位
+
         checkHandler();
         mHandler.post(new Runnable() {
 
@@ -177,7 +182,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
                 floatMenu.toggle(true);
             }
         });
-        
+
     }
 
     private void checkHandler() {
@@ -226,7 +231,10 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             ShortcutInfo info = (ShortcutInfo) tag;
             switch (v.getId()) {
             case DELETE_MENU_ID:
-                showUninstallDialog(info);
+                ComponentName cpn = info.getIntent().getComponent();
+                if (cpn != null) {
+                    showUninstallDialog(cpn.getPackageName());
+                }
                 break;
             case SHARE_MENU_ID:
                 showShareDialog(info);
@@ -239,14 +247,18 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
 
     }
 
-    private void showUninstallDialog(ItemInfo info) {
+    private void showUninstallDialog(String pkgName) {
         if (mLauncher != null) {
-            mLauncher.showUninstallSharePrompt(info, null);
-            MuchUninstallSharePrompt uninstall = mLauncher.getUninstallSharePrompt();
-            if (null != uninstall) {
-                uninstall.deleteItemInfo();
+            if (!TextUtils.isEmpty(pkgName)) {
+                Uri packageUri = Uri.parse("package:" + pkgName);
+                Intent deleteIntent = new Intent();
+                deleteIntent.setAction(Intent.ACTION_DELETE);
+                deleteIntent.setData(packageUri);
+                deleteIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mLauncher.startActivity(deleteIntent);
             }
         }
+
     }
 
     private void showShareDialog(ItemInfo info) {
@@ -275,9 +287,10 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (MuchNavBroadcast.ACTION_SHOW_NAVIGATION_BAR.equals(intent.getAction()) || MuchNavBroadcast.ACTION_HIDE_NAVIGATION_BAR.equals(intent.getAction())) {
+            if (MuchNavBroadcast.ACTION_SHOW_NAVIGATION_BAR.equals(intent.getAction())
+                    || MuchNavBroadcast.ACTION_HIDE_NAVIGATION_BAR.equals(intent.getAction())) {
                 updateFloatMenuPos();
-            } 
+            }
         }
     };
 

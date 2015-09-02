@@ -138,4 +138,9 @@
 
     <dimen name="sub_action_button_size">65dp</dimen>
     <dimen name="sub_action_button_content_margin">0dp</dimen>
+    
+    <dimen name="landscape_folder_item_drag_x_coordinate_offset">180dp</dimen>
+    <dimen name="landscape_folder_item_drag_y_coordinate_offset">95dp</dimen>
+    <dimen name="portait_folder_item_drag_x_coordinate_offset">40dp</dimen>
+    <dimen name="portait_folder_item_drag_y_coordinate_offset">220dp</dimen>
 </resources>
