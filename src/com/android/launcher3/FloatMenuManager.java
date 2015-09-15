@@ -45,6 +45,10 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
     private static final int DELETE_MENU_ID = 10000;
     private static final int SHARE_MENU_ID = 10001;
     private static final int DIY_MENU_ID = 10002;
+    private static final int POWER_MENU_ID = 10003;
+    
+    private static final String APP_POWER_ACTION = "com.ireadygo.app.recentapps.ACTION_START_POWERMANAGE_ACTIVITY";
+    private static final String EXTRA_PKG_NAME = "PKG_NAME";
 
     public FloatMenuManager() {
 
@@ -90,7 +94,9 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
 
         LinearLayout shareLayout = createMenuItem(R.drawable.icon_share, R.string.much_menu_share);
 
-        LinearLayout diyLayout = createMenuItem(R.drawable.icon_diy, R.string.much_menu_keydiy);
+//        LinearLayout diyLayout = createMenuItem(R.drawable.icon_diy, R.string.much_menu_keydiy);
+
+        LinearLayout powerLayout = createMenuItem(R.drawable.icon_power, R.string.much_menu_powder);
 
         int startAngle = 270;
         int endAngle = 360;
@@ -163,7 +169,8 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         final FloatingActionMenu floatMenu = new FloatingActionMenu.Builder(mLauncher)
                 .addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
                 .addSubActionView(rLSubBuilder.setContentView(shareLayout).setId(SHARE_MENU_ID).setTag(tag).build())
-                .addSubActionView(rLSubBuilder.setContentView(diyLayout).setId(DIY_MENU_ID).setTag(tag).build())
+//                .addSubActionView(rLSubBuilder.setContentView(diyLayout).setId(DIY_MENU_ID).setTag(tag).build())
+                .addSubActionView(rLSubBuilder.setContentView(powerLayout).setId(POWER_MENU_ID).setTag(tag).build())
                 .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
                 .setMenuItemClickListener(this).build();
         mCurrentMenu = floatMenu;
@@ -196,12 +203,12 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         menuLayout.setFocusableInTouchMode(true);
 
         TextView menu = new TextView(mLauncher);
-        Drawable deleteDrawable = getResources().getDrawable(iconRes);
+        Drawable drawable = getResources().getDrawable(iconRes);
         menu.setText(getResources().getString(textRes));
         menu.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10);
         menu.setGravity(Gravity.CENTER);
         menu.setCompoundDrawablePadding(getResources().getDimensionPixelOffset(R.dimen.much_menu_drawable_padding));
-        menu.setCompoundDrawablesWithIntrinsicBounds(null, deleteDrawable, null, null);
+        menu.setCompoundDrawablesWithIntrinsicBounds(null, drawable, null, null);
         menuLayout.addView(menu);
         return menuLayout;
     }
@@ -229,9 +236,9 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         Object tag = v.getTag();
         if (tag != null && tag instanceof ShortcutInfo) {
             ShortcutInfo info = (ShortcutInfo) tag;
+            ComponentName cpn = info.getIntent().getComponent();
             switch (v.getId()) {
             case DELETE_MENU_ID:
-                ComponentName cpn = info.getIntent().getComponent();
                 if (cpn != null) {
                     showUninstallDialog(cpn.getPackageName());
                 }
@@ -241,6 +248,13 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
                 break;
             case DIY_MENU_ID:
                 Toast.makeText(mLauncher, "diy app" + info.title, Toast.LENGTH_SHORT).show();
+                break;
+            case POWER_MENU_ID:
+                if (cpn != null) {
+                    skipPowerUI(cpn.getPackageName());
+                }
+                break;
+            default:
                 break;
             }
         }
@@ -270,6 +284,14 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             }
             uninstall = null;
         }
+    }
+
+    private void skipPowerUI(String pgkName) {
+        Intent powerIntent = new Intent();
+        powerIntent.setAction(APP_POWER_ACTION);
+        powerIntent.putExtra(EXTRA_PKG_NAME, pgkName);
+        powerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mLauncher.startActivity(powerIntent);
     }
 
     private void registerLocalBroadcast() {

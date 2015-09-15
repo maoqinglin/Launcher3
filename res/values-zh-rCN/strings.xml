@@ -156,4 +156,5 @@
     <string name="much_menu_delete">删除</string>
     <string name="much_menu_share">分享</string>
     <string name="much_menu_keydiy">按键DIY</string>
+    <string name="much_menu_powder">功耗管理</string>
 </resources>

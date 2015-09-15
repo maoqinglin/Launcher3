@@ -327,4 +327,5 @@ s -->
     <string name="much_menu_delete">Delete</string>
     <string name="much_menu_share">Share</string>
     <string name="much_menu_keydiy">DIY</string>
+    <string name="much_menu_power">Power</string>
 </resources>
