@@ -4,12 +4,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.ComponentInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -96,7 +101,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
 
 //        LinearLayout diyLayout = createMenuItem(R.drawable.icon_diy, R.string.much_menu_keydiy);
 
-        LinearLayout powerLayout = createMenuItem(R.drawable.icon_power, R.string.much_menu_powder);
+        LinearLayout powerLayout = createMenuItem(R.drawable.icon_power, R.string.much_menu_power);
 
         int startAngle = 270;
         int endAngle = 360;
@@ -240,7 +245,11 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             switch (v.getId()) {
             case DELETE_MENU_ID:
                 if (cpn != null) {
-                    showUninstallDialog(cpn.getPackageName());
+                    if (isSystemApp(mLauncher, cpn.getPackageName())) {
+                        Toast.makeText(mLauncher, mLauncher.getString(R.string.much_uninstall_prompt), Toast.LENGTH_SHORT).show();
+                    } else {
+                        showUninstallDialog(cpn.getPackageName());
+                    }
                 }
                 break;
             case SHARE_MENU_ID:
@@ -291,7 +300,10 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         powerIntent.setAction(APP_POWER_ACTION);
         powerIntent.putExtra(EXTRA_PKG_NAME, pgkName);
         powerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mLauncher.startActivity(powerIntent);
+        try {
+            mLauncher.startActivity(powerIntent);
+        } catch (ActivityNotFoundException e) {
+        }
     }
 
     private void registerLocalBroadcast() {
@@ -325,6 +337,21 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
     public void onDestory() {
         closeFloatMenu();
         unRegisterLocalBroadcast();
+    }
+
+    private boolean isSystemApp(Context context,String pkgName) {
+        try {
+            // 过滤系统应用
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(pkgName,
+                    PackageManager.GET_UNINSTALLED_PACKAGES);
+            if ((packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0
+                    || (packageInfo.applicationInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0) {
+                return true;
+            }
+        } catch (NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

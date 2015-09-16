@@ -151,8 +151,9 @@
     <string name="much_widget_add_fail">掛件添加失敗：掛件格式錯誤！</string>
     
     <!-- 浮动菜单 -->
-    <string name="much_menu_delete">删除</string>
+    <string name="much_menu_delete">刪除</string>
     <string name="much_menu_share">分享</string>
     <string name="much_menu_keydiy">按鍵DIY</string>
-    <string name="much_menu_powder">功耗管理</string>
+    <string name="much_menu_power">功耗管理</string>
+    <string name="much_uninstall_prompt">系統應用無法卸載！</string>
 </resources>
