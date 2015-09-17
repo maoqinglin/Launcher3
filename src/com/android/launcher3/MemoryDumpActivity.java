@@ -32,12 +32,28 @@ import java.util.Arrays;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.umeng.analytics.MobclickAgent;
+
 public class MemoryDumpActivity extends Activity {
     private static final String TAG = "MemoryDumpActivity";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+    
+    @Override
+    protected void onResume(){
+    	super.onResume();
+    	MobclickAgent.onPageStart("MemoryDumpActivity Start");
+    	MobclickAgent.onResume(this);
+    }
+    
+    @Override
+    protected void onPause(){
+    	super.onPause();
+    	MobclickAgent.onPageEnd("MemoryDumpActivity End");
+    	MobclickAgent.onPause(this);
     }
 
     public static String zipUp(ArrayList<String> paths) {

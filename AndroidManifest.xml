@@ -75,6 +75,10 @@
     <uses-permission android:name="com.android.launcher3.permission.WRITE_SETTINGS" />
     <uses-permission android:name="com.android.launcher3.permission.RECEIVE_LAUNCH_BROADCASTS" />
     <uses-permission android:name="android.permission.INTERNET" /><!-- add by lilu 2015-03-04 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/><!-- add by oujieying 2015-09-17 -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /><!-- add by oujieying 2015-09-17 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /><!-- add by oujieying 2015-09-17 -->
+    
 
     <application
         android:name="com.android.launcher3.LauncherApplication"
@@ -227,6 +231,16 @@
         <meta-data
             android:name="android.nfc.disable_beam_default"
             android:value="true" />
+        
+         <!-- 友盟配置  start -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="55fa2c7967e58ee01c002184" >
+        </meta-data>
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="MUCH_SNAIL_OFFICAL" />
+        <!-- 友盟配置  end -->
     </application>
 
 </manifest>

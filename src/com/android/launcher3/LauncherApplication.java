@@ -16,6 +16,8 @@
 
 package com.android.launcher3;
 
+import com.umeng.analytics.MobclickAgent;
+
 import android.app.Application;
 
 public class LauncherApplication extends Application {
@@ -24,6 +26,9 @@ public class LauncherApplication extends Application {
         super.onCreate();
         LauncherAppState.setApplicationContext(this);
         LauncherAppState.getInstance();
+        //add began by oujieying 2015-9-17
+        MobclickAgent.updateOnlineConfig(this);
+        //add end by oujieying 2015-9-17
     }
 
     @Override

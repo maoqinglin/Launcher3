@@ -874,7 +874,10 @@ public class Launcher extends Activity
             Log.v(TAG, "Launcher.onResume()");
         }
         super.onResume();
-        
+        //add began by oujieying 2015-9-17
+        MobclickAgent.onPageStart("Launcher Start");
+    	MobclickAgent.onResume(this);
+    	//add end by oujieying 2015-9-17
         // Restore the previous launcher state
         if (mOnResumeState == State.WORKSPACE) {
             showWorkspace(false);
@@ -981,6 +984,10 @@ public class Launcher extends Activity
         if (mWorkspace.getCustomContentCallbacks() != null) {
             mWorkspace.getCustomContentCallbacks().onHide();
         }
+        //add began by oujieying 2015-9-17
+        MobclickAgent.onPageEnd("Launcher Start");
+    	MobclickAgent.onPause(this);
+    	//add end by oujieying 2015-9-17
     }
 
     protected void onFinishBindingItems() {
@@ -2296,7 +2303,6 @@ public class Launcher extends Activity
             // Open shortcut
             final ShortcutInfo shortcut = (ShortcutInfo) tag;
             final Intent intent = shortcut.intent;
-
             // Check for special shortcuts
             if (intent.getComponent() != null) {
                 final String shortcutClass = intent.getComponent().getClassName();

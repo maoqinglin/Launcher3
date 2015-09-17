@@ -46,6 +46,7 @@ import android.view.WindowManager;
 import com.android.gallery3d.common.Utils;
 import com.android.gallery3d.exif.ExifInterface;
 import com.android.photos.BitmapRegionTileSource;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -80,6 +81,20 @@ public class WallpaperCropActivity extends Activity {
         if (!enableRotation()) {
             setRequestedOrientation(Configuration.ORIENTATION_PORTRAIT);
         }
+    }
+    
+    @Override
+    protected void onResume(){
+    	super.onResume();
+    	MobclickAgent.onPageStart("WallpaperCropActivity Start");
+    	MobclickAgent.onResume(this);
+    }
+    
+    @Override
+    protected void onPause(){
+    	super.onPause();
+    	MobclickAgent.onPageEnd("WallpaperCropActivity End");
+    	MobclickAgent.onPause(this);
     }
 
     protected void init() {
