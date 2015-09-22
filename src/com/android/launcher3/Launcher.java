@@ -875,7 +875,6 @@ public class Launcher extends Activity
         }
         super.onResume();
         //add began by oujieying 2015-9-17
-        MobclickAgent.onPageStart("Launcher Start");
     	MobclickAgent.onResume(this);
     	//add end by oujieying 2015-9-17
         // Restore the previous launcher state

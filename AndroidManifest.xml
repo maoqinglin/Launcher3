@@ -239,7 +239,7 @@
         </meta-data>
         <meta-data
             android:name="UMENG_CHANNEL"
-            android:value="MUCH_SNAIL_OFFICAL" />
+            android:value="MUCH_SNAIL_OFFICAL_w3d" />
         <!-- 友盟配置  end -->
     </application>
 

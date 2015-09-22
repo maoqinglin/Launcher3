@@ -45,14 +45,12 @@ public class MemoryDumpActivity extends Activity {
     @Override
     protected void onResume(){
     	super.onResume();
-    	MobclickAgent.onPageStart("MemoryDumpActivity Start");
     	MobclickAgent.onResume(this);
     }
     
     @Override
     protected void onPause(){
     	super.onPause();
-    	MobclickAgent.onPageEnd("MemoryDumpActivity End");
     	MobclickAgent.onPause(this);
     }
 

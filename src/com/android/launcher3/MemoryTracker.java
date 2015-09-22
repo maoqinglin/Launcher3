@@ -27,6 +27,8 @@ import android.util.LongSparseArray;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.umeng.analytics.MobclickAgent;
+
 public class MemoryTracker extends Service {
     public static final String TAG = MemoryTracker.class.getSimpleName();
     public static final String ACTION_START_TRACKING = "com.android.launcher3.action.START_TRACKING";
@@ -158,6 +160,7 @@ public class MemoryTracker extends Service {
 
     @Override
     public void onCreate() {
+    	MobclickAgent.onResume(this);
         mAm = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 
         // catch up in case we crashed but other processes are still running
@@ -183,6 +186,7 @@ public class MemoryTracker extends Service {
     @Override
     public void onDestroy() {
         mHandler.sendEmptyMessage(MSG_STOP);
+        MobclickAgent.onPause(this);
     }
 
     @Override

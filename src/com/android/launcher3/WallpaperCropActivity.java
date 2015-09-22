@@ -86,14 +86,12 @@ public class WallpaperCropActivity extends Activity {
     @Override
     protected void onResume(){
     	super.onResume();
-    	MobclickAgent.onPageStart("WallpaperCropActivity Start");
     	MobclickAgent.onResume(this);
     }
     
     @Override
     protected void onPause(){
     	super.onPause();
-    	MobclickAgent.onPageEnd("WallpaperCropActivity End");
     	MobclickAgent.onPause(this);
     }
 
