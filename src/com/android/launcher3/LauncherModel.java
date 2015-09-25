@@ -64,6 +64,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
@@ -1695,9 +1696,6 @@ public class LauncherModel extends BroadcastReceiver {
                             (LauncherSettings.Favorites.SPANX);
                     final int spanYIndex = c.getColumnIndexOrThrow(
                             LauncherSettings.Favorites.SPANY);
-                    //final int uriIndex = c.getColumnIndexOrThrow(LauncherSettings.Favorites.URI);
-                    //final int displayModeIndex = c.getColumnIndexOrThrow(
-                    //        LauncherSettings.Favorites.DISPLAY_MODE);
 
                     ShortcutInfo info;
                     String intentDescription;
@@ -1705,6 +1703,8 @@ public class LauncherModel extends BroadcastReceiver {
                     int container;
                     long id;
                     Intent intent;
+
+                    List<String> iconComponentNameList = new ArrayList<String>();
 
                     while (!mStopped && c.moveToNext()) {
                         AtomicBoolean deleteOnItemOverlap = new AtomicBoolean(false);
@@ -1719,6 +1719,13 @@ public class LauncherModel extends BroadcastReceiver {
                                 try {
                                     intent = Intent.parseUri(intentDescription, 0);
                                     ComponentName cn = intent.getComponent();
+                                    if (cn != null && !TextUtils.isEmpty(cn.getClassName())) {
+                                        if (iconComponentNameList.contains(cn.getClassName())) {
+                                            itemsToRemove.add(id);
+                                        } else {
+                                            iconComponentNameList.add(cn.getClassName());
+                                        }
+                                    }
                                     if (cn != null && !isValidPackageComponent(manager, cn)) {
                                         if (!mAppsCanBeOnRemoveableStorage) {
                                             // Log the invalid package, and remove it from the db
