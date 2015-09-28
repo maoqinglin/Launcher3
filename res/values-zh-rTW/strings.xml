@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
 /*
 * Copyright (C) 2008 The Android Open Source Project
 *
@@ -15,20 +15,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
- -->
+-->
 
-<resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources xmlns:android="http://schemas.android.com/apk/res/android" xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
     <string name="application_name" msgid="5181331383435256801">"蝸牛桌面"</string>
     <string name="home" msgid="7658288663002113681">"主螢幕"</string>
     <string name="uid_name" msgid="7820867637514617527">"Android 核心應用程式"</string>
     <string name="folder_name" msgid="7371454440695724752"></string>
     <string name="wallpaper_instructions" msgid="563973358787555519">"設定桌布"</string>
-  <plurals name="number_of_items_selected">
-    <item quantity="zero" msgid="7464587177007785408">"已選取 %1$d 個項目"</item>
-    <item quantity="one" msgid="142482526010824029">"已選取 %1$d 個項目"</item>
-    <item quantity="other" msgid="1418352074806573570">"已選取 %1$d 個項目"</item>
-  </plurals>
+
+    <plurals name="number_of_items_selected">
+        <item msgid="7464587177007785408" quantity="zero">"已選取 %1$d 個項目"</item>
+        <item msgid="142482526010824029" quantity="one">"已選取 %1$d 個項目"</item>
+        <item msgid="1418352074806573570" quantity="other">"已選取 %1$d 個項目"</item>
+    </plurals>
+
     <string name="wallpaper_accessibility_name" msgid="1655953108132967972">"第 %1$d 張桌布，共 %2$d 張"</string>
     <string name="announce_selection" msgid="8338254712932127413">"已選取<xliff:g id="LABEL">%1$s</xliff:g>"</string>
     <string name="wallpaper_delete" msgid="8095005658756613921">"刪除"</string>
@@ -136,7 +138,7 @@
     <string name="much_uninstall_app_dialog_done">確定</string>
     <string name="much_uninstall_app_dialog_cancel">取消</string>
 
-            <!-- 首页菜单标题 -->
+    <!-- 首页菜单标题 -->
     <string name="much_store_recommend_title">推荐</string>
     <string name="much_store_category_title">分类</string>
     <string name="much_store_collection_title">合集</string>
@@ -146,14 +148,16 @@
     <string name="much_free_app_store_title">免商店</string>
     <string name="much_confirm">確定</string>
     <string name="much_goback">返回</string>
-    
+
     <!-- widget添加失败提示 -->
     <string name="much_widget_add_fail">掛件添加失敗：掛件格式錯誤！</string>
-    
+
     <!-- 浮动菜单 -->
     <string name="much_menu_delete">刪除</string>
     <string name="much_menu_share">分享</string>
     <string name="much_menu_keydiy">按鍵DIY</string>
     <string name="much_menu_power">功耗管理</string>
     <string name="much_uninstall_prompt">系統應用無法卸載！</string>
+    <string name="much_powermanager_prompt">應用未安裝！</string>
+
 </resources>

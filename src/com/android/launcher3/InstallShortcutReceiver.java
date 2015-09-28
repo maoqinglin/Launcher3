@@ -218,6 +218,10 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
         if (intent == null) {
             return;
         }
+        //check if there is already a exist icon
+        if (LauncherModel.isAppIconExist(intent)) {
+            return;
+        }
         // This name is only used for comparisons and notifications, so fall back to activity name
         // if not supplied
         String name = data.getStringExtra(Intent.EXTRA_SHORTCUT_NAME);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetHostView;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
@@ -30,6 +31,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.floatmenu.FloatingActionMenu;
 import com.android.launcher3.floatmenu.FloatingActionMenu.MenuItemClickListener;
 import com.android.launcher3.floatmenu.SubActionButton;
@@ -254,6 +256,12 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             ComponentName cpn = info.getIntent().getComponent();
             switch (v.getId()) {
             case DELETE_MENU_ID:
+                //check if this is a shortcut icon
+                if (info.itemType == Favorites.ITEM_TYPE_SHORTCUT) {
+                    removeView(info);
+                    LauncherModel.deleteItemFromDatabase(mLauncher, info);
+                    break;
+                }
                 if (cpn != null) {
                     if (isSystemApp(mLauncher, cpn.getPackageName())) {
                         Toast.makeText(mLauncher, mLauncher.getString(R.string.much_uninstall_prompt), Toast.LENGTH_SHORT).show();
@@ -270,7 +278,11 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
                 break;
             case POWER_MENU_ID:
                 if (cpn != null) {
-                    skipPowerUI(cpn.getPackageName());
+                    if (isPkgExist(mLauncher, cpn.getPackageName())) {
+                        skipPowerUI(cpn.getPackageName());
+                    } else {
+                        Toast.makeText(mLauncher, mLauncher.getString(R.string.much_powermanager_prompt), Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             default:
@@ -346,6 +358,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         powerIntent.setAction(APP_POWER_ACTION);
         powerIntent.putExtra(EXTRA_PKG_NAME, pgkName);
         powerIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        powerIntent.setFlags(PendingIntent.FLAG_UPDATE_CURRENT);
         try {
             mLauncher.startActivity(powerIntent);
         } catch (ActivityNotFoundException e) {
@@ -398,6 +411,19 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             e.printStackTrace();
         }
         return false;
+    }
+
+    private boolean isPkgExist(Context context, String pkgName) {
+        if (TextUtils.isEmpty(pkgName)) {
+            return false;
+        }
+        try {
+            ApplicationInfo info = context.getPackageManager().getApplicationInfo(pkgName,
+                    PackageManager.GET_UNINSTALLED_PACKAGES);
+            return true;
+        } catch (NameNotFoundException e) {
+            return false;
+        }
     }
 
 }

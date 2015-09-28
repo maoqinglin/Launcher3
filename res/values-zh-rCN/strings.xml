@@ -158,4 +158,5 @@
     <string name="much_menu_keydiy">按键DIY</string>
     <string name="much_menu_power">功耗管理</string>
     <string name="much_uninstall_prompt">系统应用无法卸载！</string>
+    <string name="much_powermanager_prompt">应用未安装！</string>
 </resources>

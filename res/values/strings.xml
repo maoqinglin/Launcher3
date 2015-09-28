@@ -329,4 +329,5 @@ s -->
     <string name="much_menu_keydiy">DIY</string>
     <string name="much_menu_power">Power</string>
     <string name="much_uninstall_prompt">System app can not be uninstalled!</string>
+    <string name="much_powermanager_prompt">This app has not installed!</string>
 </resources>

@@ -3240,4 +3240,32 @@ public class LauncherModel extends BroadcastReceiver {
             Log.d(TAG, "mLoaderTask=null");
         }
     }
+
+    public static boolean isAppIconExist(Intent newIntent) {
+        if (newIntent == null) {
+            return false;
+        }
+        ComponentName newCN = newIntent.getComponent();
+        if (newCN == null) {
+            return false;
+        }
+        synchronized (sBgLock) {
+            for (ItemInfo info : sBgWorkspaceItems) {
+                if (info instanceof ShortcutInfo) {
+                    ComponentName existCN = ((ShortcutInfo)info).getIntent().getComponent();
+                    if (existCN == null) {
+                        continue;
+                    }
+                    String existClassName = existCN.getClassName();
+                    String newClassName = newCN.getClassName();
+                    if (!TextUtils.isEmpty(existClassName) 
+                            && !TextUtils.isEmpty(newClassName)
+                            && existClassName.equals(newClassName)) {
+                        return true;
+                    }
+                }
+                }
+            return false;
+        }
+    }
 }
