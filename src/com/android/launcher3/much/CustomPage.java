@@ -177,14 +177,18 @@ public class CustomPage extends CellLayout implements OnClickListener, SwipeRefr
             switch (v.getId()) {
             case R.id.left:
                 mLeftArrow.setAlpha(1.0f);
-                mAutoScrollViewPager.stopAutoScroll();
-                mAutoScrollViewPager.scrollLeft();
+                if (mAutoScrollViewPager != null) {
+                    mAutoScrollViewPager.stopAutoScroll();
+                    mAutoScrollViewPager.scrollLeft();
+                }
                 postMsg(MSG_CLICK_LEFT, DELAY_SET_ALPHA);
                 break;
             case R.id.right:
                 mRightArrow.setAlpha(1.0f);
-                mAutoScrollViewPager.stopAutoScroll();
-                mAutoScrollViewPager.scrollRight();
+                if (mAutoScrollViewPager != null) {
+                    mAutoScrollViewPager.stopAutoScroll();
+                    mAutoScrollViewPager.scrollRight();
+                }
                 postMsg(MSG_CLICK_RIGHT, DELAY_SET_ALPHA);
                 break;
 
@@ -350,10 +354,14 @@ public class CustomPage extends CellLayout implements OnClickListener, SwipeRefr
         updateDotLayout();
         updateRightAdBanner();
         if (mAdLeftBannerUrlList == null || mAdLeftBannerUrlList.isEmpty()) {
-            mAutoScrollViewPager.setVisibility(View.INVISIBLE);
+            if (mAutoScrollViewPager != null) {
+                mAutoScrollViewPager.setVisibility(View.INVISIBLE);
+            }
             mDotsLayout.setVisibility(View.INVISIBLE);
         } else {
-            mAutoScrollViewPager.setVisibility(View.VISIBLE);
+            if (mAutoScrollViewPager != null) {
+                mAutoScrollViewPager.setVisibility(View.VISIBLE);
+            }
             mDotsLayout.setVisibility(View.VISIBLE);
         }
     }
@@ -431,11 +439,15 @@ public class CustomPage extends CellLayout implements OnClickListener, SwipeRefr
                 break;
             case MSG_CLICK_LEFT:
                 mLeftArrow.setAlpha(0.2f);
-                mAutoScrollViewPager.startAutoScroll();
+                if (mAutoScrollViewPager != null) {
+                    mAutoScrollViewPager.startAutoScroll();
+                }
                 break;
             case MSG_CLICK_RIGHT:
                 mRightArrow.setAlpha(0.2f);
-                mAutoScrollViewPager.startAutoScroll();
+                if (mAutoScrollViewPager != null) {
+                    mAutoScrollViewPager.startAutoScroll();
+                }
                 break;
             default:
                 break;
