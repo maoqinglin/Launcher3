@@ -2824,7 +2824,8 @@ public class Launcher extends Activity
 //                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true,true);
 //                    }
                     
-                    if(itemUnderLongClick instanceof BubbleTextView){ //add by linmaoqing
+                    if(itemUnderLongClick instanceof BubbleTextView
+                            || itemUnderLongClick instanceof LauncherAppWidgetHostView){ //add by linmaoqing
                         mFloatMenuManager.createFloatMenu(longClickCellInfo.cell,longClickCellInfo.cellX,longClickCellInfo.cellY);
                     }
                     // User long pressed on an item

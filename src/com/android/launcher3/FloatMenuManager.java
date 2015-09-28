@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.appwidget.AppWidgetHostView;
 import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -86,7 +87,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
     }
 
     public void createFloatMenu(final View cell, final int cellX, final int cellY) {
-        if (cell == null || !(cell instanceof BubbleTextView)) {
+        if (cell == null || !(cell instanceof BubbleTextView || cell instanceof LauncherAppWidgetHostView)) {
             return;
         }
         if (mCurrentMenu != null && mCurrentMenu.isOpen()) {
@@ -171,14 +172,21 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             break;
         }
 
-        final FloatingActionMenu floatMenu = new FloatingActionMenu.Builder(mLauncher)
-                .addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
-                .addSubActionView(rLSubBuilder.setContentView(shareLayout).setId(SHARE_MENU_ID).setTag(tag).build())
-//                .addSubActionView(rLSubBuilder.setContentView(diyLayout).setId(DIY_MENU_ID).setTag(tag).build())
-                .addSubActionView(rLSubBuilder.setContentView(powerLayout).setId(POWER_MENU_ID).setTag(tag).build())
-                .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
-                .setMenuItemClickListener(this).build();
-        mCurrentMenu = floatMenu;
+        FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(mLauncher);
+        if (cell instanceof BubbleTextView) {
+            builder.addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
+            .addSubActionView(rLSubBuilder.setContentView(shareLayout).setId(SHARE_MENU_ID).setTag(tag).build())
+            .addSubActionView(rLSubBuilder.setContentView(powerLayout).setId(POWER_MENU_ID).setTag(tag).build())
+            .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
+            .setMenuItemClickListener(this);
+        } else if (cell instanceof LauncherAppWidgetHostView) {
+            builder.addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
+            .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
+            .setMenuItemClickListener(this);
+        }
+
+        final FloatingActionMenu floatingActionMenu = builder.build();
+        mCurrentMenu = floatingActionMenu;
 
         if (isIsFolderCell()) {
             mCurrentMenu.setFolderCell(true);
@@ -191,17 +199,19 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
 
             @Override
             public void run() {
-                floatMenu.toggle(true);
+                floatingActionMenu.toggle(true);
             }
         });
 
     }
+
 
     private void checkHandler() {
         if (mHandler == null) {
             throw new RuntimeException("mHandler is null please setHandler()");
         }
     }
+
 
     private LinearLayout createMenuItem(int iconRes, int textRes) {
         LinearLayout menuLayout = new LinearLayout(mLauncher);
@@ -266,8 +276,44 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
             default:
                 break;
             }
+        } else if (tag != null && tag instanceof LauncherAppWidgetInfo) {
+            switch (v.getId()) {
+            case DELETE_MENU_ID:
+                removeAppWidget((LauncherAppWidgetInfo)tag);
+                break;
+
+            default:
+                break;
+            }
         }
 
+    }
+
+    private void removeAppWidget(LauncherAppWidgetInfo appWidgetInfo) {
+        removeView(appWidgetInfo);
+        // Remove the widget from the workspace
+        mLauncher.removeAppWidget(appWidgetInfo);
+        LauncherModel.deleteItemFromDatabase(mLauncher, appWidgetInfo);
+
+        final LauncherAppWidgetInfo launcherAppWidgetInfo = appWidgetInfo;
+        final LauncherAppWidgetHost appWidgetHost = mLauncher.getAppWidgetHost();
+        if (appWidgetHost != null) {
+            // Deleting an app widget ID is a void call but writes to disk
+            // before returning
+            // to the caller...
+            new Thread("deleteAppWidgetId") {
+                public void run() {
+                    appWidgetHost.deleteAppWidgetId(launcherAppWidgetInfo.appWidgetId);
+                }
+            }.start();
+        }
+        return;
+    }
+
+    private void removeView(ItemInfo item) {
+        CellLayout celllayout = mLauncher.getCellLayout(item.container, item.screenId);
+        View v = celllayout.getChildAt(item.cellX, item.cellY);
+        celllayout.removeView(v);
     }
 
     private void showUninstallDialog(String pkgName) {
