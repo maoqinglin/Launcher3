@@ -138,35 +138,37 @@ public class DeleteDropTarget extends ButtonDropTarget {
     }
 
     public static boolean willAcceptDrop(Object info) {
-        if (info instanceof ItemInfo) {
-            ItemInfo item = (ItemInfo) info;
-            if (item.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET ||
-                    item.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
-                return true;
-            }
-
-            if (!AppsCustomizePagedView.DISABLE_ALL_APPS &&
-                    item.itemType == LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
-                return true;
-            }
-
-            if (!AppsCustomizePagedView.DISABLE_ALL_APPS &&
-                    item.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                    item instanceof AppInfo) {
-                AppInfo appInfo = (AppInfo) info;
-                return (appInfo.flags & AppInfo.DOWNLOADED_FLAG) != 0;
-            }
-
-            if (item.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
-                item instanceof ShortcutInfo) {
-                if (AppsCustomizePagedView.DISABLE_ALL_APPS) {
-                    ShortcutInfo shortcutInfo = (ShortcutInfo) info;
-                    return (shortcutInfo.flags & AppInfo.DOWNLOADED_FLAG) != 0;
-                } else {
-                    return true;
-                }
-            }
-        }
+        //delete by lilu 20150929 do not accept the object to uninstall
+//        if (info instanceof ItemInfo) {
+//            ItemInfo item = (ItemInfo) info;
+//            if (item.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPWIDGET ||
+//                    item.itemType == LauncherSettings.Favorites.ITEM_TYPE_SHORTCUT) {
+//                return true;
+//            }
+//
+//            if (!AppsCustomizePagedView.DISABLE_ALL_APPS &&
+//                    item.itemType == LauncherSettings.Favorites.ITEM_TYPE_FOLDER) {
+//                return true;
+//            }
+//
+//            if (!AppsCustomizePagedView.DISABLE_ALL_APPS &&
+//                    item.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
+//                    item instanceof AppInfo) {
+//                AppInfo appInfo = (AppInfo) info;
+//                return (appInfo.flags & AppInfo.DOWNLOADED_FLAG) != 0;
+//            }
+//
+//            if (item.itemType == LauncherSettings.Favorites.ITEM_TYPE_APPLICATION &&
+//                item instanceof ShortcutInfo) {
+//                if (AppsCustomizePagedView.DISABLE_ALL_APPS) {
+//                    ShortcutInfo shortcutInfo = (ShortcutInfo) info;
+//                    return (shortcutInfo.flags & AppInfo.DOWNLOADED_FLAG) != 0;
+//                } else {
+//                    return true;
+//                }
+//            }
+//        }
+        //delete end by lilu 20150929
         return false;
     }
 
@@ -206,9 +208,10 @@ public class DeleteDropTarget extends ButtonDropTarget {
     }
 
     public void onDragEnter(DragObject d) {
-        super.onDragEnter(d);
-
-        setHoverColor();
+        //delete by lilu 20150929 do not show the hover color
+//        super.onDragEnter(d);
+//        setHoverColor();
+        //delete end by lilu 20150929
     }
 
     public void onDragExit(DragObject d) {
