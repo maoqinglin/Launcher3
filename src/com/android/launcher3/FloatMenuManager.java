@@ -88,7 +88,7 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         registerLocalBroadcast();
     }
 
-    public void createFloatMenu(final View cell, final int cellX, final int cellY) {
+    public void createFloatMenu(final View cell, final int cellX, final int cellY, boolean isOnlyDelete) {
         if (cell == null || !(cell instanceof BubbleTextView || cell instanceof LauncherAppWidgetHostView)) {
             return;
         }
@@ -175,13 +175,13 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
         }
 
         FloatingActionMenu.Builder builder = new FloatingActionMenu.Builder(mLauncher);
-        if (cell instanceof BubbleTextView) {
+        if (!isOnlyDelete) {
             builder.addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
             .addSubActionView(rLSubBuilder.setContentView(shareLayout).setId(SHARE_MENU_ID).setTag(tag).build())
             .addSubActionView(rLSubBuilder.setContentView(powerLayout).setId(POWER_MENU_ID).setTag(tag).build())
             .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
             .setMenuItemClickListener(this);
-        } else if (cell instanceof LauncherAppWidgetHostView) {
+        } else {
             builder.addSubActionView(rLSubBuilder.setContentView(deleteLayout).setId(DELETE_MENU_ID).setTag(tag).build())
             .attachTo(cell).setStartAngle(startAngle).setEndAngle(endAngle).setStateChangeListener(this)
             .setMenuItemClickListener(this);

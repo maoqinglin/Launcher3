@@ -118,6 +118,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.launcher3.DropTarget.DragObject;
+import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.floatmenu.FloatingActionMenu;
 import com.android.launcher3.much.ImageHelper;
 import com.android.launcher3.much.MuchConfig;
@@ -2826,8 +2827,19 @@ public class Launcher extends Activity
                     
                     if(itemUnderLongClick instanceof BubbleTextView
                             || itemUnderLongClick instanceof LauncherAppWidgetHostView){ //add by linmaoqing
-                        mFloatMenuManager.createFloatMenu(longClickCellInfo.cell,longClickCellInfo.cellX,longClickCellInfo.cellY);
+                        //edit begin by lilu 20150929
+                        boolean isOnlyDelete = false;
+                        if (itemUnderLongClick instanceof LauncherAppWidgetHostView) {
+                            isOnlyDelete = true;
+                        } else {
+                            int itemType = mModel.getCellType(longClickCellInfo);
+                            if (itemType == Favorites.ITEM_TYPE_SHORTCUT) {
+                                isOnlyDelete = true;
+                            }
+                        }
+                        mFloatMenuManager.createFloatMenu(longClickCellInfo.cell,longClickCellInfo.cellX,longClickCellInfo.cellY,isOnlyDelete);
                     }
+                    //edit end by lilu 20150929
                     // User long pressed on an item
                     mWorkspace.startDrag(longClickCellInfo);
                 }else if(itemUnderLongClick instanceof Folder){

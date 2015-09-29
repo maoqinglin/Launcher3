@@ -54,6 +54,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.launcher3.FolderInfo.FolderListener;
+import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.MuchFolderPageView.MuchPagedViewChangeListener;
 import com.android.launcher3.MuchFolderPageView.MyPagerAdapter;
 import com.android.launcher3.much.MuchConfig;
@@ -317,7 +318,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 v.getLocationOnScreen(flocation);
                 CellLayout.LayoutParams lp = (com.android.launcher3.CellLayout.LayoutParams)v.getLayoutParams();
                 mLauncher.getFloatMenuManager().setFolderPoint(flocation);
-                mLauncher.getFloatMenuManager().createFloatMenu(v,item.cellX,item.cellY);
+                boolean isOnlyDelete = false;
+                if (item.itemType == Favorites.ITEM_TYPE_APPWIDGET || item.itemType == Favorites.ITEM_TYPE_SHORTCUT) {
+                    isOnlyDelete = true;
+                }
+                mLauncher.getFloatMenuManager().createFloatMenu(v,item.cellX,item.cellY,isOnlyDelete);
                 
             }//end by linmaoqing
 

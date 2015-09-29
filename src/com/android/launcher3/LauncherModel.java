@@ -32,6 +32,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import android.R.integer;
 import android.app.SearchManager;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
@@ -69,7 +70,9 @@ import android.util.Log;
 import android.util.Pair;
 import android.widget.Toast;
 
+import com.android.launcher3.CellLayout.CellInfo;
 import com.android.launcher3.InstallWidgetReceiver.WidgetMimeTypeHandlerData;
+import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.much.MuchConfig;
 
 /**
@@ -3241,6 +3244,7 @@ public class LauncherModel extends BroadcastReceiver {
         }
     }
 
+    //add begin by lilu 20150929
     public static boolean isAppIconExist(Intent newIntent) {
         if (newIntent == null) {
             return false;
@@ -3268,4 +3272,22 @@ public class LauncherModel extends BroadcastReceiver {
             return false;
         }
     }
+
+    public int getCellType(CellInfo cellInfo) {
+        if (cellInfo == null) {
+            return Favorites.ITEM_TYPE_APPLICATION;
+        }
+        synchronized (sBgLock) {
+            for (ItemInfo info : sBgWorkspaceItems) {
+                int x = cellInfo.cellX;
+                int y = cellInfo.cellY;
+                long screenId = cellInfo.screenId;
+                if (x == info.cellX && y == info.cellY && screenId == info.screenId) {
+                    return info.itemType;
+                }
+            }
+            return Favorites.ITEM_TYPE_APPLICATION;
+        }
+    }
+    //add end by lilu 20150929
 }
