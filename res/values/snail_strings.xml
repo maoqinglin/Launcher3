@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="effect_names">
+        <item>经典</item>
+        <item>立方</item>
+        <item>缩小</item>
+        <item>层叠</item>
+        <item>翻转</item>
+        <item>圆柱</item>
+        <item>车轮翻转</item>
+        <item>淡入淡出</item>
+        <item>风琴</item>
+    </string-array>
+    <string-array name="effect_icons">
+        <item>@drawable/effect_overview_simple_classic</item>
+        <item>@drawable/effect_overview_simple_cube_outside</item>
+        <item>@drawable/effect_overview_cylinder</item>
+        <item>@drawable/effect_overview_simple_stack</item>
+        <item>@drawable/effect_overview_simple_collection</item>
+        <item>@drawable/effect_overview_simple_flippy</item>
+        <item>@drawable/effect_overview_simple_roll_away</item>
+        <item>@drawable/effect_overview_extrusion</item>
+        <item>@drawable/effect_overview_simple_accordion</item>
+    </string-array>
+    
+    <string name="effect">特效</string>
+</resources>

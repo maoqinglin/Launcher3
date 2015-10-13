@@ -37,10 +37,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.PointF;
@@ -61,6 +63,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.TextView;
@@ -77,7 +81,7 @@ import com.android.launcher3.much.MuchConfig;
  * interact with. A workspace is meant to be used with a fixed width only.
  */
 public class Workspace extends SmoothPagedView implements DropTarget, DragSource, DragScroller, View.OnTouchListener,
-        DragController.DragListener, LauncherTransitionable, ViewGroup.OnHierarchyChangeListener, Insettable {
+        DragController.DragListener, LauncherTransitionable, ViewGroup.OnHierarchyChangeListener, Insettable, OnSharedPreferenceChangeListener {
     private static final String TAG = "Launcher.Workspace";
 
     // Y rotation to apply to the workspace screens
@@ -1721,6 +1725,76 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 ((CellLayout) getChildAt(getChildCount() - 1)).resetOverscrollTransforms();
             }
         }
+        
+//        if(isInOverviewMode()){
+//            Log.d("lmq", "isInOverviewMode");
+//            for (int i = 0; i < getChildCount(); i++) {
+//                View v = getPageAt(i);
+//                if (v != null) {
+//                    v.setPivotX(v.getMeasuredWidth() * 0.5f);
+//                    v.setPivotY(v.getMeasuredHeight() * 0.5f);
+//                    v.setRotation(0);
+//                    v.setRotationX(0);
+//                    v.setRotationY(0);
+//                    v.setScaleX(1f);
+//                    v.setScaleY(1f);
+//                    v.setTranslationX(0f);
+//                    v.setTranslationY(0f);
+//                    v.setVisibility(VISIBLE);
+//                    setChildAlpha(v, 1f);
+//                    v.setAlpha(1.0f);
+//                }
+//            }
+//            return;
+//        }
+        
+     // TODO 修改 滑屏动画 
+        boolean isInOverscroll = mOverScrollX < 0 || mOverScrollX > mMaxScrollX;
+        // Apply transition effect and adjacent screen fade if enabled
+        int screenEffectNum = getLauncherSP().getInt(MuchConfig.SCREEN_EFFECT_PREFS, 0);
+        for (int i = 0; i < getChildCount(); i++) {
+            View v = getPageAt(i);
+            if (v != null) {
+                float scrollProgress = getScrollProgress(screenCenter, v, i);
+                switch (screenEffectNum) {
+                case 0:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"none");
+                    break;
+                case 1:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cube-out");
+                    break;
+                case 2:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"zoom-in");
+                    break;
+                case 3:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"stack");
+                    break;
+                case 4:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"flip");
+                    break;
+                case 5:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cylinder-in");
+                    break;
+                case 6:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"rotate-down");
+                    break;
+//                case 7:
+//                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cylinder-out");
+//                    break;
+                case 7:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"crossfade");
+                    break;
+                case 8:
+                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"accordion");
+                    break;
+//                case 9:
+//                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"overview");
+//                    break;
+                default:
+                    break;
+            }
+        }
+        }
     }
 
     @Override
@@ -1733,11 +1807,13 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         mWindowToken = getWindowToken();
         computeScroll();
         mDragController.setWindowToken(mWindowToken);
+        getLauncherSP().registerOnSharedPreferenceChangeListener(this);
     }
 
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mWindowToken = null;
+        getLauncherSP().unregisterOnSharedPreferenceChangeListener(this);
     }
 
     protected void onResume() {
@@ -1974,6 +2050,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
      * InvereZInterpolator compounded with an ease-out.
      */
     static class ZoomInInterpolator implements TimeInterpolator {
+//        private final InverseZInterpolator inverseZInterpolator = new InverseZInterpolator(0.35f);
         private final InverseZInterpolator inverseZInterpolator = new InverseZInterpolator(0.35f);
         private final DecelerateInterpolator decelerate = new DecelerateInterpolator(3.0f);
 
@@ -2113,7 +2190,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
         int offset = (viewPortHeight - scaledChildHeight) / 2;
         int offsetDelta = mOverviewModePageOffset - offset + mInsets.top;
-
         return offsetDelta;
     }
 
@@ -4798,5 +4874,430 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
 
     public void getLocationInDragLayer(int[] loc) {
         mLauncher.getDragLayer().getLocationInDragLayer(this, loc);
+    }
+
+    protected TransitionEffect mTransitionEffect;
+    protected boolean mUseTransitionEffect = true;
+    private boolean mScrollTransformsSet;
+    protected static final float TRANSITION_SCREEN_ROTATION = 35f;
+    protected static float CAMERA_DISTANCE = 6500;
+    protected static final float TRANSITION_SCALE_FACTOR = 0.5f;
+    protected boolean mShowEffectAnim;
+    
+    protected void setOverScrollAmount(View v, float r) {
+        int alpha = (int) Math.round((r * 255));
+        if (alpha != 0) {
+            v.setBackgroundColor((int) Color.BLACK * (-alpha));
+        }
+        v.invalidate();
+    }
+    public void setFadeInAdjacentScreens(boolean fade) {
+        mFadeInAdjacentScreens = fade;
+    }
+    private void changeScreenEffect(boolean isInOverscroll, int i, View v,
+            float scrollProgress,String effect) {
+        
+        TransitionEffect.setFromString(this, effect);
+        if (mTransitionEffect != null && mUseTransitionEffect && !isInOverscroll) {
+            initViewAnim(v);
+            if(!isInOverviewMode()){
+            }
+            mTransitionEffect.screenScrolled(v, i, scrollProgress);
+        } else if (mScrollTransformsSet) {
+//            v.setPivotX(v.getMeasuredWidth() * 0.5f);
+//            v.setPivotY(v.getMeasuredHeight() * 0.5f);
+//            v.setRotation(0);
+//            v.setRotationX(0);
+//            v.setRotationY(0);
+//            v.setScaleX(1f);
+//            v.setScaleY(1f);
+//            v.setTranslationX(0f);
+//            v.setTranslationY(0f);
+//            v.setVisibility(VISIBLE);
+//            setChildAlpha(v, 1f);
+//            v.setAlpha(1.0f);
+            
+            initViewAnim(v);
+        }else{
+            initViewAnim(v);
+        }
+    }
+    
+    private void initViewAnim(View v){
+        v.setPivotX(v.getMeasuredWidth() * 0.5f);
+        v.setPivotY(v.getMeasuredHeight() * 0.5f);
+        v.setRotation(0);
+        v.setRotationX(0);
+        v.setRotationY(0);
+        v.setScaleX(1f);
+        v.setScaleY(1f);
+        v.setTranslationX(0f);
+        v.setTranslationY(0f);
+        v.setVisibility(VISIBLE);
+        setChildAlpha(v, 1f);
+        v.setAlpha(1.0f);
+    }
+    protected void setChildAlpha(View child, float alpha) {
+        child.setAlpha(alpha);
+    }
+    
+    public TransitionEffect getTransitionEffect() {
+        return mTransitionEffect;
+    }
+    public void setTransitionEffect(TransitionEffect effect) {
+        mTransitionEffect = effect;
+        // Reset scroll transforms
+        if (mScrollTransformsSet) {
+            for (int i = 0; i < getChildCount(); i++) {
+                View v = getPageAt(i);
+                if (v != null) {
+                    v.setPivotX(v.getMeasuredWidth() * 0.5f);
+                    v.setPivotY(v.getMeasuredHeight() * 0.5f);
+                    v.setRotation(0);
+                    v.setRotationX(0);
+                    v.setRotationY(0);
+                    v.setScaleX(1f);
+                    v.setScaleY(1f);
+                    v.setTranslationX(0f);
+                    v.setTranslationY(0f);
+                    v.setVisibility(VISIBLE);
+                    setChildAlpha(v, 1f);
+                }
+            }
+
+            mScrollTransformsSet = false;
+        }
+    }
+    protected static abstract class TransitionEffect {
+        public static final String TRANSITION_EFFECT_NONE = "none";
+        public static final String TRANSITION_EFFECT_ZOOM_IN = "zoom-in";
+        public static final String TRANSITION_EFFECT_ZOOM_OUT = "zoom-out";
+        public static final String TRANSITION_EFFECT_ROTATE_UP = "rotate-up";
+        public static final String TRANSITION_EFFECT_ROTATE_DOWN = "rotate-down";
+        public static final String TRANSITION_EFFECT_CUBE_IN = "cube-in";
+        public static final String TRANSITION_EFFECT_CUBE_OUT = "cube-out";
+        public static final String TRANSITION_EFFECT_STACK = "stack";
+        public static final String TRANSITION_EFFECT_ACCORDION = "accordion";
+        public static final String TRANSITION_EFFECT_FLIP = "flip";
+        public static final String TRANSITION_EFFECT_CYLINDER_IN = "cylinder-in";
+        public static final String TRANSITION_EFFECT_CYLINDER_OUT = "cylinder-out";
+        public static final String TRANSITION_EFFECT_CROSSFADE = "crossfade";
+        public static final String TRANSITION_EFFECT_OVERVIEW = "overview";
+
+        protected final Workspace mWorkspace;
+        private final String mName;
+
+        public TransitionEffect(Workspace workspace, String name) {
+            mWorkspace = workspace;
+            mName = name;
+        }
+
+        public abstract void screenScrolled(View v, int i, float scrollProgress);
+
+        public final String getName() {
+            return mName;
+        }
+
+        
+        public static void setFromString(Workspace workspace, String effect) { 
+            if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_NONE)) {
+                workspace.setTransitionEffect(null);
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_ZOOM_IN)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Zoom(workspace, true));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_ZOOM_OUT)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Zoom(workspace, false));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_CUBE_IN)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Cube(workspace, true));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_CUBE_OUT)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Cube(workspace, false));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_ROTATE_UP)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Rotate(workspace, true));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_ROTATE_DOWN)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Rotate(workspace, false));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_STACK)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Stack(workspace));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_ACCORDION)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Accordion(workspace));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_FLIP)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Flip(workspace));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_CYLINDER_IN)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Cylinder(workspace, true));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_CYLINDER_OUT)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Cylinder(workspace, false));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_CROSSFADE)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Crossfade(workspace));
+            } else if (effect.equals(Workspace.TransitionEffect.TRANSITION_EFFECT_OVERVIEW)) {
+                workspace.setTransitionEffect(new Workspace.TransitionEffect.Overview(workspace));
+            }
+        }
+
+        public static class Zoom extends TransitionEffect {
+            private boolean mIn;
+
+            public Zoom(Workspace workspace, boolean in) {
+                super(workspace, in ? TRANSITION_EFFECT_ZOOM_IN : TRANSITION_EFFECT_ZOOM_OUT);
+                mIn = in;
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float scale = 1.0f + (mIn ? -0.8f : 0.4f) * Math.abs(scrollProgress);
+                // Extra translation to account for the increase in size
+                if (!mIn) {
+                    float translationX = v.getMeasuredWidth() * 0.1f * -scrollProgress;
+                    v.setTranslationX(translationX);
+                }
+
+                v.setScaleX(scale);
+                v.setScaleY(scale);
+            }
+        }
+
+        /**
+         * 车轮翻转
+         * @author lmq
+         *
+         */
+        public static class Rotate extends TransitionEffect {
+            private boolean mUp;
+
+            public Rotate(Workspace pagedView, boolean up) {
+                super(pagedView, up ? TRANSITION_EFFECT_ROTATE_UP : TRANSITION_EFFECT_ROTATE_DOWN);
+                mUp = up;
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float rotation =
+                        (mUp ? TRANSITION_SCREEN_ROTATION : -TRANSITION_SCREEN_ROTATION) * scrollProgress;
+
+                float translationX = v.getMeasuredWidth() * scrollProgress;
+
+                float rotatePoint =
+                        (v.getMeasuredWidth() * 0.5f) /
+                                (float) Math.tan(Math.toRadians((double) (TRANSITION_SCREEN_ROTATION * 0.5f)));
+
+                v.setPivotX(v.getMeasuredWidth() * 0.5f);
+                if (mUp) {
+                    v.setPivotY(-rotatePoint);
+                } else {
+                    v.setPivotY(v.getMeasuredHeight() + rotatePoint);
+                }
+                v.setRotation(rotation);
+                v.setTranslationX(translationX);
+            }
+        }
+        /**
+         * 立方
+         * @author lmq
+         *
+         */
+        public static class Cube extends TransitionEffect {
+            private boolean mIn;
+
+            public Cube(Workspace workspace, boolean in) {
+                super(workspace, in ? TRANSITION_EFFECT_CUBE_IN : TRANSITION_EFFECT_CUBE_OUT);
+                mIn = in;
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float rotation = (mIn ? 90.0f : -90.0f) * scrollProgress;
+
+                v.setPivotX(scrollProgress < 0 ? 0 : v.getMeasuredWidth());
+                v.setPivotY(v.getMeasuredHeight() * 0.5f);
+                v.setRotationY(rotation);
+            }
+        }
+
+        /**
+         * 层叠
+         * @author lmq
+         *
+         */
+        public static class Stack extends TransitionEffect {
+            private ZInterpolator mZInterpolator = new ZInterpolator(0.5f);
+            private DecelerateInterpolator mLeftScreenAlphaInterpolator = new DecelerateInterpolator(4);
+            protected AccelerateInterpolator mAlphaInterpolator = new AccelerateInterpolator(0.9f);
+
+            public Stack(Workspace workspace) {
+                super(workspace, TRANSITION_EFFECT_STACK);
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                final boolean isRtl = mWorkspace.isLayoutRtl();
+                float interpolatedProgress;
+                float translationX;
+                float maxScrollProgress = Math.max(0, scrollProgress);
+                float minScrollProgress = Math.min(0, scrollProgress);
+
+                if (mWorkspace.isLayoutRtl()) {
+                    translationX = maxScrollProgress * v.getMeasuredWidth();
+                    interpolatedProgress = mZInterpolator.getInterpolation(Math.abs(maxScrollProgress));
+                } else {
+                    translationX = minScrollProgress * v.getMeasuredWidth();
+                    interpolatedProgress = mZInterpolator.getInterpolation(Math.abs(minScrollProgress));
+                }
+                float scale = (1 - interpolatedProgress) +
+                        interpolatedProgress * TRANSITION_SCALE_FACTOR;
+
+                float alpha;
+                if (isRtl && (scrollProgress > 0)) {
+                    alpha = mAlphaInterpolator.getInterpolation(1 - Math.abs(maxScrollProgress));
+                } else if (!isRtl && (scrollProgress < 0)) {
+                    alpha = mAlphaInterpolator.getInterpolation(1 - Math.abs(scrollProgress));
+                } else {
+                    //  On large screens we need to fade the page as it nears its leftmost position
+                    alpha = mLeftScreenAlphaInterpolator.getInterpolation(1 - scrollProgress);
+                }
+
+                v.setTranslationX(translationX);
+                v.setScaleX(scale);
+                v.setScaleY(scale);
+                if (v instanceof CellLayout) {
+                    ((CellLayout) v).getShortcutsAndWidgets().setAlpha(alpha);
+                } else {
+                    v.setAlpha(alpha);
+                }
+
+                // If the view has 0 alpha, we set it to be invisible so as to prevent
+                // it from accepting touches
+                if (alpha == 0) {
+                    v.setVisibility(INVISIBLE);
+                } else if (v.getVisibility() != VISIBLE) {
+                    v.setVisibility(VISIBLE);
+                }
+            }
+        }
+
+        /**
+         * 折叠，风琴效果
+         * @author lmq
+         *
+         */
+        public static class Accordion extends TransitionEffect {
+            public Accordion(Workspace workspace) {
+                super(workspace, TRANSITION_EFFECT_ACCORDION);
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float scale = 1.0f - Math.abs(scrollProgress);
+
+                v.setScaleX(scale);
+                v.setPivotX(scrollProgress < 0 ? 0 : v.getMeasuredWidth());
+                v.setPivotY(v.getMeasuredHeight() / 2f);
+            }
+        }
+
+        /**
+         * 翻转效果
+         * @author lmq
+         *
+         */
+        public static class Flip extends TransitionEffect {
+            public Flip(Workspace workspace) {
+                super(workspace, TRANSITION_EFFECT_FLIP);
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float rotation = -180.0f * Math.max(-1f, Math.min(1f, scrollProgress));
+
+                v.setCameraDistance(mWorkspace.mDensity * Workspace.CAMERA_DISTANCE);
+                v.setPivotX(v.getMeasuredWidth() * 0.5f);
+                v.setPivotY(v.getMeasuredHeight() * 0.5f);
+                v.setRotationY(rotation);
+
+                if (scrollProgress >= -0.5f && scrollProgress <= 0.5f) {
+                    v.setTranslationX(v.getMeasuredWidth() * scrollProgress);
+                } else {
+                    v.setTranslationX(0f);
+                }
+            }
+        }
+
+        /**
+         * 圆柱效果
+         * @author lmq
+         *
+         */
+        public static class Cylinder extends TransitionEffect {
+            private boolean mIn;
+
+            public Cylinder(Workspace workspace, boolean in) {
+                super(workspace, in ? TRANSITION_EFFECT_CYLINDER_IN : TRANSITION_EFFECT_CYLINDER_OUT);
+                mIn = in;
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float rotation = (mIn ? TRANSITION_SCREEN_ROTATION : -TRANSITION_SCREEN_ROTATION) * scrollProgress;
+
+                v.setPivotX((scrollProgress + 1) * v.getMeasuredWidth() * 0.5f);
+                v.setPivotY(v.getMeasuredHeight() * 0.5f);
+                v.setRotationY(rotation);
+            }
+        }
+
+        /**
+         * 淡入淡出
+         * @author lmq
+         *
+         */
+        public static class Crossfade extends TransitionEffect {
+            public Crossfade(Workspace workspace) {
+                super(workspace, TRANSITION_EFFECT_CROSSFADE);
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float alpha = 1 - Math.abs(scrollProgress);
+                v.setPivotX(v.getMeasuredWidth() * 0.5f);
+                v.setPivotY(v.getMeasuredHeight() * 0.5f);
+                v.setAlpha(alpha);
+            }
+        }
+
+        public static class Overview extends TransitionEffect {
+            private AccelerateDecelerateInterpolator mScaleInterpolator = new AccelerateDecelerateInterpolator();
+
+            public Overview(Workspace workspace) {
+                super(workspace, TRANSITION_EFFECT_OVERVIEW);
+            }
+
+            @Override
+            public void screenScrolled(View v, int i, float scrollProgress) {
+                float scale = 1.0f - 0.1f *
+                        mScaleInterpolator.getInterpolation(Math.min(0.3f, Math.abs(scrollProgress)) / 0.3f);
+
+                v.setPivotX(scrollProgress < 0 ? 0 : v.getMeasuredWidth());
+                v.setPivotY(v.getMeasuredHeight() * 0.5f);
+                v.setScaleX(scale);
+                v.setScaleY(scale);
+                mWorkspace.setChildAlpha(v, scale);
+            }
+        }
+    }
+
+    private SharedPreferences getLauncherSP(){
+        return getContext().getSharedPreferences(
+                MuchConfig.LAUNCHER_PREFS, Context.MODE_PRIVATE);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//        int effectIndex = sharedPreferences.getInt(key, 0);
+//        mShowEffectAnim = true;
+        if(getChildCount() <= 1){
+            return ;
+        }
+        int index = getPageNearestToCenterOfScreen();
+        if(index == getChildCount() - 1){
+            snapToPage(index,1000);
+        } else {
+            snapToPage(index+1,1000);
+        }
     }
 }

@@ -85,6 +85,8 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.text.Selection;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -117,6 +119,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.launcher.overview.ui.OverViewTabs;
 import com.android.launcher3.DropTarget.DragObject;
 import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.floatmenu.FloatingActionMenu;
@@ -1236,33 +1239,38 @@ public class Launcher extends Activity
             mHotseat.setOnLongClickListener(this);
         }
 
-        mOverviewPanel = findViewById(R.id.overview_panel);
-        View widgetButton = findViewById(R.id.widget_button);
-        widgetButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                showAllApps(true, AppsCustomizePagedView.ContentType.Widgets, true);
-            }
-        });
-        widgetButton.setOnTouchListener(getHapticFeedbackTouchListener());
-
-        View wallpaperButton = findViewById(R.id.wallpaper_button);
-        wallpaperButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                startWallpaper();
-            }
-        });
-        wallpaperButton.setOnTouchListener(getHapticFeedbackTouchListener());
-
-        View settingsButton = findViewById(R.id.settings_button);
-        settingsButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View arg0) {
-                startSettings();
-            }
-        });
-        settingsButton.setOnTouchListener(getHapticFeedbackTouchListener());
+//        mOverviewPanel = findViewById(R.id.overview_panel);
+//        View widgetButton = findViewById(R.id.widget_button);
+//        widgetButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View arg0) {
+//                showAllApps(true, AppsCustomizePagedView.ContentType.Widgets, true);
+//            }
+//        });
+//        widgetButton.setOnTouchListener(getHapticFeedbackTouchListener());
+//
+//        View wallpaperButton = findViewById(R.id.wallpaper_button);
+//        wallpaperButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View arg0) {
+//                startWallpaper();
+//            }
+//        });
+//        wallpaperButton.setOnTouchListener(getHapticFeedbackTouchListener());
+//
+//        View settingsButton = findViewById(R.id.settings_button);
+//        settingsButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View arg0) {
+//                startSettings();
+//            }
+//        });
+//        settingsButton.setOnTouchListener(getHapticFeedbackTouchListener());
+        
+        mOverviewPanel = findViewById(R.id.overview_tabs);
+        OverViewTabs tab = new OverViewTabs();
+        tab.init(this,mOverviewPanel);
+        
         mOverviewPanel.setAlpha(0f);
 
         // Setup the workspace

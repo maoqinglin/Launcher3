@@ -26,7 +26,9 @@ public final class MuchConfig {
     
     private static MuchConfig sInstatnce;
     private Context mContext;
-
+    public static final String LAUNCHER_PREFS = "com.android.launcher3.prefs";
+    public static final String SCREEN_EFFECT_PREFS = "screenEffect";
+    
     public static void init(Context context) {
         if (sInstatnce == null) {
             synchronized (MuchConfig.class) {

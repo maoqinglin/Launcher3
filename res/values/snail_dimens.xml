@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="much_overmode_function_Layout_height">250dp</dimen>
+    <dimen name="much_overmode_function_nav_height">40dp</dimen>
+    <dimen name="much_overmode_function_nav_margin_left">20dp</dimen>
+    <dimen name="much_overmode_function_nav_margin_right">20dp</dimen>
+    <dimen name="much_overmode_function_nav_cursor_height">3dp</dimen>
+    <dimen name="much_overmode_function_nav_textsize">20sp</dimen>
+</resources>
