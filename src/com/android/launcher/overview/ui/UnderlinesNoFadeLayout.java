@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.R;
 import com.android.launcher3.much.MuchConfig;
 
@@ -35,7 +36,8 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
     private List<View> mListViews = new ArrayList<View>();
     private List<EffectItem> mEffectList = new ArrayList<EffectItem>();
     private List<EffectAdapter> mEffectAdapterList = new ArrayList<UnderlinesNoFadeLayout.EffectAdapter>();
-    private static final int PAGE_ITEM = 6;
+    private static final int PORT_PAGE_ITEM = 6;
+    private static final int LANDSCAPE_PAGE_ITEM = 5;
     private Context mContext;
 
     public UnderlinesNoFadeLayout(Context context) {
@@ -110,8 +112,8 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
         if (pageIndex > getPageCount() - 1) {
             return null;
         }
-        int startIndex = pageIndex * PAGE_ITEM;
-        int endIndex = Math.min((pageIndex + 1) * PAGE_ITEM - 1, mEffectList.size() - 1);
+        int startIndex = pageIndex * getPageItem();
+        int endIndex = Math.min((pageIndex + 1) * getPageItem() - 1, mEffectList.size() - 1);
         GridView grid = (GridView) LayoutInflater.from(mContext).inflate(R.layout.snail_overview_grid, null);
         // 根据索引返回数据
         List<EffectItem> items = mEffectList.subList(startIndex, endIndex + 1);
@@ -136,10 +138,14 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
         return grid;
     }
 
+    private int getPageItem() {
+        return LauncherAppState.isScreenLandscape(mContext) ? LANDSCAPE_PAGE_ITEM : PORT_PAGE_ITEM;
+    }
+    
     private int getPageCount() {
         if (mEffectList.size() != 0) {
-            return mEffectList.size() % PAGE_ITEM == 0 ? mEffectList.size() / PAGE_ITEM : mEffectList.size()
-                    / PAGE_ITEM + 1;
+            return mEffectList.size() % getPageItem() == 0 ? mEffectList.size() / getPageItem() : mEffectList.size()
+                    / getPageItem() + 1;
         }
         return 0;
     }
@@ -148,7 +154,6 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
         List<EffectItem> effects = null;
 
         public EffectAdapter(List<EffectItem> effects) {
-            Log.d("lmq", "effects.size = "+effects.size());
             this.effects = effects;
         }
 

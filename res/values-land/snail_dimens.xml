@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <dimen name="much_overmode_function_Layout_height">140dp</dimen>
+    <dimen name="much_overmode_function_nav_height">25dp</dimen>
+    <dimen name="much_overmode_function_nav_margin_left">150dp</dimen>
+    <dimen name="much_overmode_function_nav_margin_right">150dp</dimen>
+    <dimen name="much_overmode_function_nav_cursor_height">2dp</dimen>
+    <dimen name="much_overmode_function_nav_textsize">18sp</dimen>
+    
+    <dimen name="much_overmode_effect_grid_padding">10dp</dimen>
+    <dimen name="much_overmode_effect_grid_spacing">20dp</dimen>
+    <dimen name="much_overmode_effect_grid_margin_left">100dp</dimen>
+    <dimen name="much_overmode_effect_grid_margin_right">100dp</dimen>
+    
+    <dimen name="much_overmode_effect_item_icon_width">45dp</dimen>
+    <dimen name="much_overmode_effect_item_icon_height">45dp</dimen>
+    <dimen name="much_overmode_effect_item_icon_margin_bottom">20dp</dimen>
+    <dimen name="much_overmode_effect_item_icon_margin_top">5dp</dimen>
+    <dimen name="much_overmode_effect_name_margin_bottom">4dp</dimen>
+    <dimen name="much_overmode_effect_item_selected_margin">2dp</dimen>
+    
+    <dimen name="much_overmode_effect_viewpager_height">100dp</dimen>
+    <dimen name="much_overmode_effect_indicator_width">100dp</dimen>
+    <dimen name="much_overmode_effect_viewpager_padding_left">80dp</dimen>
+    <dimen name="much_overmode_effect_viewpager_padding_right">80dp</dimen>
+</resources>

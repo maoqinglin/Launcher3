@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/much_overmode_effect_grid_padding"
+    android:horizontalSpacing="@dimen/much_overmode_effect_grid_spacing"
+    android:verticalSpacing="@dimen/much_overmode_effect_grid_spacing"
+    android:listSelector="@color/white_first_transparency"
+    android:numColumns="3" >
+
+</GridView>

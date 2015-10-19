@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
     <style name="Theme.PageIndicatorDefaults" parent="android:Theme">
         <item name="vpiIconPageIndicatorStyle">@style/Widget.IconPageIndicator</item>
         <item name="vpiTabPageIndicatorStyle">@style/Widget.TabPageIndicator</item>
@@ -43,5 +43,16 @@
     <style name="Widget.IconPageIndicator" parent="Widget">
         <item name="android:layout_marginLeft">6dp</item>
         <item name="android:layout_marginRight">6dp</item>
+    </style>
+    
+    <style name="MenuTitle" parent="@android:style/Widget.TextView">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">@dimen/much_overmode_function_nav_textsize</item>
+        <item name="android:shadowColor">#1F000000</item>
+        <item name="android:shadowDx">2</item>
+        <item name="android:shadowDy">5</item>
+        <item name="android:gravity">center</item>
+        <item name="android:shadowRadius">10</item>
+        
     </style>
 </resources>

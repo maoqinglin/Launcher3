@@ -1,24 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="#EAEAEA"
-    android:paddingBottom="5dp"
-    android:alpha="0.8" >
+    android:layout_height="wrap_content" >
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:alpha="0.6"
+        android:background="@color/white_first_transparency" />
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="@dimen/much_overmode_effect_item_icon_width"
+        android:layout_height="@dimen/much_overmode_effect_item_icon_height"
         android:layout_gravity="center_horizontal|top"
-        android:layout_marginBottom="20dp"
-        android:layout_marginTop="5dp" />
+        android:layout_marginBottom="@dimen/much_overmode_effect_item_icon_margin_bottom"
+        android:layout_marginTop="@dimen/much_overmode_effect_item_icon_margin_top" />
 
     <TextView
         android:id="@+id/name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="@dimen/much_overmode_effect_name_margin_bottom"
         android:gravity="center" />
 
     <ImageView
@@ -26,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="top|right"
-        android:layout_margin="2dp"
+        android:layout_margin="@dimen/much_overmode_effect_item_selected_margin"
         android:src="@drawable/effect_icon_selection"
         android:visibility="invisible" />
 

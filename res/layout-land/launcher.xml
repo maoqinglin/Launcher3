@@ -18,7 +18,7 @@
 
 <!-- Full screen view projects under the status bar and contains the background -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3"
+    xmlns:launcher="http://schemas.android.com/apk/res-auto"
     android:id="@+id/launcher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -52,9 +52,14 @@
             android:id="@+id/qsb_bar"
             layout="@layout/qsb_bar" />
 
-        <include
+        <!-- <include
             android:id="@+id/overview_panel"
             layout="@layout/overview_panel"
+            android:visibility="gone" /> -->
+        <include
+            android:id="@+id/overview_tabs"
+            android:layout_gravity="center_horizontal|bottom"
+            layout="@layout/snail_overview_tabs"
             android:visibility="gone" />
 
         <FrameLayout

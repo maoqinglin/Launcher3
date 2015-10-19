@@ -1,9 +1,13 @@
 package com.android.launcher.overview.ui;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import android.R.color;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +27,7 @@ import com.android.launcher3.R;
 public class OverViewTabs implements OnTabReselectedListener {
 
     private List<View> mListViews = new ArrayList<View>();
+    private HashMap<Integer, TextView> mTitleMap = new HashMap<Integer, TextView>();
     private Context mContext;
 
     private TextView mTitleEffect, mTitleWrapper;
@@ -41,6 +46,8 @@ public class OverViewTabs implements OnTabReselectedListener {
     private void InitContainerView(Context context, View view) {
         mContainer = (FrameLayout) view.findViewById(R.id.container);
         mEffectContent = new UnderlinesNoFadeLayout(mContext);
+        mListViews.clear();
+        mListViews.add(mEffectContent);
         mContainer.removeAllViewsInLayout();
         mContainer.addView(mEffectContent);
     }
@@ -50,9 +57,11 @@ public class OverViewTabs implements OnTabReselectedListener {
      */
 
     private void InitTextView(View view) {
-        LinearLayout layout = (LinearLayout) view.findViewById(R.id.nav_layout);
+        mTitleMap.clear();
         mTitleEffect = (TextView) view.findViewById(R.id.title_effect);
         mTitleWrapper = (TextView) view.findViewById(R.id.title_wrapper);
+        mTitleMap.put(0, mTitleEffect);
+        mTitleMap.put(1, mTitleWrapper);
 
         mNavIndicator = (ImageView) view.findViewById(R.id.nav_indicator);
         LayoutParams params = mNavIndicator.getLayoutParams();
@@ -80,6 +89,9 @@ public class OverViewTabs implements OnTabReselectedListener {
         }
 
         public void onClick(View v) {
+            if(mCurrIndex == index){
+               return; 
+            }
             loadContentByIndex(index);
             int titleWidth = mTitleEffect.getWidth();
             Animation animation = new TranslateAnimation(titleWidth * mCurrIndex, titleWidth * index, 0, 0);
@@ -99,6 +111,21 @@ public class OverViewTabs implements OnTabReselectedListener {
                 mContainer.addView(mEffectContent);
             }
         }
+        setSeletorTitleAlpha(index);
+    }
+
+    private void setSeletorTitleAlpha(int selectedIndex) {
+        for(Map.Entry<Integer, TextView> entry : mTitleMap.entrySet()){
+            if(entry.getKey().equals(selectedIndex)){
+                TextView selectedView = entry.getValue();
+                selectedView.setAlpha(1f);
+            }
+            if(entry.getKey().equals(mCurrIndex)){
+                TextView unSelectedView = entry.getValue();
+                unSelectedView.setAlpha(0.6f);
+            }
+        }
+        
     }
 
     @Override

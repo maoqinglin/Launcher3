@@ -23,12 +23,15 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"
         android:layout_width="fill_parent"
-        android:layout_height="200dp"
+        android:layout_height="@dimen/much_overmode_effect_viewpager_height"
+        android:paddingLeft="@dimen/much_overmode_effect_viewpager_padding_left"
+        android:paddingRight="@dimen/much_overmode_effect_viewpager_padding_right"
         />
     <com.android.launcher.overview.ui.UnderlinePageIndicator
         android:id="@+id/indicator"
-        android:layout_height="3dp"
-        android:layout_width="200dp"
+        android:layout_height="@dimen/much_overmode_function_nav_cursor_height"
+        android:layout_width="@dimen/much_overmode_effect_indicator_width"
         android:layout_gravity="center_horizontal"
+        android:background="@color/white_second_transparency"
         />
 </LinearLayout>

@@ -159,4 +159,28 @@
     <string name="much_menu_power">功耗管理</string>
     <string name="much_uninstall_prompt">系统应用无法卸载！</string>
     <string name="much_powermanager_prompt">应用未安装！</string>
+    
+    <string-array name="effect_names">
+        <item>经典</item>
+        <item>立方</item>
+        <item>缩小</item>
+        <item>层叠</item>
+        <item>旋转</item>
+        <item>圆柱</item>
+        <item>车轮翻转</item>
+        <item>淡入淡出</item>
+        <item>推拉门</item>
+    </string-array>
+    <string-array name="effect_icons">
+        <item>@drawable/effect_overview_simple_classic</item>
+        <item>@drawable/effect_overview_simple_cube_outside</item>
+        <item>@drawable/effect_overview_simple_flippy</item>
+        <item>@drawable/effect_overview_simple_stack</item>
+        <item>@drawable/effect_overview_simple_collection</item>
+        <item>@drawable/effect_overview_cylinder</item>
+        <item>@drawable/effect_overview_simple_roll_away</item>
+        <item>@drawable/effect_overview_extrusion</item>
+        <item>@drawable/effect_overview_simple_accordion</item>
+    </string-array>
+    <string name="effect">特效</string>
 </resources>

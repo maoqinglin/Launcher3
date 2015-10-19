@@ -49,6 +49,6 @@
     <!-- overview panel -->
     <dimen name="overview_panel_bottom_padding">15dp</dimen>
     <dimen name="overview_panel_buttonSpacing">100dp</dimen>
-    <dimen name="overview_mode_page_offset">40dp</dimen>
+    <dimen name="overview_mode_page_offset">0dp</dimen>
 
 </resources>
