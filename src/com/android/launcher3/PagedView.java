@@ -291,6 +291,8 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     protected int mFirstChildLeft;
 
+    protected boolean mEnablePageCycle = false;
+
     public interface PageSwitchListener {
         void onPageSwitch(View newPage, int newPageIndex);
     }
@@ -305,7 +307,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
     public PagedView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
+        setEnablePageCycle(true);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PagedView, defStyle, 0);
         setPageSpacing(a.getDimensionPixelSize(R.styleable.PagedView_pageSpacing, 0));
         if (mPageSpacing < 0) {
@@ -759,7 +761,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                 mOverScrollX = x;
                 super.scrollTo(x, y);
             }
-            
         }
 
         mTouchX = x;
@@ -811,9 +812,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         } else if (mNextPage != INVALID_PAGE || (mCurrentPage == INVALID_PAGE && mEnablePageCycle)) {
             sendScrollAccessibilityEvent();
 
-//            mCurrentPage = Math.max(0, Math.min(mNextPage, getPageCount() - 1));
-            mCurrentPage = Math.max((mEnablePageCycle ? -1 : 0),
-                    Math.min(mNextPage, getChildCount() - (mEnablePageCycle ? 0 : 1)));
+            mCurrentPage = Math.max(0, Math.min(mNextPage, getPageCount() - 1));
             // add begin by lilu 20140516
             if (MuchConfig.SUPPORT_MUCH_STYLE) {
                 // 首尾切换时，最后完成需要划动的距离
@@ -1156,18 +1155,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         }
     }
 
-    protected float mScrollProgressDelt = 0.0f;
-    protected void setScrollProgressDelt(final float scrollProgress){
-        mScrollProgressDelt = scrollProgress;
-    }
-    protected float getScrollProgressDelt(){
-        float delt = 0.0f;
-        if(Math.abs(mScrollProgressDelt) != 1.0f && Math.abs(mScrollProgressDelt) != 0){
-            delt = 1 - Math.abs(mScrollProgressDelt);
-            return mScrollProgressDelt > 0 ? -delt : delt;
-        }
-        return mScrollProgressDelt;
-    }
     protected void enablePagedViewAnimations() {
         mAllowPagedViewAnimations = true;
 
@@ -1340,109 +1327,36 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
 
         // Find out which screens are visible; as an optimization we only call
         // draw on them
-        if(mEnablePageCycle){
-            dispatchDrawCycle(canvas);
-        }else{
-            
-            final int pageCount = getChildCount();
-            if (pageCount > 0) {
-                getVisiblePages(mTempVisiblePagesRange);
-                final int leftScreen = mTempVisiblePagesRange[0];
-                final int rightScreen = mTempVisiblePagesRange[1];
-                if (leftScreen != -1 && rightScreen != -1) {
-                    final long drawingTime = getDrawingTime();
-                    // Clip to the bounds
-                    canvas.save();
-                    canvas.clipRect(getScrollX(), getScrollY(), getScrollX() + getRight() - getLeft(), getScrollY()
-                            + getBottom() - getTop());
-                    
-                    // Draw all the children, leaving the drag view for last
-                    for (int i = pageCount - 1; i >= 0; i--) {
-                        final View v = getPageAt(i);
-                        if (v == mDragView)
-                            continue;
-                        if (mForceDrawAllChildrenNextFrame || (leftScreen <= i && i <= rightScreen && shouldDrawChild(v))) {
-                            drawChild(canvas, v, drawingTime);
-                        }
+        final int pageCount = getChildCount();
+        if (pageCount > 0) {
+            getVisiblePages(mTempVisiblePagesRange);
+            final int leftScreen = mTempVisiblePagesRange[0];
+            final int rightScreen = mTempVisiblePagesRange[1];
+            if (leftScreen != -1 && rightScreen != -1) {
+                final long drawingTime = getDrawingTime();
+                // Clip to the bounds
+                canvas.save();
+                canvas.clipRect(getScrollX(), getScrollY(), getScrollX() + getRight() - getLeft(), getScrollY()
+                        + getBottom() - getTop());
+
+                // Draw all the children, leaving the drag view for last
+                for (int i = pageCount - 1; i >= 0; i--) {
+                    final View v = getPageAt(i);
+                    if (v == mDragView)
+                        continue;
+                    if (mForceDrawAllChildrenNextFrame || (leftScreen <= i && i <= rightScreen && shouldDrawChild(v))) {
+                        drawChild(canvas, v, drawingTime);
                     }
-                    // Draw the drag view on top (if there is one)
-                    if (mDragView != null) {
-                        drawChild(canvas, mDragView, drawingTime);
-                    }
-                    
-                    mForceDrawAllChildrenNextFrame = false;
-                    canvas.restore();
                 }
+                // Draw the drag view on top (if there is one)
+                if (mDragView != null) {
+                    drawChild(canvas, mDragView, drawingTime);
+                }
+
+                mForceDrawAllChildrenNextFrame = false;
+                canvas.restore();
             }
         }
-    }
-
-    private void dispatchDrawCycle(Canvas canvas) {
-        boolean restore = false;
-        int restoreCount = 0;
-
-
-        boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING
-                && mNextPage == INVALID_PAGE;
-         
-        if (fastDraw) {
-            
-            View child = getChildAt(mCurrentPage);
-            if (child != null) {
-                drawChild(canvas, child, getDrawingTime());
-            }
-
-        } else {
-            long drawingTime = getDrawingTime();
-            int width = getViewportWidth();
-            float scrollPos = (float) getScrollX() / width;
-            boolean endlessScrolling = true;
-
-            int leftScreen;
-            int rightScreen;
-            boolean isScrollToRight = false;
-            int childCount = getChildCount();
-            if (scrollPos < 0 && endlessScrolling) {
-                leftScreen = childCount - 1;
-                rightScreen = 0;
-            } else {
-                leftScreen = Math.min((int) scrollPos, childCount - 1);
-                rightScreen = leftScreen + 1;
-                if (endlessScrolling) {
-                    rightScreen = rightScreen % childCount;
-                    isScrollToRight = true;
-                }
-            }
-
-            if (isScreenNoValid(leftScreen)) {
-                if (rightScreen == 0 && !isScrollToRight) { 
-                    int offset = childCount * width;
-                    canvas.translate(-offset, 0);
-                    drawChild(canvas, getChildAt(leftScreen), drawingTime);
-                    canvas.translate(+offset, 0);
-                } else {
-                    drawChild(canvas, getChildAt(leftScreen), drawingTime);
-                }
-            }
-            if (scrollPos != leftScreen && isScreenNoValid(rightScreen)) {
-                if (endlessScrolling && rightScreen == 0 && isScrollToRight) {
-                    int offset = childCount * width;
-                    canvas.translate(+offset, 0);
-                    drawChild(canvas, getChildAt(rightScreen), drawingTime);
-                    canvas.translate(-offset, 0);
-                } else {
-                    drawChild(canvas, getChildAt(rightScreen), drawingTime);
-                }
-            }
-        }
-
-        if (restore) {
-            canvas.restoreToCount(restoreCount);
-        }
-    }
-
-    private boolean isScreenNoValid(int screen) {
-        return screen >= 0 && screen < getChildCount();
     }
 
     @Override
@@ -1762,16 +1676,14 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         return getScrollProgress(screenCenter, v, page);
     }
 
-    protected boolean mEnablePageCycle = true;
-    
     protected void setEnablePageCycle(boolean enablePageCycle){
         this.mEnablePageCycle = enablePageCycle;
     }
+
     protected float getScrollProgress(int screenCenter, View v, int page) {
         final int halfScreenSize = getViewportWidth() / 2;
 
         int totalDistance = v.getMeasuredWidth() + mPageSpacing;
-        Log.d("lmq", "getScrollX() = "+getScrollX());
         if(mCurrentPage == getChildCount()-1 && page == 0 && getScrollX() > 0 && mEnablePageCycle){
             screenCenter -= getChildCount()*getViewportWidth();
         }else if(mCurrentPage == 0 && page == getChildCount()-1 && getScrollX() < 0 && mEnablePageCycle){
@@ -1779,7 +1691,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         }
         int delta = screenCenter - (getScrollForPage(page) + halfScreenSize);
 
-        Log.d("lmq", "screenCenter = "+screenCenter);
         float scrollProgress = delta / (totalDistance * 1.0f);
         scrollProgress = Math.min(scrollProgress, getMaxScrollProgress());
         scrollProgress = Math.max(scrollProgress, -getMaxScrollProgress());
@@ -2199,22 +2110,14 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                     boolean isVelocityXLeft = isRtl ? velocityX > 0 : velocityX < 0;
                     // edit begin by lilu 20140516
                     if (((isSignificantMove && !isDeltaXLeft && !isFling) || (isFling && !isVelocityXLeft))
-                            && (MuchConfig.SUPPORT_MUCH_STYLE ? (mCurrentPage >= 0) : (mCurrentPage > 0) ||mEnablePageCycle)) {
-                        if(mCurrentPage == 0 && mEnablePageCycle){
-                            finalPage = -1;
-                        }else{
-                            finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage - 1;
-                        }
+                            && (MuchConfig.SUPPORT_MUCH_STYLE ? (mCurrentPage >= 0) : (mCurrentPage > 0) )) {
+                        finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage - 1;
                         snapToPageWithVelocity(finalPage, velocityX);
                     } else if (((isSignificantMove && isDeltaXLeft && !isFling) || (isFling && isVelocityXLeft))
                             && (MuchConfig.SUPPORT_MUCH_STYLE ? (mCurrentPage < getChildCount())
-                                    : (mCurrentPage < (getChildCount() - 1)) || mEnablePageCycle)) {
+                                    : (mCurrentPage < (getChildCount() - 1)))) {
                         // edit end by lilu 20140516
-                        if(mCurrentPage == getChildCount() -1 && mEnablePageCycle){
-                            finalPage = getChildCount();
-                        }else{
-                            finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + 1;
-                        }
+                        finalPage = returnToOriginalPage ? mCurrentPage : mCurrentPage + 1;
                         snapToPageWithVelocity(finalPage, velocityX);
                     } else {
                         if(mEnablePageCycle){
@@ -2478,18 +2381,9 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         // edit end by lilu 20140516
         int halfScreenSize = getViewportWidth() / 2;
 
-//        final int newX = getScrollForPage(whichPage);
-//        int delta = newX - mUnboundedScrollX;
-        final int newX;
-        int delta;
+        final int newX = getScrollForPage(whichPage);
+        int delta = newX - mUnboundedScrollX;
         int duration = 0;
-        if(mEnablePageCycle){
-            newX = whichPage * getViewportWidth();
-            delta = newX - getScrollX();
-        }else{
-            newX = getScrollForPage(whichPage);
-            delta = newX - mUnboundedScrollX;
-        }
         
         if (Math.abs(velocity) < mMinFlingVelocity) {
             // If the velocity is low enough, then treat this more as an
@@ -2573,20 +2467,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
         }
-        if(mEnablePageCycle){
-            int startX = getScrollX();
-            int childCount = getChildCount();
-            int childWidth = getViewportWidth();
-            if(whichPage == getChildCount()){
-                startX -= childCount*childWidth;
-            }else if(whichPage == -1){
-                startX += childCount*childWidth;
-            }
-            mScroller.startScroll(startX, 0, delta, 0, duration);
-        }else{
-            mScroller.startScroll(mUnboundedScrollX, 0, delta, 0, duration);
-        }
-//        mScroller.startScroll(mUnboundedScrollX, 0, delta, 0, duration);
+        mScroller.startScroll(mUnboundedScrollX, 0, delta, 0, duration);
 
         notifyPageSwitchListener();
 

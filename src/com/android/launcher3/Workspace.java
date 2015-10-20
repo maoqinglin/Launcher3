@@ -1210,6 +1210,11 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             stripEmptyScreens();
             mStripScreensOnPageStopMoving = false;
         }
+        
+        if(isSmall() && mShowEffectAnim){
+            mShowEffectAnim = false;
+            initWorkspaceChild();
+        }
     }
 
     /**
@@ -1676,9 +1681,6 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         };
         return listener;
     }
-
-    private float mTempProgress;
-    private int mMaxCount;
     
     @Override
     protected void screenScrolled(int screenCenter) {
@@ -1730,32 +1732,18 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             }
         }
         
+        if(isSmall() && !mShowEffectAnim){
+            initWorkspaceChild();
+            return;
+        }
      // TODO 修改 滑屏动画 
         boolean isInOverscroll = mOverScrollX < 0 || mOverScrollX > mMaxScrollX;
         // Apply transition effect and adjacent screen fade if enabled
         int screenEffectNum = getLauncherSP().getInt(MuchConfig.SCREEN_EFFECT_PREFS, 0);
-        mMaxCount = 0;
-//        for (int i = 0; i < getChildCount(); i++) {
-//            View v = getPageAt(i);
-//            if (v != null) {
-//                float scrollProgress = getScrollProgress(screenCenter, v, i);
-//                if(Math.abs(scrollProgress) == 1.0){
-//                    mMaxCount++;
-//                }
-//                if(Math.abs(scrollProgress) > 0 && Math.abs(scrollProgress) < 1){
-//                    mTempProgress = scro
-//                }
-//            }
-//        }
-//        if(scrollProgress != 0 && i == getChildCount() -1 && mMaxCount == getChildCount() -1 ){
-//            return;
-//        }
         for (int i = 0; i < getChildCount(); i++) {
             View v = getPageAt(i);
             if (v != null) {
                 float scrollProgress = getScrollProgress(screenCenter, v, i);
-                
-                Log.d("lmq", "i = "+i+"  scrollProgress ="+scrollProgress);
                 switch (screenEffectNum) {
                 case 0:
                     changeScreenEffect(isInOverscroll, i, v, scrollProgress,"none");
@@ -1772,15 +1760,15 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 case 4:
                     changeScreenEffect(isInOverscroll, i, v, scrollProgress,"flip");
                     break;
+//                case 5:
+//                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cylinder-in");
+//                    break;
                 case 5:
-                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cylinder-in");
-                    break;
+                  changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cylinder-out");
+                  break;
                 case 6:
                     changeScreenEffect(isInOverscroll, i, v, scrollProgress,"rotate-down");
                     break;
-//                case 7:
-//                    changeScreenEffect(isInOverscroll, i, v, scrollProgress,"cylinder-out");
-//                    break;
                 case 7:
                     changeScreenEffect(isInOverscroll, i, v, scrollProgress,"crossfade");
                     break;
@@ -1794,6 +1782,15 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                     break;
             }
         }
+        }
+    }
+
+    private void initWorkspaceChild() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View v = getPageAt(i);
+            if (v != null) {
+                initViewAnim(v);
+            }
         }
     }
 
@@ -4397,13 +4394,14 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        if (!MuchConfig.SUPPORT_MUCH_STYLE && !(mState == State.OVERVIEW)) {//modify by linmaoqing 2014-5-23
+//        dispatchDrawCycle(canvas);
+        if (MuchConfig.SUPPORT_MUCH_STYLE && !(mState == State.OVERVIEW)) {//modify by linmaoqing 2014-5-23
             // 因父类PagedView屏蔽了首页和尾页显示（getVisiblePages()/screenScrolled()）,父类dispatchDraw()只画可见的child
             boolean fastDraw = mTouchState != TOUCH_STATE_SCROLLING && mNextPage == INVALID_PAGE;
             if (!fastDraw) {
                 long drawingTime = getDrawingTime();
-                int width = getWidth();
-                float scrollPos = (float) getScrollX() * 10 / width;//
+                int width = getViewportWidth();//每屏的宽度
+                float scrollPos = (float) getScrollX() / width;
 
                 int leftScreen;
                 int rightScreen;
@@ -4423,27 +4421,28 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 }
                 if (isScreenNoValid(leftScreen)) {
                     if (rightScreen == 0 && !isScrollToRight) {
-                        int offset = getOnePageOffset() * childCount;
+                        int offset = childCount * width;
                         canvas.translate(-offset, 0);
-//                        if (mTransitionEffect != null && mUseTransitionEffect) {
-//                            float scrollProgressDelt = getScrollProgressDelt();
-//                            
-//                            mTransitionEffect.screenScrolled(getChildAt(leftScreen), leftScreen, getScrollProgressDelt());
-//                        }
                         drawChild(canvas, getChildAt(leftScreen), drawingTime);
                         canvas.translate(+offset, 0);
+                    }else {
+                        drawChild(canvas, getChildAt(leftScreen), drawingTime);
                     }
                 }
                 if (scrollPos != leftScreen && isScreenNoValid(rightScreen)) {
                     if (rightScreen == 0 && isScrollToRight) {
-                        int offset = getOnePageOffset() * childCount;
+                        int offset = childCount * width;
                         canvas.translate(+offset, 0);
-//                        if (mTransitionEffect != null && mUseTransitionEffect) {
-//                            mTransitionEffect.screenScrolled(getChildAt(rightScreen), rightScreen, getScrollProgressDelt());
-//                        }
                         drawChild(canvas, getChildAt(rightScreen), drawingTime);
                         canvas.translate(-offset, 0);
+                    } else {
+                        drawChild(canvas, getChildAt(rightScreen), drawingTime);
                     }
+                }
+            }else{
+                View child = getChildAt(mCurrentPage);
+                if (child != null) {
+                    drawChild(canvas, child, getDrawingTime());
                 }
             }
         }
@@ -4885,7 +4884,8 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     protected TransitionEffect mTransitionEffect;
     protected boolean mUseTransitionEffect = true;
     private boolean mScrollTransformsSet;
-    protected static final float TRANSITION_SCREEN_ROTATION = 35f;
+//    protected static final float TRANSITION_SCREEN_ROTATION = 35f;
+    protected static final float TRANSITION_SCREEN_ROTATION = 60f;
     protected static float CAMERA_DISTANCE = 6500;
     protected static final float TRANSITION_SCALE_FACTOR = 0.5f;
     protected boolean mShowEffectAnim;
@@ -5283,6 +5283,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if(getChildCount() <= 1){
             return ;
         }
+        mShowEffectAnim = true;
         snapToPage(1,EFFECT_TIME);
         new Handler().postDelayed(new Runnable() {
             
