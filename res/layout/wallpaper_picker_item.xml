@@ -26,5 +26,6 @@
         android:id="@+id/wallpaper_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusableInTouchMode="true"
         android:scaleType="centerCrop" />
 </com.android.launcher3.CheckableFrameLayout>

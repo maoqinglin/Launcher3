@@ -43,7 +43,7 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:alpha="0.6"
-            android:text="@string/wallpaper_button_text" />
+            android:text="@string/wallpaper_select" />
     </LinearLayout>
 
     <ImageView

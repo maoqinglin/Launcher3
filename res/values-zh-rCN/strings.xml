@@ -183,4 +183,6 @@
         <item>@drawable/effect_overview_simple_accordion</item>
     </string-array>
     <string name="effect">特效</string>
+    <string name="wallpaper_select">选壁纸</string>
+    <string name="wallpaper_library">壁纸库</string>
 </resources>

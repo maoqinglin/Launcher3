@@ -20,4 +20,7 @@
     
     <dimen name="much_overmode_effect_viewpager_height">200dp</dimen>
     <dimen name="much_overmode_effect_indicator_width">50dp</dimen>
+    
+    <dimen name="much_overmode_wallpaper_drawable_padding">5dp</dimen>
+    <dimen name="much_overmode_wallpaper_textsize">14dp</dimen>
 </resources>

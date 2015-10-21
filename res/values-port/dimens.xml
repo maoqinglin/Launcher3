@@ -34,4 +34,7 @@
     <dimen name="much_workspace_celllayout_width_gap">0dp</dimen>
     <dimen name="much_workspace_celllayout_height_gap">35dp</dimen>
     <dimen name="much_workspace_celllayout_max_gap">0dp</dimen>
+    
+    <dimen name="wallpaperThumbnailWidth">97dp</dimen>
+    <dimen name="wallpaperThumbnailHeight">160dp</dimen>
 </resources>

@@ -24,4 +24,6 @@
     </string-array>
     
     <string name="effect">Effect</string>
+    <string name="wallpaper_select">WallPaper</string>
+    <string name="wallpaper_library">WallLibrary</string>
 </resources>

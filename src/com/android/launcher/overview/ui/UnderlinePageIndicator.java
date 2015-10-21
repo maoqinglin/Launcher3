@@ -66,12 +66,21 @@ public class UnderlinePageIndicator extends View implements PageIndicator {
 
         final int alpha = Math.max(mPaint.getAlpha() - mFadeBy, 0);
         mPaint.setAlpha(alpha);
+        setIndicatorBgAlpha(alpha);
         invalidate();
         if (alpha > 0) {
           postDelayed(this, FADE_FRAME_MS);
         }
       }
+    
     };
+
+    private void setIndicatorBgAlpha(final int alpha) {
+        Drawable background = getBackground();
+        if(background != null){
+            background.setAlpha(alpha);
+        }
+    }
 
     public UnderlinePageIndicator(Context context) {
         this(context, null);

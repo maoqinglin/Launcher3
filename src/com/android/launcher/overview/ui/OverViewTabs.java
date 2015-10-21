@@ -34,6 +34,7 @@ public class OverViewTabs implements OnTabReselectedListener {
     private ImageView mNavIndicator;// 动画图片
     private FrameLayout mContainer;
     private UnderlinesNoFadeLayout mEffectContent;
+    private WallpaperLayout mWallpaperContent;
     private int mCurrIndex = 0;// 当前页卡编号
     private static final int TITLE_COUNT = 2;
 
@@ -107,9 +108,17 @@ public class OverViewTabs implements OnTabReselectedListener {
         if(index == 0){
             if(mEffectContent == null){
                 mEffectContent = new UnderlinesNoFadeLayout(mContext);
-                mContainer.removeAllViewsInLayout();
-                mContainer.addView(mEffectContent);
             }
+            mContainer.removeAllViewsInLayout();
+            mContainer.addView(mEffectContent);
+        }else if(index == 1){
+            if(mWallpaperContent == null){
+                mWallpaperContent = new WallpaperLayout(mContext);
+                mContainer.removeAllViewsInLayout();
+                mContainer.addView(mWallpaperContent);
+            }
+            mContainer.removeAllViewsInLayout();
+            mContainer.addView(mWallpaperContent);
         }
         setSeletorTitleAlpha(index);
     }
