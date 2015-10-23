@@ -193,7 +193,6 @@ public class WidgetPreviewLoader {
                 c.setBitmap(null);
             }
         }
-
         if (unusedBitmap == null) {
             unusedBitmap = Bitmap.createBitmap(mPreviewBitmapWidth, mPreviewBitmapHeight,
                     Bitmap.Config.ARGB_8888);

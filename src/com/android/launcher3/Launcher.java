@@ -1269,7 +1269,7 @@ public class Launcher extends Activity
         
         mOverviewPanel = findViewById(R.id.overview_tabs);
         OverViewTabs tab = new OverViewTabs();
-        tab.init(this,mOverviewPanel);
+        tab.init(this,mOverviewPanel,mDragController);
         
         mOverviewPanel.setAlpha(0f);
 
@@ -2943,13 +2943,13 @@ public class Launcher extends Activity
         setWorkspaceBackground(visible);
     }
 
-    private void dispatchOnLauncherTransitionPrepare(View v, boolean animated, boolean toWorkspace) {
+    public void dispatchOnLauncherTransitionPrepare(View v, boolean animated, boolean toWorkspace) {
         if (v instanceof LauncherTransitionable) {
             ((LauncherTransitionable) v).onLauncherTransitionPrepare(this, animated, toWorkspace);
         }
     }
 
-    private void dispatchOnLauncherTransitionStart(View v, boolean animated, boolean toWorkspace) {
+    public void dispatchOnLauncherTransitionStart(View v, boolean animated, boolean toWorkspace) {
         if (v instanceof LauncherTransitionable) {
             ((LauncherTransitionable) v).onLauncherTransitionStart(this, animated, toWorkspace);
         }
@@ -2964,7 +2964,7 @@ public class Launcher extends Activity
         }
     }
 
-    private void dispatchOnLauncherTransitionEnd(View v, boolean animated, boolean toWorkspace) {
+    public void dispatchOnLauncherTransitionEnd(View v, boolean animated, boolean toWorkspace) {
         if (v instanceof LauncherTransitionable) {
             ((LauncherTransitionable) v).onLauncherTransitionEnd(this, animated, toWorkspace);
         }

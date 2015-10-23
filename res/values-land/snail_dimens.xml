@@ -21,10 +21,17 @@
     <dimen name="much_overmode_effect_item_selected_margin">2dp</dimen>
     
     <dimen name="much_overmode_effect_viewpager_height">100dp</dimen>
-    <dimen name="much_overmode_effect_indicator_width">100dp</dimen>
+    <dimen name="much_overmode_effect_indicator_width">150dp</dimen>
     <dimen name="much_overmode_effect_viewpager_padding_left">80dp</dimen>
     <dimen name="much_overmode_effect_viewpager_padding_right">80dp</dimen>
     
     <dimen name="wallpaperThumbnailWidth">140dp</dimen>
     <dimen name="wallpaperThumbnailHeight">70dp</dimen>
+    
+    <dimen name="snail_app_widget_preview_padding_top">2dp</dimen>
+    <dimen name="snail_widget_preview_height">70dp</dimen>
+    <dimen name="snail_tabcontent_height">120dp</dimen>
+    <integer name="snail_apps_customize_widget_cell_count_x">3</integer>
+    <integer name="snail_apps_customize_widget_cell_count_y">1</integer>
+
 </resources>

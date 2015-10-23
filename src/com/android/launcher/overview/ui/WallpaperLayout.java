@@ -183,32 +183,6 @@ public class WallpaperLayout extends LinearLayout {
         BuiltInWallpapersAdapter ia = new BuiltInWallpapersAdapter(mContext, items);
         grid.setAdapter(ia);
         mAdapterList.add(ia);
-//        grid.setOnItemClickListener(new OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Log.d("lmq", "onItemClick");
-//                WallpaperTileInfo info = (WallpaperTileInfo) view.getTag();
-//                if (info.isSelectable()) {
-//                    if (mSelectedThumb != null) {
-//                        mSelectedThumb.setSelected(false);
-//                        mSelectedThumb = null;
-//                    }
-//                    mSelectedThumb = view;
-//                    view.setSelected(true);
-//                    // TODO: Remove this once the accessibility framework and
-//                    // services have better support for selection state.
-//                    view.announceForAccessibility(
-//                            mContext.getString(R.string.announce_selection, view.getContentDescription()));
-//                }
-////                info.onClick(mContext);
-//                
-//                
-//                mAdapter.notifyDataSetChanged();
-//                for (BuiltInWallpapersAdapter adapter : mAdapterList) {
-//                    adapter.notifyDataSetChanged();
-//                }
-//            }
-//        });
         return grid;
     }
 

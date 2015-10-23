@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import android.R.color;
 import android.content.Context;
-import android.graphics.Color;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -18,10 +17,14 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.launcher.overview.ui.TabPageIndicator.OnTabReselectedListener;
+import com.android.launcher3.DragController;
+import com.android.launcher3.Launcher;
+import com.android.launcher3.LauncherModel;
+import com.android.launcher3.MuchAppsCustomizePagedView;
+import com.android.launcher3.MuchAppsCustomizeTabHost;
 import com.android.launcher3.R;
 
 public class OverViewTabs implements OnTabReselectedListener {
@@ -30,16 +33,24 @@ public class OverViewTabs implements OnTabReselectedListener {
     private HashMap<Integer, TextView> mTitleMap = new HashMap<Integer, TextView>();
     private Context mContext;
 
-    private TextView mTitleEffect, mTitleWrapper;
+    private static final int EFFECT_INDEX = 0;
+    private static final int WALLPAPER_INDEX = 1;
+    private static final int WIDGET_INDEX = 2;
+    private TextView mTitleEffect, mTitleWallPaper, mTitleWidget;
     private ImageView mNavIndicator;// 动画图片
     private FrameLayout mContainer;
     private UnderlinesNoFadeLayout mEffectContent;
-    private WallpaperLayout mWallpaperContent;
+    private WallpaperLayout mWallPaperContent;
+    
+    private MuchAppsCustomizeTabHost mAppsCustomizeTabHost;
+    private MuchAppsCustomizePagedView mAppsCustomizeContent;
     private int mCurrIndex = 0;// 当前页卡编号
-    private static final int TITLE_COUNT = 2;
-
-    public void init(Context context, View view) {
+    private static final int TITLE_COUNT = 3;
+    private DragController mDragController;
+    
+    public void init(Context context, View view, DragController dragController) {
         mContext = context;
+        mDragController = dragController;
         InitTextView(view);
         InitContainerView(context, view);
     }
@@ -60,9 +71,11 @@ public class OverViewTabs implements OnTabReselectedListener {
     private void InitTextView(View view) {
         mTitleMap.clear();
         mTitleEffect = (TextView) view.findViewById(R.id.title_effect);
-        mTitleWrapper = (TextView) view.findViewById(R.id.title_wrapper);
-        mTitleMap.put(0, mTitleEffect);
-        mTitleMap.put(1, mTitleWrapper);
+        mTitleWallPaper = (TextView) view.findViewById(R.id.title_wrapper);
+        mTitleWidget = (TextView) view.findViewById(R.id.title_widget);
+        mTitleMap.put(EFFECT_INDEX, mTitleEffect);
+        mTitleMap.put(WALLPAPER_INDEX, mTitleWallPaper);
+        mTitleMap.put(WIDGET_INDEX, mTitleWidget);
 
         mNavIndicator = (ImageView) view.findViewById(R.id.nav_indicator);
         LayoutParams params = mNavIndicator.getLayoutParams();
@@ -72,8 +85,9 @@ public class OverViewTabs implements OnTabReselectedListener {
                 R.dimen.much_overmode_function_nav_margin_right);
         params.width = (getScreenWidth() - marginLeft - marginRight) / TITLE_COUNT;
 
-        mTitleEffect.setOnClickListener(new MyOnClickListener(0));
-        mTitleWrapper.setOnClickListener(new MyOnClickListener(1));
+        mTitleEffect.setOnClickListener(new MyOnClickListener(EFFECT_INDEX));
+        mTitleWallPaper.setOnClickListener(new MyOnClickListener(WALLPAPER_INDEX));
+        mTitleWidget.setOnClickListener(new MyOnClickListener(WIDGET_INDEX));
     }
 
     private int getScreenWidth() {
@@ -105,20 +119,36 @@ public class OverViewTabs implements OnTabReselectedListener {
     }
 
     private void loadContentByIndex(int index) {
-        if(index == 0){
+        mContainer.removeAllViewsInLayout();
+        if(index == EFFECT_INDEX){
             if(mEffectContent == null){
                 mEffectContent = new UnderlinesNoFadeLayout(mContext);
             }
-            mContainer.removeAllViewsInLayout();
             mContainer.addView(mEffectContent);
-        }else if(index == 1){
-            if(mWallpaperContent == null){
-                mWallpaperContent = new WallpaperLayout(mContext);
-                mContainer.removeAllViewsInLayout();
-                mContainer.addView(mWallpaperContent);
+        }else if(index == WALLPAPER_INDEX){
+            if(mWallPaperContent == null){
+                mWallPaperContent = new WallpaperLayout(mContext);
             }
-            mContainer.removeAllViewsInLayout();
-            mContainer.addView(mWallpaperContent);
+            mContainer.addView(mWallPaperContent);
+        }else if(index == WIDGET_INDEX){
+            if(mAppsCustomizeContent == null){
+             // Setup AppsCustomize
+                 mAppsCustomizeTabHost = (MuchAppsCustomizeTabHost)LayoutInflater.from(mContext).inflate(R.layout.snail_apps_customize_pane, null);
+                mAppsCustomizeContent = (MuchAppsCustomizePagedView)
+                        mAppsCustomizeTabHost.findViewById(R.id.apps_customize_pane_content);
+                mAppsCustomizeContent.setup((Launcher)mContext, mDragController);
+            }
+            mAppsCustomizeTabHost.reset();
+            if (mAppsCustomizeContent != null) {
+                mAppsCustomizeContent.onPackagesUpdated(
+                    LauncherModel.getSortedWidgetsAndShortcuts(mContext));
+            }
+            mAppsCustomizeTabHost.setContentTypeImmediate(MuchAppsCustomizePagedView.ContentType.Widgets);
+            Launcher launcher = (Launcher)mContext;
+            launcher.dispatchOnLauncherTransitionPrepare(mAppsCustomizeTabHost, true, false);
+            launcher.dispatchOnLauncherTransitionStart(mAppsCustomizeTabHost, true, false);
+            launcher.dispatchOnLauncherTransitionEnd(mAppsCustomizeTabHost, true, false);
+            mContainer.addView(mAppsCustomizeTabHost);
         }
         setSeletorTitleAlpha(index);
     }
@@ -139,7 +169,6 @@ public class OverViewTabs implements OnTabReselectedListener {
 
     @Override
     public void onTabReselected(int position) {
-        Log.d("lmq", "onTabReselected position = " + position);
         View view = mListViews.get(position);
         if (view != null && view instanceof UnderlinesNoFadeLayout) {
             ((UnderlinesNoFadeLayout) view).setInitPage();

@@ -43,6 +43,15 @@
             android:layout_weight="1"
             android:alpha="0.6"
             android:text="@string/wallpaper_select" />
+        
+        <TextView
+            android:id="@+id/title_widget"
+            style="@style/MenuTitle"
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:alpha="0.6"
+            android:text="@string/add_widget" />
     </LinearLayout>
 
     <ImageView

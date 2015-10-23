@@ -185,4 +185,5 @@
     <string name="effect">特效</string>
     <string name="wallpaper_select">選壁紙</string>
     <string name="wallpaper_library">壁紙庫</string>
+    <string name="add_widget">小部件</string>
 </resources>

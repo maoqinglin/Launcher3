@@ -16,8 +16,11 @@
 
 package com.android.launcher3;
 
+import com.android.launcher3.much.MuchConfig;
+
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -105,8 +108,10 @@ public abstract class PagedViewWithDraggableItems extends PagedView
         // Return early if we are still animating the pages
         if (mNextPage != INVALID_PAGE) return false;
         // When we have exited all apps or are in transition, disregard long clicks
-        if (!mLauncher.isAllAppsVisible() ||
-                mLauncher.getWorkspace().isSwitchingState()) return false;
+        if(!MuchConfig.SUPPORT_MUCH_STYLE){
+            if (!mLauncher.isAllAppsVisible() ||
+                    mLauncher.getWorkspace().isSwitchingState()) return false;
+        }
         // Return if global dragging is not enabled
         if (!mLauncher.isDraggingEnabled()) return false;
 
@@ -143,7 +148,6 @@ public abstract class PagedViewWithDraggableItems extends PagedView
         if (isUpwardMotion && yMoved && mLastTouchedItem != null) {
             // Drag if the user moved far enough along the Y axis
             beginDragging(mLastTouchedItem);
-
             // Cancel any pending long press
             if (mAllowLongPress) {
                 mAllowLongPress = false;
