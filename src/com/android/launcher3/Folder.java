@@ -1066,9 +1066,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         mLauncher.getWorkspace().setFinalScrollForPageChange(currentPage);
         // We first fetch the currently visible CellLayoutChildren
         CellLayout currentLayout = (CellLayout) mLauncher.getWorkspace().getChildAt(currentPage);
-        ShortcutAndWidgetContainer boundingLayout = currentLayout.getShortcutsAndWidgets();
         Rect bounds = new Rect();
-        parent.getDescendantRectRelativeToSelf(boundingLayout, bounds);
+        if (currentLayout != null) {
+            ShortcutAndWidgetContainer boundingLayout = currentLayout.getShortcutsAndWidgets();
+            parent.getDescendantRectRelativeToSelf(boundingLayout, bounds);
+        }
         // We reset the workspaces scroll
         mLauncher.getWorkspace().resetFinalScrollForPageChange(currentPage);
 
