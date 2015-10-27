@@ -3129,9 +3129,11 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
     public void resetFinalScrollForPageChange(int pageIndex) {
         if (pageIndex >= 0) {
             CellLayout cl = (CellLayout) getChildAt(pageIndex);
-            setScrollX(mSavedScrollX);
-            cl.setTranslationX(mSavedTranslationX);
-            cl.setRotationY(mSavedRotationY);
+            if(cl != null){
+                setScrollX(mSavedScrollX);
+                cl.setTranslationX(mSavedTranslationX);
+                cl.setRotationY(mSavedRotationY);
+            }
         }
     }
 
