@@ -1722,11 +1722,12 @@ public class LauncherModel extends BroadcastReceiver {
                                 try {
                                     intent = Intent.parseUri(intentDescription, 0);
                                     ComponentName cn = intent.getComponent();
-                                    if (cn != null && !TextUtils.isEmpty(cn.getClassName())) {
-                                        if (iconComponentNameList.contains(cn.getClassName())) {
+                                    if (cn != null && !TextUtils.isEmpty(cn.flattenToString())) { //modify by linmaoqing 2015-10-28
+                                        if (iconComponentNameList.contains(cn.flattenToString())) {
                                             itemsToRemove.add(id);
                                         } else {
-                                            iconComponentNameList.add(cn.getClassName());
+                                            //iconComponentNameList.add(cn.getClassName());
+                                            iconComponentNameList.add(cn.flattenToString());
                                         }
                                     }
                                     if (cn != null && !isValidPackageComponent(manager, cn)) {
@@ -3260,11 +3261,11 @@ public class LauncherModel extends BroadcastReceiver {
                     if (existCN == null) {
                         continue;
                     }
-                    String existClassName = existCN.getClassName();
-                    String newClassName = newCN.getClassName();
-                    if (!TextUtils.isEmpty(existClassName) 
-                            && !TextUtils.isEmpty(newClassName)
-                            && existClassName.equals(newClassName)) {
+                    String existName = existCN.flattenToString(); //modify by linmaoqing 2015-10-28
+                    String newName = newCN.flattenToString();
+                    if (!TextUtils.isEmpty(existName) 
+                            && !TextUtils.isEmpty(newName)
+                            && existName.equals(newName)) {
                         return true;
                     }
                 }
