@@ -3943,7 +3943,6 @@ public class Launcher extends Activity
         long newShortcutsScreenId = -1;
         for (int i = start; i < end; i++) {
             final ItemInfo item = shortcuts.get(i);
-
             // Short circuit if we are loading dock items for a configuration which has no dock
             if (item.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT &&
                     mHotseat == null) {

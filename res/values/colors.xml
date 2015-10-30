@@ -43,4 +43,8 @@
     <color name="custom_page_pressed_color">#4E000000</color>
     
     <color name="focused_color_normal">#FFB300</color>
+    
+    <color name="much_folder_add_app_title_text_color">#4AB228</color>
+    <color name="much_folder_add_app_line_color">#E0E0E0</color>
+    <color name="much_folder_add_app_text_color">#414141</color>
 </resources>

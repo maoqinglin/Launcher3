@@ -417,6 +417,133 @@ public class LauncherModel extends BroadcastReceiver {
         runOnWorkerThread(r);
     }
 
+    public void folderAppsToUnBind(final Context context, final ArrayList<ItemInfo> workspaceApps,
+            final Callbacks callbacks, final ArrayList<AppInfo> allAppsApps) {
+        if (workspaceApps.isEmpty()) {
+            return;
+        }
+        // Process the newly added applications and add them to the database
+        // first
+        Runnable r = new Runnable() {
+            public void run() {
+                final ArrayList<ItemInfo> addedShortcutsFinal = new ArrayList<ItemInfo>();
+                final ArrayList<Long> addedWorkspaceScreensFinal = new ArrayList<Long>();
+
+                // Get the list of workspace screens. We need to append to this
+                // list and
+                // can not use sBgWorkspaceScreens because loadWorkspace() may
+                // not have been
+                // called.
+                ArrayList<Long> workspaceScreens = new ArrayList<Long>();
+                TreeMap<Integer, Long> orderedScreens = loadWorkspaceScreensDb(context);
+                for (Integer i : orderedScreens.keySet()) {
+                    long screenId = orderedScreens.get(i);
+                    workspaceScreens.add(screenId);
+                }
+
+                synchronized (sBgLock) {
+                    Iterator<ItemInfo> iter = workspaceApps.iterator();
+                    while (iter.hasNext()) {
+                        ItemInfo a = iter.next();
+                        final String name = a.title.toString();
+                        final Intent launchIntent = a.getIntent();
+
+                        // Short-circuit this logic if the icon exists somewhere
+                        // on the workspace
+                        if (LauncherModel.shortcutExists(context, name, launchIntent)) {
+                            // modify by linmaoqing 2015-5-8 修复3G卡、4G卡导致桌面重复图标问题
+                            final ContentResolver cr = context.getContentResolver();
+                            final Uri uriToDelete = LauncherSettings.Favorites.getContentUri(a.id, false);
+                            cr.delete(uriToDelete, null, null);
+                            deleteItemFromDatabase(context, a);
+//                            continue;
+                        }
+
+                        // Add this icon to the db, creating a new page if
+                        // necessary. If there
+                        // is only the empty page then we just add items to the
+                        // first page.
+                        // Otherwise, we add them to the next pages.
+                        int startSearchPageIndex = workspaceScreens.isEmpty() ? 0 : 1;
+                        Pair<Long, int[]> coords = LauncherModel.findNextAvailableIconSpace(context, name,
+                                launchIntent, startSearchPageIndex, workspaceScreens);
+                        Log.e("lmq", "coords = "+coords);
+                        if (coords == null) {
+                            LauncherProvider lp = LauncherAppState.getLauncherProvider();
+
+                            // If we can't find a valid position, then just add
+                            // a new screen.
+                            // This takes time so we need to re-queue the add
+                            // until the new
+                            // page is added. Create as many screens as
+                            // necessary to satisfy
+                            // the startSearchPageIndex.
+                            int numPagesToAdd = Math.max(1, startSearchPageIndex + 1 - workspaceScreens.size());
+                            while (numPagesToAdd > 0) {
+                                long screenId = lp.generateNewScreenId();
+                                // Save the screen id for binding in the
+                                // workspace
+                                workspaceScreens.add(screenId);
+                                addedWorkspaceScreensFinal.add(screenId);
+                                numPagesToAdd--;
+                            }
+
+                            // Find the coordinate again
+                            coords = LauncherModel.findNextAvailableIconSpace(context, name, launchIntent,
+                                    startSearchPageIndex, workspaceScreens);
+                        }
+                        if (coords == null) {
+                            throw new RuntimeException("Coordinates should not be null");
+                        }
+
+                        ShortcutInfo shortcutInfo;
+                        if (a instanceof ShortcutInfo) {
+                            shortcutInfo = (ShortcutInfo) a;
+                        } else if (a instanceof AppInfo) {
+                            shortcutInfo = ((AppInfo) a).makeShortcut();
+                        } else {
+                            throw new RuntimeException("Unexpected info type");
+                        }
+                        // Add the shortcut to the db
+                        addItemToDatabase(context, shortcutInfo, LauncherSettings.Favorites.CONTAINER_DESKTOP,
+                                coords.first, coords.second[0], coords.second[1], false);
+                        // Save the ShortcutInfo for binding in the workspace
+                        addedShortcutsFinal.add(shortcutInfo);
+                    }
+                }
+
+                // Update the workspace screens
+                updateWorkspaceScreenOrder(context, workspaceScreens);
+
+                if (!addedShortcutsFinal.isEmpty()) {
+                    runOnMainThread(new Runnable() {
+                        public void run() {
+                            Callbacks cb = mCallbacks != null ? mCallbacks.get() : null;
+                            if (callbacks == cb && cb != null) {
+                                final ArrayList<ItemInfo> addAnimated = new ArrayList<ItemInfo>();
+                                final ArrayList<ItemInfo> addNotAnimated = new ArrayList<ItemInfo>();
+                                if (!addedShortcutsFinal.isEmpty()) {
+                                    ItemInfo info = addedShortcutsFinal.get(addedShortcutsFinal.size() - 1);
+                                    long lastScreenId = info.screenId;
+                                    for (ItemInfo i : addedShortcutsFinal) {
+                                        if (i.screenId == lastScreenId) {
+                                            addAnimated.add(i);
+                                        } else {
+                                            addNotAnimated.add(i);
+                                        }
+                                    }
+                                }
+                                callbacks.bindAppsAdded(addedWorkspaceScreensFinal, addNotAnimated, addAnimated,
+                                        allAppsApps);
+                            }
+                        }
+                    });
+                }
+            }
+        };
+        runOnWorkerThread(r);
+    }
+    
     public Bitmap getFallbackIcon() {
         return Bitmap.createBitmap(mDefaultIcon);
     }
@@ -598,6 +725,9 @@ public class LauncherModel extends BroadcastReceiver {
             // as in Workspace.onDrop. Here, we just add/remove them from the list of items
             // that are on the desktop, as appropriate
             ItemInfo modelItem = sBgItemsIdMap.get(itemId);
+            if(modelItem == null){ // add by linmaoqing
+                return;
+            }
             if (modelItem.container == LauncherSettings.Favorites.CONTAINER_DESKTOP ||
                     modelItem.container == LauncherSettings.Favorites.CONTAINER_HOTSEAT) {
                 switch (modelItem.itemType) {
@@ -669,7 +799,6 @@ public class LauncherModel extends BroadcastReceiver {
         values.put(LauncherSettings.Favorites.CELLX, item.cellX);
         values.put(LauncherSettings.Favorites.CELLY, item.cellY);
         values.put(LauncherSettings.Favorites.SCREEN, item.screenId);
-
         updateItemInDatabaseHelper(context, values, item, "moveItemInDatabase");
     }
 
@@ -682,7 +811,6 @@ public class LauncherModel extends BroadcastReceiver {
 
         ArrayList<ContentValues> contentValues = new ArrayList<ContentValues>();
         int count = items.size();
-
         for (int i = 0; i < count; i++) {
             ItemInfo item = items.get(i);
             item.container = container;
@@ -735,7 +863,6 @@ public class LauncherModel extends BroadcastReceiver {
         values.put(LauncherSettings.Favorites.SPANX, item.spanX);
         values.put(LauncherSettings.Favorites.SPANY, item.spanY);
         values.put(LauncherSettings.Favorites.SCREEN, item.screenId);
-
         updateItemInDatabaseHelper(context, values, item, "modifyItemInDatabase");
     }
 
@@ -3291,4 +3418,20 @@ public class LauncherModel extends BroadcastReceiver {
         }
     }
     //add end by lilu 20150929
+    
+    public List<ShortcutInfo> getOutAppList(){
+        List<ShortcutInfo> infos = new ArrayList<ShortcutInfo>();
+        synchronized (sBgLock) {
+            for(ItemInfo info : sBgWorkspaceItems){
+                if(info instanceof ShortcutInfo){
+                    infos.add((ShortcutInfo)info);
+                }
+            }
+        }
+        return infos;
+    }
+
+    public  WeakReference<Callbacks> getCallbacks() {
+        return mCallbacks;
+    }
 }

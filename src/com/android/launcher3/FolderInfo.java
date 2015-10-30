@@ -19,6 +19,7 @@ package com.android.launcher3;
 import java.util.ArrayList;
 
 import android.content.ContentValues;
+import android.util.Log;
 
 /**
  * Represents a folder containing shortcuts or apps.

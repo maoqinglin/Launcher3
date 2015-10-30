@@ -16,6 +16,7 @@
 
 package com.android.launcher3;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,9 +27,13 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
 import android.support.v4.widget.AutoScrollHelper;
@@ -39,22 +44,35 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.PopupWindow.OnDismissListener;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.launcher3.Folder.MyAdapter.ViewHolder;
 import com.android.launcher3.FolderInfo.FolderListener;
+import com.android.launcher3.LauncherModel.Callbacks;
 import com.android.launcher3.LauncherSettings.Favorites;
+import com.android.launcher3.MuchDraggableGridViewPager.OnPageChangeListener;
 import com.android.launcher3.MuchFolderPageView.MuchPagedViewChangeListener;
 import com.android.launcher3.MuchFolderPageView.MyPagerAdapter;
 import com.android.launcher3.much.MuchConfig;
@@ -282,6 +300,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             return;
         }
         Object tag = v.getTag();
+        if(tag instanceof ShortcutInfo && ((ShortcutInfo)tag).getIntent().getComponent() == null){
+            List<ShortcutInfo> outAppList = LauncherAppState.getInstance().getModel().getOutAppList();
+            showPop(outAppList);
+            return;
+        }
         if (tag instanceof ShortcutInfo) {
             mLauncher.onClick(v);
         }
@@ -298,9 +321,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             if (!v.isInTouchMode()) {
                 return false;
             }
+            if(item.getIntent().getComponent() == null){
+                return false;
+            }
 
             mLauncher.dismissFolderCling(null);
 
+            hideAddAppView();
             mLauncher.getWorkspace().onDragStartedWithItem(v);
             mLauncher.getWorkspace().beginDragShared(v, this);
             mIconDrawable = ((TextView) v).getCompoundDrawables()[1];
@@ -503,6 +530,49 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         updateItemLocationsInDatabase();
     }
 
+    private View mAddAppView;
+    private void setupAddView(final int lastCellX, final int lastCellY) {
+        ShortcutInfo child = new ShortcutInfo();
+        child.title = getResources().getString(R.string.add_app);
+        child.id = -1;
+        child.intent = new Intent();
+        child.cellX = lastCellX == mContent.getCountX() - 1 ? 0 : lastCellX + 1;
+        child.cellY = lastCellX == mContent.getCountX() - 1 ? lastCellY + 1 : lastCellY;
+        createAndAddShortcut(child);
+
+    }
+
+    private void showAddAppView(){
+        if (mAddAppView != null) {
+            mAddAppView.setVisibility(View.VISIBLE);
+        } else {
+            mItemsInvalidated = true;
+            ArrayList<View> list = getItemsInReadingOrderWithAbCoord();
+            ShortcutInfo lastInfo = null;
+            for (View view : list) {
+                if (view != null && view.getTag() != null && view.getTag() instanceof ShortcutInfo) {
+                    lastInfo = (ShortcutInfo) view.getTag();
+                }
+            }
+            if (lastInfo != null) {
+                setupAddView(lastInfo.cellX, lastInfo.cellY);
+            } else {
+                Log.e("lmq", "lastInfo is Null");
+            }
+        }
+    }
+    
+    private void hideAddAppView(){
+        int pageIndex = mContent.getCurrentItem();
+        if(pageIndex == (mPageAdapter.getCount() - 1)){
+        }
+        if(mAddAppView != null){
+            mContent.removeLastView(mAddAppView);
+            mAddAppView = null;
+            mContent.postInvalidate();
+        }
+    }
+
     /**
      * Creates a new UserFolder, inflated from R.layout.user_folder.
      *
@@ -544,6 +614,9 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                         String.format(getContext().getString(R.string.folder_opened),
                         mContent.getCountX(), mContent.getCountY()));
                 mState = STATE_ANIMATING;
+                if(MuchConfig.SUPPORT_MUCH_STYLE){
+                    showAddAppView();
+                }
             }
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -635,7 +708,14 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         final BubbleTextView textView =
             (BubbleTextView) mInflater.inflate(R.layout.application, this, false);
         if(MuchConfig.SUPPORT_MUCH_STYLE) {
-            LauncherAppState.getInstance().getIconDecorater().observeIconNeedUpdated(textView, item.getIcon(mIconCache), item.intent.getComponent());
+            if(item.intent.getComponent() != null){
+                LauncherAppState.getInstance().getIconDecorater().observeIconNeedUpdated(textView, item.getIcon(mIconCache), item.intent.getComponent());
+            }else{
+                Bitmap bmp = LauncherAppState.getInstance().getIconDecorater().decorateIcon(getResources(), BitmapFactory.decodeResource(
+                        getResources(), R.drawable.snail_folder_add_app));
+                textView.setCompoundDrawables(null, Utilities.createIconDrawable(bmp), null, null);
+                mAddAppView = textView;
+            }
         }else{
             textView.setCompoundDrawables(null,
                     Utilities.createIconDrawable(item.getIcon(mIconCache)), null, null);
@@ -870,7 +950,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         boolean beingCalledAfterUninstall = mDeferredAction != null;
         boolean successfulDrop =
                 success && (!beingCalledAfterUninstall || mUninstallSuccessful);
-
         if (successfulDrop) {
             if (mDeleteFolderOnDropCompleted && !mItemAddedBackToSelfViaIcon) {
                 replaceFolderWithFinalItem();
@@ -904,6 +983,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         // Reordering may have occured, and we need to save the new item locations. We do this once
         // at the end to prevent unnecessary database operations.
         updateItemLocationsInDatabaseBatch();
+        
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            showAddAppView();
+        }
     }
 
     public void deferCompleteDropAfterUninstallActivity() {
@@ -954,7 +1037,9 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         for (int i = 0; i < list.size(); i++) {
             View v = list.get(i);
             ItemInfo info = (ItemInfo) v.getTag();
-            items.add(info);
+            if(MuchConfig.SUPPORT_MUCH_STYLE && info.getIntent().getComponent() != null){
+                items.add(info);
+            }
         }
 
         LauncherModel.moveItemsInDatabase(mLauncher, items, mInfo.id, 0);
@@ -1201,6 +1286,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     }
 
     private void arrangeChildren(ArrayList<View> list) {
+        
         int[] vacant = new int[2];
         if (MuchConfig.SUPPORT_MUCH_STYLE) { // add by linmaoqing 2014-5-13
             list = getItemsInReadingOrderWithAbCoord();
@@ -1210,7 +1296,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 	        }
         }
         mContent.removeAllViews();
-
         for (int i = 0; i < list.size(); i++) {
             View v = list.get(i);
             //modify by lilu 修复第二页图标不显示的问题
@@ -1269,11 +1354,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         clearFocus();
         mFolderIcon.requestFocus();
 
-        if (mRearrangeOnClose) {
+//        if (mRearrangeOnClose) { //modify by linmaoqing 2015-10-30 解决app拖出文件夹后空格问题
             setupContentForNumItems(getItemCount());
             mRearrangeOnClose = false;
-        }
-        if (getItemCount() <= 1) {
+//        }
+        if (mInfo.contents.size() <= 1) {
             if (!mDragInProgress && !mSuppressFolderDeletion) {
                 replaceFolderWithFinalItem();
             } else if (mDragInProgress) {
@@ -1286,6 +1371,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             mContent.setCurrentItem(0);
         }//end by linmaoqing
         mSuppressFolderDeletion = false;
+        
+        if(MuchConfig.SUPPORT_MUCH_STYLE){
+            hideAddAppView();
+            if(mPopWind != null){
+                mPopWind.dismiss();
+            }
+        }
     }
 
     private void replaceFolderWithFinalItem() {
@@ -1297,14 +1389,17 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
                View child = null;
                 // Move the item from the folder to the workspace, in the position of the folder
-                if (getItemCount() == 1) {
+             //modify by linmaoqing 2015-10-30 包括加号在内，两个图标;卸载的时候只有一个图标
+                if (mInfo.contents.size() == 1 && mRemoveFolder) {
                     ShortcutInfo finalItem = mInfo.contents.get(0);
+                    
                     child = mLauncher.createShortcut(R.layout.application, cellLayout,
                             finalItem);
                     LauncherModel.addOrMoveItemInDatabase(mLauncher, finalItem, mInfo.container,
                             mInfo.screenId, mInfo.cellX, mInfo.cellY);
+                    mRemoveFolder = false;
                 }
-                if (getItemCount() <= 1) {
+                if (mInfo.contents.size() <= 1) {//modify by linmaoqing 2015-10-30
                     // Remove the folder
                     LauncherModel.deleteItemFromDatabase(mLauncher, mInfo);
                     cellLayout.removeView(mFolderIcon);
@@ -1423,6 +1518,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         // If this item is being dragged from this open folder, we have already handled
         // the work associated with removing the item, so we don't have to do anything here.
         if (item == mCurrentDragInfo) return;
+        
         View v = getViewForInfo(item);
         if (MuchConfig.SUPPORT_MUCH_STYLE) {
             mContent.removeIconView(v);
@@ -1434,7 +1530,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         } else {
             setupContentForNumItems(getItemCount());
         }
-        if (getItemCount() <= 1) {
+        if (mInfo.contents.size() <= 1) {//modify by linmaoqing 
             replaceFolderWithFinalItem();
         }
     }
@@ -1508,4 +1604,237 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         }
         return true;
     }//end by linmaoqing
+    
+    private PopupWindow mPopWind;
+    private MuchDraggableGridViewPager mMuchGridPager;
+    private TextView mSelectCount;
+    private TextView mConfirm,mCancel;
+    public AddAllData mAllData = new  AddAllData();
+    static class AddAllData{
+        public ArrayList<ItemInfo> all = new ArrayList<ItemInfo>();
+        public ArrayList<ItemInfo> selectList = new ArrayList<ItemInfo>();
+        public ArrayList<ItemInfo> addList = new ArrayList<ItemInfo>();
+        public ArrayList<ItemInfo> removeList = new ArrayList<ItemInfo>();
+        
+        public void clearAllData(){
+            all.clear();
+            selectList.clear();
+            addList.clear();
+            removeList.clear();
+        }
+    }
+    
+    public void clearAllData(){
+        mAllData.clearAllData();
+    }
+    public void showPop(List<ShortcutInfo> outAppList){
+        View layout;
+        clearAllData();
+        hideAddAppView();
+        if (mPopWind == null) { 
+            mAllData.selectList.addAll(mInfo.contents);
+            layout = LayoutInflater.from(mLauncher).inflate(R.layout.much_draggable_grid_view_pager, null);  
+            mMuchGridPager = (MuchDraggableGridViewPager) layout.findViewById(R.id.draggable_grid_view_pager);
+            mSelectCount = (TextView)layout.findViewById(R.id.title);
+            mSelectCount.setText(String.format(getResources().getString(R.string.add_app_count), mAllData.selectList.size()));
+            mConfirm = (TextView)layout.findViewById(R.id.confirm);
+            mCancel = (TextView)layout.findViewById(R.id.cancel);
+            mConfirm.setOnClickListener(new ConfirmOnClickListener());
+            mCancel.setOnClickListener(new ConfirmOnClickListener());
+            
+            mAllData.all.addAll(0,mAllData.selectList);
+            mAllData.all.addAll(outAppList);
+            MyAdapter mAdapter = new MyAdapter(mLauncher, mAllData.all);
+            mMuchGridPager.setAdapter(mAdapter);
+            mMuchGridPager.setOnPageChangeListener(new OnPageChangeListener() {
+                
+                @Override
+                public void onPageSelected(int position) {
+                    // TODO Auto-generated method stub
+                    
+                }
+                
+                @Override
+                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                    // TODO Auto-generated method stub
+                    
+                }
+                
+                @Override
+                public void onPageScrollStateChanged(int state) {
+                    // TODO Auto-generated method stub
+                    
+                }
+            });
+            mMuchGridPager.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    ViewHolder holder = (ViewHolder) view.getTag();
+                    holder.isSelected = !holder.isSelected;
+                    if (holder.isSelected) {
+                        holder.selectedView.setVisibility(View.VISIBLE);
+                        mAllData.selectList.add(holder.item);
+                        if (!mInfo.contents.contains(holder.item)) {
+                            mAllData.addList.add(holder.item);// 如果文件夹没有，添加到新增列表
+                        }
+                    } else {
+                        holder.selectedView.setVisibility(View.INVISIBLE);
+                        mAllData.selectList.remove(holder.item);
+                        if (mInfo.contents.contains(holder.item)) {
+                            mAllData.removeList.add(holder.item);// 如果文件夹已有，添加到移除列表
+                        }
+                    }
+                    mSelectCount.setText(String.format(getResources().getString(R.string.add_app_count),
+                            mAllData.selectList.size()));
+                }
+            });
+            int width = getResources().getDimensionPixelOffset(R.dimen.much_folder_add_app_pop_window_width);
+            int height = getResources().getDimensionPixelOffset(R.dimen.much_folder_add_app_pop_window_height);
+            mPopWind = new PopupWindow(layout,width,height);  
+        }  
+        mPopWind.setFocusable(true);  
+        mPopWind.setOutsideTouchable(true);  
+        // 这个是为了点击“返回Back”也能使其消失，并且并不会影响你的背景  
+        mPopWind.setBackgroundDrawable(new BitmapDrawable());  
+  
+        mPopWind.showAtLocation(mLauncher.getDragLayer(), Gravity.CENTER, 0, 0);
+        mPopWind.setOnDismissListener(new OnDismissListener() {
+            
+            @Override
+            public void onDismiss() {
+                showAddAppView();
+                mMuchGridPager.removeAllViewsInLayout();
+                mPopWind = null;
+            }
+        });
+    }
+    
+    /**
+     * 更新文件夹items
+     */
+    protected void updateFolderItemsBatch() {
+        //添加文件夹中选中的应用图标
+        addSelectedItemsToFolder();
+        
+        //移除文件夹未选中的应用图标
+        removeUnSelectedItemsFromFolder();
+    }
+
+    boolean mRemoveFolder = true;
+    private void removeUnSelectedItemsFromFolder() {
+        //未选中的显示在桌面
+        if(!mAllData.removeList.isEmpty()){
+            for(ItemInfo info : mAllData.removeList){
+                if(info instanceof ShortcutInfo){
+                    ShortcutInfo sInfo = (ShortcutInfo)info;
+                    mInfo.contents.remove(sInfo);
+                    onRemove(sInfo);
+                }
+            }
+            LauncherAppState appState = LauncherAppState.getInstance();
+            WeakReference<Callbacks> callbacks = appState.getModel().getCallbacks();
+            // Ensure that we add all the workspace applications to the db
+            Callbacks cb = callbacks != null ? callbacks.get() : null;
+            
+            final ArrayList<ItemInfo> addedInfos = new ArrayList<ItemInfo>(mAllData.removeList);
+            appState.getModel().folderAppsToUnBind(appState.getContext(), addedInfos, cb, new ArrayList<AppInfo>());
+        }
+    }
+
+    private void addSelectedItemsToFolder() {
+        final ArrayList<String> packageNames = new ArrayList<String>();
+        for(ItemInfo info : mAllData.addList){
+            if(info instanceof ShortcutInfo && !mInfo.contents.contains(info)){
+                ShortcutInfo sInfo = (ShortcutInfo)info;
+                packageNames.add(sInfo.intent.getComponent().getPackageName());
+            }
+        }
+        //移除桌面图标
+        if(mLauncher.getWorkspace() != null){
+            mLauncher.getWorkspace().removeItemsByPackageName(packageNames);
+        }
+        //选中的显示在文件夹
+        for(ItemInfo info : mAllData.addList){
+            if(info instanceof ShortcutInfo && !mInfo.contents.contains(info)){
+                ShortcutInfo sInfo = (ShortcutInfo)info;
+                mInfo.contents.add(sInfo);
+                onAdd(sInfo);
+            }
+        }
+    }
+
+    class ConfirmOnClickListener implements OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            if(v.getId() == R.id.confirm){
+                updateFolderItemsBatch();
+            }
+            if (mPopWind != null) {
+                mPopWind.dismiss();
+            }
+        }
+    }
+    
+    class MyAdapter extends BaseAdapter{
+
+        private List<ItemInfo> mAppList;
+        private Context mContext;
+        public MyAdapter(Context context,List<ItemInfo> list){
+            mContext=context;
+            mAppList = list;
+        }
+        
+        @Override
+        public int getCount() {
+            return mAppList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mAppList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder;
+            final ShortcutInfo item = (ShortcutInfo) getItem(position);
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                convertView = LayoutInflater.from(mContext).inflate(R.layout.much_draggable_grid_item, null);
+                viewHolder.textView = (BubbleTextView)convertView.findViewById(R.id.add_app);
+                viewHolder.selectedView = (ImageView)convertView.findViewById(R.id.app_selected);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            
+            if(item.intent.getComponent() != null){
+                LauncherAppState.getInstance().getIconDecorater().observeIconNeedUpdated(viewHolder.textView, item.getIcon(mIconCache), item.intent.getComponent());
+            }
+            viewHolder.item = item;
+            if(!mAllData.selectList.isEmpty() && mAllData.selectList.contains(item)){
+                viewHolder.isSelected = true;
+                viewHolder.selectedView.setVisibility(View.VISIBLE);
+            }
+            viewHolder.textView.setText(item.title);
+            viewHolder.textView.setTag(item);
+            viewHolder.textView.setTextColor(getResources().getColor(R.color.vpi__background_holo_dark));
+            viewHolder.textView.setShadowsEnabled(false);
+
+            return convertView;
+        }
+        
+        public class ViewHolder{
+            public BubbleTextView textView;
+            public ImageView selectedView;
+            public boolean isSelected;
+            public ShortcutInfo item;
+        }
+    }
 }
