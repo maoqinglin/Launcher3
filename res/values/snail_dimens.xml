@@ -42,4 +42,6 @@
     
     <integer name="much_folder_add_app_grid_row">4</integer>
     <integer name="much_folder_add_app_grid_colomn">4</integer>
+    
+    <dimen name="default_page_view_width">352dp</dimen>
 </resources>

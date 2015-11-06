@@ -1,14 +1,24 @@
 package com.android.launcher3;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -24,14 +34,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 
 abstract class SoftReferenceThreadLocal<T> {
     private ThreadLocal<SoftReference<T>> mThreadLocal;
@@ -136,6 +138,8 @@ public class WidgetPreviewLoader {
         sInvalidPackages = new HashSet<String>();
     }
 
+    static final String ANDROID_INCREMENTAL_VERSION_NAME_KEY = "android.incremental.version";
+
     public WidgetPreviewLoader(Context context) {
         LauncherAppState app = LauncherAppState.getInstance();
         DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
@@ -147,6 +151,31 @@ public class WidgetPreviewLoader {
         mDb = app.getWidgetPreviewCacheDb();
         mLoadedPreviews = new HashMap<String, WeakReference<Bitmap>>();
         mUnusedBitmaps = new ArrayList<SoftReference<Bitmap>>();
+        
+        SharedPreferences sp = context.getSharedPreferences(LauncherAppState.getSharedPreferencesKey(),
+                Context.MODE_PRIVATE);
+        final String lastVersionName = sp.getString(ANDROID_INCREMENTAL_VERSION_NAME_KEY, null);
+        final String versionName = android.os.Build.VERSION.INCREMENTAL;
+        if (!versionName.equals(lastVersionName)) {
+            // clear all the previews whenever the system version changes, to
+            // ensure that previews
+            // are up-to-date for any apps that might have been updated with the
+            // system
+            clearDb();
+
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(ANDROID_INCREMENTAL_VERSION_NAME_KEY, versionName);
+            editor.commit();
+        }
+    }
+
+    private void clearDb() {
+        SQLiteDatabase db = mDb.getWritableDatabase();
+        // Delete everything
+        try {
+            db.delete(CacheDb.TABLE_NAME, null, null);
+        } catch (SQLiteDiskIOException e) {
+        }
     }
 
     public void setPreviewSize(int previewWidth, int previewHeight,
@@ -330,7 +359,11 @@ public class WidgetPreviewLoader {
         preview.compress(Bitmap.CompressFormat.PNG, 100, stream);
         values.put(CacheDb.COLUMN_PREVIEW_BITMAP, stream.toByteArray());
         values.put(CacheDb.COLUMN_SIZE, mSize);
-        db.insert(CacheDb.TABLE_NAME, null, values);
+        try {
+            db.insert(CacheDb.TABLE_NAME, null, values);
+        } catch (SQLiteDiskIOException e) {
+            recreateDb();
+        }
     }
 
     public static void removePackageFromDb(final CacheDb cacheDb, final String packageName) {
@@ -340,13 +373,17 @@ public class WidgetPreviewLoader {
         new AsyncTask<Void, Void, Void>() {
             public Void doInBackground(Void ... args) {
                 SQLiteDatabase db = cacheDb.getWritableDatabase();
-                db.delete(CacheDb.TABLE_NAME,
-                        CacheDb.COLUMN_NAME + " LIKE ? OR " +
-                        CacheDb.COLUMN_NAME + " LIKE ?", // SELECT query
-                        new String[] {
+                try {
+                    db.delete(CacheDb.TABLE_NAME,
+                            CacheDb.COLUMN_NAME + " LIKE ? OR " +
+                                    CacheDb.COLUMN_NAME + " LIKE ?", // SELECT query
+                                    new String[] {
                             WIDGET_PREFIX + packageName + "/%",
                             SHORTCUT_PREFIX + packageName + "/%"} // args to SELECT query
                             );
+                } catch (SQLiteDiskIOException e) {
+                    
+                }
                 synchronized(sInvalidPackages) {
                     sInvalidPackages.remove(packageName);
                 }
@@ -359,9 +396,13 @@ public class WidgetPreviewLoader {
         new AsyncTask<Void, Void, Void>() {
             public Void doInBackground(Void ... args) {
                 SQLiteDatabase db = cacheDb.getWritableDatabase();
-                db.delete(CacheDb.TABLE_NAME,
-                        CacheDb.COLUMN_NAME + " = ? ", // SELECT query
-                        new String[] { objectName }); // args to SELECT query
+                try {
+                    db.delete(CacheDb.TABLE_NAME,
+                            CacheDb.COLUMN_NAME + " = ? ", // SELECT query
+                            new String[] { objectName }); // args to SELECT query
+                } catch (SQLiteDiskIOException e) {
+                    // TODO: handle exception
+                }
                 return null;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
@@ -373,15 +414,21 @@ public class WidgetPreviewLoader {
                     CacheDb.COLUMN_SIZE + " = ?";
         }
         SQLiteDatabase db = mDb.getReadableDatabase();
-        Cursor result = db.query(CacheDb.TABLE_NAME,
-                new String[] { CacheDb.COLUMN_PREVIEW_BITMAP }, // cols to return
-                mCachedSelectQuery, // select query
-                new String[] { name, mSize }, // args to select query
-                null,
-                null,
-                null,
-                null);
-        if (result.getCount() > 0) {
+        Cursor result = null;
+        try {
+            result = db.query(CacheDb.TABLE_NAME,
+                    new String[] { CacheDb.COLUMN_PREVIEW_BITMAP }, // cols to return
+                    mCachedSelectQuery, // select query
+                    new String[] { name, mSize }, // args to select query
+                    null,
+                    null,
+                    null,
+                    null);
+        } catch (SQLiteDiskIOException e) {
+            recreateDb();
+            return null;
+        }
+        if (result != null && result.getCount() > 0) {
             result.moveToFirst();
             byte[] blob = result.getBlob(0);
             result.close();
@@ -395,11 +442,19 @@ public class WidgetPreviewLoader {
                 return null;
             }
         } else {
-            result.close();
+            if(result != null){
+                result.close();
+            }
             return null;
         }
     }
 
+    public void recreateDb() {
+        LauncherAppState app = LauncherAppState.getInstance();
+        app.recreateWidgetPreviewDb();
+        mDb = app.getWidgetPreviewCacheDb();
+    }
+    
     public Bitmap generatePreview(Object info, Bitmap preview) {
         if (preview != null &&
                 (preview.getWidth() != mPreviewBitmapWidth ||

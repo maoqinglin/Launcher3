@@ -242,4 +242,11 @@ public class LauncherAppState {
 	public Resources getResources() {
 		return sContext.getResources();
 	}
+
+    public void recreateWidgetPreviewDb() {
+        if (mWidgetPreviewCacheDb != null) {
+            mWidgetPreviewCacheDb.close();
+        }
+        mWidgetPreviewCacheDb = new WidgetPreviewLoader.CacheDb(sContext);
+    }
 }
