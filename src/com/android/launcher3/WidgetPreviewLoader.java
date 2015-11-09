@@ -17,6 +17,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDiskIOException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -175,6 +176,8 @@ public class WidgetPreviewLoader {
         try {
             db.delete(CacheDb.TABLE_NAME, null, null);
         } catch (SQLiteDiskIOException e) {
+            
+        } catch (SQLiteCantOpenDatabaseException e) {
         }
     }
 
@@ -293,6 +296,7 @@ public class WidgetPreviewLoader {
 
         public CacheDb(Context context) {
             super(context, new File(context.getCacheDir(), DB_NAME).getPath(), null, DB_VERSION);
+            Log.e("lmq", "context.getCacheDir() = "+context.getCacheDir()+" name = "+new File(context.getCacheDir(), DB_NAME).getPath());
             // Store the context for later use
             mContext = context;
         }
@@ -313,6 +317,23 @@ public class WidgetPreviewLoader {
                 // Delete all the records; they'll be repopulated as this is a cache
                 db.execSQL("DELETE FROM " + TABLE_NAME);
             }
+        }
+        
+        public synchronized boolean isTableExists(SQLiteDatabase db, String tableName) {
+            Cursor cursor = null;
+            try {
+                cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + tableName + "'", null);
+                if (cursor != null) {
+                    if (cursor.getCount() > 0) {
+                        cursor.close();
+                        return true;
+                    }
+                    cursor.close();
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
+            }
+            return false;
         }
     }
 
@@ -363,6 +384,7 @@ public class WidgetPreviewLoader {
             db.insert(CacheDb.TABLE_NAME, null, values);
         } catch (SQLiteDiskIOException e) {
             recreateDb();
+        } catch (SQLiteCantOpenDatabaseException e) {
         }
     }
 
@@ -374,6 +396,9 @@ public class WidgetPreviewLoader {
             public Void doInBackground(Void ... args) {
                 SQLiteDatabase db = cacheDb.getWritableDatabase();
                 try {
+                    if(!cacheDb.isTableExists(db, CacheDb.TABLE_NAME)){ //add by linmaoqing 2015-11-9
+                        return null;
+                    }
                     db.delete(CacheDb.TABLE_NAME,
                             CacheDb.COLUMN_NAME + " LIKE ? OR " +
                                     CacheDb.COLUMN_NAME + " LIKE ?", // SELECT query
@@ -383,6 +408,7 @@ public class WidgetPreviewLoader {
                             );
                 } catch (SQLiteDiskIOException e) {
                     
+                }catch (SQLiteCantOpenDatabaseException e) {
                 }
                 synchronized(sInvalidPackages) {
                     sInvalidPackages.remove(packageName);
@@ -402,6 +428,7 @@ public class WidgetPreviewLoader {
                             new String[] { objectName }); // args to SELECT query
                 } catch (SQLiteDiskIOException e) {
                     // TODO: handle exception
+                } catch (SQLiteCantOpenDatabaseException e) {
                 }
                 return null;
             }
@@ -427,6 +454,7 @@ public class WidgetPreviewLoader {
         } catch (SQLiteDiskIOException e) {
             recreateDb();
             return null;
+        } catch (SQLiteCantOpenDatabaseException e) {
         }
         if (result != null && result.getCount() > 0) {
             result.moveToFirst();
