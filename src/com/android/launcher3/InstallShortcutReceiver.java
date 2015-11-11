@@ -123,7 +123,7 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
                         JSONObject object = (JSONObject) new JSONTokener(json).nextValue();
                         Intent launchIntent = Intent.parseUri(object.getString(LAUNCH_INTENT_KEY), 0);
                         String pn = launchIntent.getPackage();
-                        if (pn == null) {
+                        if (pn == null && launchIntent.getComponent() != null) {
                             pn = launchIntent.getComponent().getPackageName();
                         }
                         if (packageNames.contains(pn)) {
@@ -211,7 +211,6 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
         if (!ACTION_INSTALL_SHORTCUT.equals(data.getAction())) {
             return;
         }
-
         if (DBG) Log.d(TAG, "Got INSTALL_SHORTCUT: " + data.toUri(0));
 
         Intent intent = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT);
@@ -234,7 +233,11 @@ public class InstallShortcutReceiver extends BroadcastReceiver {
                 return;
             }
         }
-        Bitmap icon = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
+        Bitmap icon= null;
+        if(data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON) instanceof Bitmap){
+        	icon = data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON);
+        }
+        
         Intent.ShortcutIconResource iconResource =
             data.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE);
 

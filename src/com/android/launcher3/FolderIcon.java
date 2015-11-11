@@ -82,7 +82,7 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     // The degree to which the item in the back of the stack is scaled [0...1]
     // (0 means it's not scaled at all, 1 means it's scaled to nothing)
     private static final float PERSPECTIVE_SCALE_FACTOR = 0.35f;
-
+    
     public static Drawable sSharedFolderLeaveBehind = null;
 
     private ImageView mPreviewBackground;
@@ -93,6 +93,7 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     // These variables are all associated with the drawing of the preview; they are stored
     // as member variables for shared usage and to avoid computation on each frame
     private int mIntrinsicIconSize;
+    private int mDefaultIconSize = 106;
     private float mBaselineIconScale;
     private int mBaselineIconSize;
     private int mAvailableSpaceInPreview;
@@ -481,7 +482,12 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     }
 
     private void computePreviewDrawingParams(Drawable d) {
+    	if(d != null){
         computePreviewDrawingParams(d.getIntrinsicWidth(), getMeasuredWidth());
+        mDefaultIconSize =d.getIntrinsicWidth();
+        return;
+    	}
+    	computePreviewDrawingParams(mDefaultIconSize, getMeasuredWidth());
     }
 
     class PreviewItemDrawingParams {
@@ -578,7 +584,6 @@ public class FolderIcon extends LinearLayout implements FolderListener {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-
         if (mFolder == null) return;
         if (mFolder.getItemCount() == 0 && !mAnimating) return;
 
@@ -590,6 +595,7 @@ public class FolderIcon extends LinearLayout implements FolderListener {
         if (mAnimating) {
             computePreviewDrawingParams(mAnimParams.drawable);
         } else {
+        	
             v = (TextView) items.get(0);
             d = v.getCompoundDrawables()[1];
             computePreviewDrawingParams(d);

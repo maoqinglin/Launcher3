@@ -112,6 +112,7 @@ public class BitmapRegionTileSource implements TiledImageRenderer.TileSource {
             // loaded, the lifecycle is different and interactions are on a different
             // thread. Thus to simplify, this source will decode its own bitmap.
             Bitmap preview = decodePreview(res, context, path, uri, resId, previewSize);
+            if(preview != null) {
             if (preview.getWidth() <= GL_SIZE_LIMIT && preview.getHeight() <= GL_SIZE_LIMIT) {
                 mPreview = new BitmapTexture(preview);
             } else {
@@ -120,6 +121,9 @@ public class BitmapRegionTileSource implements TiledImageRenderer.TileSource {
                         + " in: %dx%d, out: %dx%d",
                         mWidth, mHeight,
                         preview.getWidth(), preview.getHeight()));
+            }
+            }else{
+            	 Log.w(TAG, "Failed to create preview!");
             }
         }
     }

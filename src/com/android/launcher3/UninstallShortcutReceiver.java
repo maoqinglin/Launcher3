@@ -104,15 +104,18 @@ public class UninstallShortcutReceiver extends BroadcastReceiver {
             try {
                 while (c.moveToNext()) {
                     try {
-                        if (intent.filterEquals(Intent.parseUri(c.getString(intentIndex), 0))) {
-                            final long id = c.getLong(idIndex);
-                            final Uri uri = LauncherSettings.Favorites.getContentUri(id, false);
-                            cr.delete(uri, null, null);
-                            changed = true;
-                            if (!duplicate) {
-                                break;
-                            }
-                        }
+                    	String intentStr = c.getString(intentIndex);
+                    	if(intentStr != null){
+                    		 if (intent.filterEquals(Intent.parseUri(intentStr, 0))) {
+                    			 final long id = c.getLong(idIndex);
+                                 final Uri uri = LauncherSettings.Favorites.getContentUri(id, false);
+                                 cr.delete(uri, null, null);
+                                 changed = true;
+                                 if (!duplicate) {
+                                     break;
+                                 }
+                    		 }
+                    	}
                     } catch (URISyntaxException e) {
                         // Ignore
                     }

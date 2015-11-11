@@ -4311,7 +4311,7 @@ public class Launcher extends Activity
         }
 
         // Update the widgets pane
-        if (!AppsCustomizePagedView.DISABLE_ALL_APPS &&
+        if (AppsCustomizePagedView.DISABLE_ALL_APPS &&
                 mAppsCustomizeContent != null) {
             mAppsCustomizeContent.onPackagesUpdated(widgetsAndShortcuts);
         }

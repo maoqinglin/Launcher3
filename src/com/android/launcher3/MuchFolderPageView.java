@@ -28,10 +28,15 @@ public class MuchFolderPageView extends ViewPager implements ICellLayout {
 	
 	private float mDownMotionX;
     private float mDownMotionY;
+    private int mDesiredWidth = 568;
+    private int mDesiredHeight = 462;
+    
+    
     protected float mLastMotionX;
     protected float mLastMotionXRemainder;
     protected float mLastMotionY;
     protected float mTotalMotionX;
+    
     
     protected static final float INTERUPTE_DISTANCE = 25;
     
@@ -156,12 +161,23 @@ public class MuchFolderPageView extends ViewPager implements ICellLayout {
 
 	@Override
 	public int getDesiredWidth() {
-		return mCellLayoutList.get(0).getDesiredWidth();
+		if(mCellLayoutList.size() > 0){
+			mDesiredWidth = mCellLayoutList.get(0).getDesiredWidth();
+		} else if(mCurrentCellLayout != null){
+			mDesiredWidth = mCurrentCellLayout.getDesiredWidth();
+		}
+		return mDesiredWidth;
+		
 	}
 
 	@Override
 	public int getDesiredHeight() {
-		return mCellLayoutList.get(0).getDesiredHeight();
+		if(mCellLayoutList.size() > 0){
+			mDesiredHeight = mCellLayoutList.get(0).getDesiredHeight();
+		} else if(mCurrentCellLayout != null){
+			mDesiredHeight= mCurrentCellLayout.getDesiredHeight();
+		}
+		return mDesiredHeight;
 	}
 
 	@Override
@@ -218,6 +234,9 @@ public class MuchFolderPageView extends ViewPager implements ICellLayout {
 
 	@Override
 	public boolean findCellForSpan(int[] cellXY, int spanX, int spanY) {
+		if(mCellLayoutList.size() <=0){
+			return false;
+		}
 		MuchFolderCellLayout lastCellLayout = mCellLayoutList.get(mCellLayoutList.size() - 1);
 		if (!lastCellLayout.findCellForSpan(cellXY, spanX, spanY)) {
 			lastCellLayout = createNewCellLayout();

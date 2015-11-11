@@ -209,7 +209,6 @@ public class DragController {
         if (PROFILE_DRAWING_DURING_DRAG) {
             android.os.Debug.startMethodTracing("Launcher");
         }
-
         // Hide soft keyboard, if visible
         if (mInputMethodManager == null) {
             mInputMethodManager = (InputMethodManager)
@@ -332,7 +331,7 @@ public class DragController {
                 for (AppInfo info : appInfos) {
                     // Added null checks to prevent NPE we've seen in the wild
                     if (dragInfo != null &&
-                        dragInfo.intent != null) {
+                        dragInfo.intent != null &&  dragInfo.intent.getComponent() != null) {
                         boolean isSameComponent =
                                 dragInfo.intent.getComponent().equals(info.componentName);
                         if (isSameComponent) {
