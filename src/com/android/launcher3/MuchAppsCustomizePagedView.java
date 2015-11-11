@@ -893,6 +893,22 @@ public class MuchAppsCustomizePagedView extends PagedViewWithDraggableItems impl
         }
         cleanupWidgetPreloading(success);
         mDraggingWidget = false;
+        
+        updateLayoutDeleteState(target, success);
+    }
+
+    // add by linmaoqing 2015-11-11 拖动widget后刷新删除图标
+    private void updateLayoutDeleteState(View target, boolean success) {
+        if (MuchConfig.SUPPORT_MUCH_STYLE && success) {
+            if (target instanceof Workspace) {
+                int currentScreen = mLauncher.getCurrentWorkspaceScreen();
+                Workspace workspace = (Workspace) target;
+                CellLayout layout = (CellLayout) workspace.getChildAt(currentScreen);
+                if (layout != null) {
+                    layout.getEmptyScreenHelper().setDelete(false);
+                }
+            }
+        }
     }
 
     @Override
