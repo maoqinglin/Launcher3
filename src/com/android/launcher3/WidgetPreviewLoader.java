@@ -212,11 +212,12 @@ public class WidgetPreviewLoader {
         Bitmap unusedBitmap = null;
         synchronized(mUnusedBitmaps) {
             // not in cache; we need to load it from the db
-            while ((unusedBitmap == null || !unusedBitmap.isMutable() ||
-                    unusedBitmap.getWidth() != mPreviewBitmapWidth ||
-                    unusedBitmap.getHeight() != mPreviewBitmapHeight)
-                    && mUnusedBitmaps.size() > 0) {
-                unusedBitmap = mUnusedBitmaps.remove(0).get();
+            while ((unusedBitmap == null && mUnusedBitmaps.size() > 0)) {
+                Bitmap candidate = mUnusedBitmaps.remove(0).get();
+                if (candidate != null && candidate.isMutable() && candidate.getWidth() == mPreviewBitmapWidth
+                        && candidate.getHeight() == mPreviewBitmapHeight) {
+                    unusedBitmap = candidate;
+                }
             }
             if (unusedBitmap != null) {
                 final Canvas c = mCachedAppWidgetPreviewCanvas.get();
@@ -296,7 +297,6 @@ public class WidgetPreviewLoader {
 
         public CacheDb(Context context) {
             super(context, new File(context.getCacheDir(), DB_NAME).getPath(), null, DB_VERSION);
-            Log.e("lmq", "context.getCacheDir() = "+context.getCacheDir()+" name = "+new File(context.getCacheDir(), DB_NAME).getPath());
             // Store the context for later use
             mContext = context;
         }

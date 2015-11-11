@@ -70,6 +70,7 @@ import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.PorterDuff;
@@ -2735,7 +2736,9 @@ public class Launcher extends Activity
                 Context context = getApplicationContext();
                 ScreenCapture capture = new ScreenCapture(context);
                 Bitmap screenBmp = capture.captureScreen();
-//              Bitmap screenBmp = BitmapFactory.decodeResource(getResources(), R.drawable.screen);
+                if(screenBmp == null){
+                    screenBmp = BitmapFactory.decodeResource(getResources(), R.drawable.wallpaper_02);
+                }
                 ImageHelper.blur(context,folder,screenBmp);
                 return true;
             }
