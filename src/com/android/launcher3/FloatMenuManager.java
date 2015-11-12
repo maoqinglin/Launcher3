@@ -324,8 +324,12 @@ public class FloatMenuManager implements FloatingActionMenu.MenuStateChangeListe
 
     private void removeView(ItemInfo item) {
         CellLayout celllayout = mLauncher.getCellLayout(item.container, item.screenId);
-        View v = celllayout.getChildAt(item.cellX, item.cellY);
-        celllayout.removeView(v);
+        if(celllayout != null){
+            View v = celllayout.getChildAt(item.cellX, item.cellY);
+            if(v != null){
+                celllayout.removeView(v);
+            }
+        }
     }
 
     private void showUninstallDialog(String pkgName) {
