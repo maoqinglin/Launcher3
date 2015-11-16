@@ -295,10 +295,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 //            }
 //        }//end by linmaoqing
         //end by lilu
-        if(MuchConfig.SUPPORT_MUCH_STYLE && mLauncher.getFloatMenuManager().isFloatMenuOpen()){
-            mLauncher.getFloatMenuManager().closeFloatMenu();
-            return;
-        }
+
         Object tag = v.getTag();
         if(tag instanceof ShortcutInfo && ((ShortcutInfo)tag).getIntent().getComponent() == null){
             List<ShortcutInfo> outAppList = LauncherAppState.getInstance().getModel().getOutAppList();
@@ -345,12 +342,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 v.getLocationOnScreen(flocation);
                 CellLayout.LayoutParams lp = (com.android.launcher3.CellLayout.LayoutParams)v.getLayoutParams();
                 mLauncher.getFloatMenuManager().setFolderPoint(flocation);
-                boolean isOnlyDelete = false;
-                if (item.itemType == Favorites.ITEM_TYPE_APPWIDGET || item.itemType == Favorites.ITEM_TYPE_SHORTCUT) {
-                    isOnlyDelete = true;
-                }
-                mLauncher.getFloatMenuManager().createFloatMenu(v,item.cellX,item.cellY,isOnlyDelete);
-                
             }//end by linmaoqing
 
             //add by linmaoqing 2014-5-13
@@ -947,6 +938,8 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             return;
         }
 
+        //add by linmaoqing 2015-11-16
+        createFloatMenu();
         boolean beingCalledAfterUninstall = mDeferredAction != null;
         boolean successfulDrop =
                 success && (!beingCalledAfterUninstall || mUninstallSuccessful);
@@ -986,6 +979,16 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         
         if(MuchConfig.SUPPORT_MUCH_STYLE){
             showAddAppView();
+        }
+    }
+
+    private void createFloatMenu() {
+        if(mCurrentDragInfo != null && mCurrentDragView !=null && mDragController.isMotionValid()){
+            boolean isOnlyDelete = false;
+            if (mCurrentDragInfo.itemType == Favorites.ITEM_TYPE_APPWIDGET || mCurrentDragInfo.itemType == Favorites.ITEM_TYPE_SHORTCUT) {
+                isOnlyDelete = true;
+            }
+            mLauncher.getFloatMenuManager().createFloatMenu(mCurrentDragView,mCurrentDragInfo.cellX,mCurrentDragInfo.cellY,isOnlyDelete);
         }
     }
 
@@ -1836,5 +1839,15 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             public boolean isSelected;
             public ShortcutInfo item;
         }
+    }
+    
+    //add by linmaoqing 2015-11-16
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        if(MuchConfig.SUPPORT_MUCH_STYLE && mLauncher.getFloatMenuManager().isFloatMenuOpen()){
+            mLauncher.getFloatMenuManager().closeFloatMenu();
+            return true;
+        }
+        return super.onInterceptTouchEvent(ev);
     }
 }

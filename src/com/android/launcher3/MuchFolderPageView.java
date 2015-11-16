@@ -206,7 +206,6 @@ public class MuchFolderPageView extends ViewPager implements ICellLayout {
 		return result;
 	}
 	public MuchFolderCellLayout createNewCellLayout() {
-		Log.w(TAG, "createNewCellLayout");
 		MuchFolderCellLayout newCellLayout = (MuchFolderCellLayout)mInflater.inflate(R.layout.much_folder_screen, null);
 		newCellLayout.setIndex(mCellLayoutList.size());
 		addCellLayout(newCellLayout);  

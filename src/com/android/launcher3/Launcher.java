@@ -2836,21 +2836,6 @@ public class Launcher extends Activity
 //                        MuchAppShakeAndShareManager.getInstance().handleClickToShake(true,true);
 //                    }
                     
-                    if(itemUnderLongClick instanceof BubbleTextView
-                            || itemUnderLongClick instanceof LauncherAppWidgetHostView){ //add by linmaoqing
-                        //edit begin by lilu 20150929
-                        boolean isOnlyDelete = false;
-                        if (itemUnderLongClick instanceof LauncherAppWidgetHostView) {
-                            isOnlyDelete = true;
-                        } else {
-                            int itemType = mModel.getCellType(longClickCellInfo);
-                            if (itemType == Favorites.ITEM_TYPE_SHORTCUT) {
-                                isOnlyDelete = true;
-                            }
-                        }
-                        mFloatMenuManager.createFloatMenu(longClickCellInfo.cell,longClickCellInfo.cellX,longClickCellInfo.cellY,isOnlyDelete);
-                    }
-                    //edit end by lilu 20150929
                     // User long pressed on an item
                     mWorkspace.startDrag(longClickCellInfo);
                 }else if(itemUnderLongClick instanceof Folder){

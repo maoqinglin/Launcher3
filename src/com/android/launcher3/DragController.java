@@ -35,6 +35,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.inputmethod.InputMethodManager;
 
+import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.much.MuchConfig;
 
 /**
@@ -691,6 +692,7 @@ public class DragController {
                 accepted = true;
             }
         }
+        setMotionFlagByDropCoordiante((int)x, (int)y);
         mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
     }
 
@@ -816,5 +818,22 @@ public class DragController {
         void setDirection(int direction) {
             mDirection = direction;
         }
+    }
+
+    // add by linmaoqing 2015-11-16
+    private boolean isMotionValid = false;
+    private static final int MOTION_DELT = 50;
+
+    private void setMotionFlagByDropCoordiante(final int x, final int y) {
+        Log.e("lmq", "setMotionFlagByDropCoordiante x = "+x+" y = "+y+" mMotionDownX = "+mMotionDownX+" mMotionDownY = "+mMotionDownY);
+        if (Math.abs(mMotionDownX - (int) x) <= MOTION_DELT && Math.abs(mMotionDownY - (int) y) <= MOTION_DELT) {
+            isMotionValid = true;
+        } else {
+            isMotionValid = false;
+        }
+    }
+
+    public boolean isMotionValid() {
+        return isMotionValid;
     }
 }

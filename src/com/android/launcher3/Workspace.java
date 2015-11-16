@@ -4161,6 +4161,9 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             };
             return;
         }
+        
+        // add by linmaoqing2015-11-16
+        createFloatMenu();
 
         boolean beingCalledAfterUninstall = mDeferredAction != null;
 
@@ -4196,6 +4199,19 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         }
         mDragOutline = null;
         mDragInfo = null;
+    }
+
+    private void createFloatMenu() {
+        if (mDragInfo != null && mDragInfo.cell != null && mDragController.isMotionValid()) {
+            boolean isOnlyDelete = false;
+            ItemInfo item = (ItemInfo) mDragInfo.cell.getTag();
+            if (item != null) {
+                if (item.itemType == Favorites.ITEM_TYPE_APPWIDGET || item.itemType == Favorites.ITEM_TYPE_SHORTCUT) {
+                    isOnlyDelete = true;
+                }
+                mLauncher.getFloatMenuManager().createFloatMenu(mDragInfo.cell, item.cellX, item.cellY, isOnlyDelete);
+            }
+        }
     }
 
     public void deferCompleteDropAfterUninstallActivity() {
@@ -5200,6 +5216,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 v.setPivotX(v.getMeasuredWidth() * 0.5f);
                 v.setPivotY(v.getMeasuredHeight() * 0.5f);
                 v.setRotationY(rotation);
+                v.setAlpha(rotation > 90f || rotation < -90f ? 0 : 1);
 
                 if (scrollProgress >= -0.5f && scrollProgress <= 0.5f) {
                     v.setTranslationX(v.getMeasuredWidth() * scrollProgress);
