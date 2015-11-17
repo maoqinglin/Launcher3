@@ -20,12 +20,12 @@
         android:layout_marginRight="@dimen/much_folder_add_app_line_margin_right"
         android:background="@color/much_folder_add_app_line_color" />
 
-    <com.android.launcher3.MuchDraggableGridViewPager
+    <com.android.launcher3.much.folder.addapp.MuchDraggableGridViewPager
         android:id="@+id/draggable_grid_view_pager"
         android:layout_width="match_parent"
         android:layout_height="@dimen/much_folder_add_app_grid_height"
         android:padding="@dimen/much_folder_add_app_grid_padding" >
-    </com.android.launcher3.MuchDraggableGridViewPager>
+    </com.android.launcher3.much.folder.addapp.MuchDraggableGridViewPager>
 
     <include
         android:id="@+id/page_indicator"

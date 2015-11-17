@@ -1,4 +1,4 @@
-package com.android.launcher3;
+package com.android.launcher3.much.folder.addapp;
 
 /*
  The MIT License (MIT)
@@ -53,6 +53,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Scroller;
 
+import com.android.launcher3.PageIndicator;
 import com.android.launcher3.R;
 
 /**
