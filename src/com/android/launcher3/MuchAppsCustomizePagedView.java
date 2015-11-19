@@ -49,7 +49,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LayoutAnimationController;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -275,6 +278,13 @@ public class MuchAppsCustomizePagedView extends PagedViewWithDraggableItems impl
         }
     }
 
+    protected LayoutAnimationController getAnimationController() {
+        Animation anim = AnimationUtils.loadAnimation(getContext(), R.anim.overview_item_load);
+        LayoutAnimationController controller = new LayoutAnimationController(anim, 0.5f);
+        controller.setOrder(LayoutAnimationController.ORDER_NORMAL);
+        return controller;
+    }
+
     @Override
     protected void init() {
         super.init();
@@ -398,6 +408,7 @@ public class MuchAppsCustomizePagedView extends PagedViewWithDraggableItems impl
                 }
             });
         }
+        setLayoutAnimation(getAnimationController());
     }
 
     void showAllAppsCling() {

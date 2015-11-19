@@ -1,25 +1,26 @@
 package com.android.launcher.overview.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.DisplayMetrics;
-import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.view.animation.TranslateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.launcher.overview.ui.TabPageIndicator.OnTabReselectedListener;
 import com.android.launcher3.DragController;
 import com.android.launcher3.Launcher;
 import com.android.launcher3.LauncherModel;
@@ -27,10 +28,11 @@ import com.android.launcher3.MuchAppsCustomizePagedView;
 import com.android.launcher3.MuchAppsCustomizeTabHost;
 import com.android.launcher3.R;
 
-public class OverViewTabs implements OnTabReselectedListener {
+@SuppressLint("UseSparseArrays")
+public class OverViewTabs implements InitPage{
 
     private List<View> mListViews = new ArrayList<View>();
-    private HashMap<Integer, TextView> mTitleMap = new HashMap<Integer, TextView>();
+    private SparseArray<TextView> mTitleMap = new SparseArray<TextView>();
     private Context mContext;
 
     private static final int EFFECT_INDEX = 0;
@@ -47,21 +49,21 @@ public class OverViewTabs implements OnTabReselectedListener {
     private int mCurrIndex = 0;// 当前页卡编号
     private static final int TITLE_COUNT = 3;
     private DragController mDragController;
+    LayoutAnimationController mAnimController;
     
     public void init(Context context, View view, DragController dragController) {
         mContext = context;
         mDragController = dragController;
+        initAnimationController();
         InitTextView(view);
         InitContainerView(context, view);
     }
 
     private void InitContainerView(Context context, View view) {
         mContainer = (FrameLayout) view.findViewById(R.id.container);
-        mEffectContent = new UnderlinesNoFadeLayout(mContext);
-        mListViews.clear();
-        mListViews.add(mEffectContent);
         mContainer.removeAllViewsInLayout();
-        mContainer.addView(mEffectContent);
+        mListViews.clear();
+        loadContentByIndex(0);
     }
 
     /**
@@ -122,13 +124,15 @@ public class OverViewTabs implements OnTabReselectedListener {
         mContainer.removeAllViewsInLayout();
         if(index == EFFECT_INDEX){
             if(mEffectContent == null){
-                mEffectContent = new UnderlinesNoFadeLayout(mContext);
+                mEffectContent = new UnderlinesNoFadeLayout(mContext,getAnimationController());
             }
+            mEffectContent.initPage(0);
             mContainer.addView(mEffectContent);
         }else if(index == WALLPAPER_INDEX){
             if(mWallPaperContent == null){
-                mWallPaperContent = new WallpaperLayout(mContext);
+                mWallPaperContent = new WallpaperLayout(mContext,getAnimationController());
             }
+            mWallPaperContent.initPage(0);
             mContainer.addView(mWallPaperContent);
         }else if(index == WIDGET_INDEX){
             if(mAppsCustomizeContent == null){
@@ -148,30 +152,67 @@ public class OverViewTabs implements OnTabReselectedListener {
             launcher.dispatchOnLauncherTransitionPrepare(mAppsCustomizeTabHost, true, false);
             launcher.dispatchOnLauncherTransitionStart(mAppsCustomizeTabHost, true, false);
             launcher.dispatchOnLauncherTransitionEnd(mAppsCustomizeTabHost, true, false);
+            mAppsCustomizeTabHost.initPage(0);
             mContainer.addView(mAppsCustomizeTabHost);
         }
         setSeletorTitleAlpha(index);
     }
 
+    private LayoutAnimationController getAnimationController() {
+        if(mAnimController == null){
+            mAnimController = initAnimationController();
+        }
+        return mAnimController;
+    }
+
     private void setSeletorTitleAlpha(int selectedIndex) {
-        for(Map.Entry<Integer, TextView> entry : mTitleMap.entrySet()){
-            if(entry.getKey().equals(selectedIndex)){
-                TextView selectedView = entry.getValue();
+        for (int i = 0; i < mTitleMap.size(); i++) {
+            if (mTitleMap.keyAt(i) == selectedIndex) {
+                TextView selectedView = mTitleMap.get(i);
                 selectedView.setAlpha(1f);
+                continue;
             }
-            if(entry.getKey().equals(mCurrIndex)){
-                TextView unSelectedView = entry.getValue();
+            if (mTitleMap.keyAt(i) == mCurrIndex) {
+                TextView unSelectedView = mTitleMap.get(i);
                 unSelectedView.setAlpha(0.6f);
             }
         }
-        
     }
 
     @Override
-    public void onTabReselected(int position) {
-        View view = mListViews.get(position);
-        if (view != null && view instanceof UnderlinesNoFadeLayout) {
-            ((UnderlinesNoFadeLayout) view).setInitPage();
+    public void initPage(int pageIndex) {
+        if(pageIndex == 0){
+            mCurrIndex = 0;
+            mNavIndicator.clearAnimation();
+            loadContentByIndex(pageIndex);
+            resetTitleAlpha();
         }
+    }
+
+    private void resetTitleAlpha() {
+        for (int i = 0; i < mTitleMap.size(); i++) {
+            if (i == 0) {
+                TextView selectedView = mTitleMap.get(i);
+                selectedView.setAlpha(1f);
+                continue;
+            }
+            TextView unSelectedView = mTitleMap.get(i);
+            unSelectedView.setAlpha(0.6f);
+        }
+    }
+
+    private LayoutAnimationController initAnimationController() {
+        Animation anim = AnimationUtils.loadAnimation(mContext, R.anim.overview_item_load);
+        mAnimController = new LayoutAnimationController(anim, 0f);
+        mAnimController.setOrder(LayoutAnimationController.ORDER_NORMAL);
+        return mAnimController;
+    }
+
+    public void onDestory(){
+        mContainer.removeAllViewsInLayout();
+        mContainer = null;
+        mListViews.clear();
+        mTitleMap.clear();
+        mContext = null;
     }
 }

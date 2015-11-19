@@ -249,6 +249,7 @@ public class Launcher extends Activity
 
     private Hotseat mHotseat;
     private View mOverviewPanel;
+    private OverViewTabs mOverviewTabs;
 
     private View mAllAppsButton;
 
@@ -1269,8 +1270,8 @@ public class Launcher extends Activity
 //        settingsButton.setOnTouchListener(getHapticFeedbackTouchListener());
         
         mOverviewPanel = findViewById(R.id.overview_tabs);
-        OverViewTabs tab = new OverViewTabs();
-        tab.init(this,mOverviewPanel,mDragController);
+        mOverviewTabs = new OverViewTabs();
+        mOverviewTabs.init(this,mOverviewPanel,mDragController);
         
         mOverviewPanel.setAlpha(0f);
 
@@ -1881,6 +1882,9 @@ public class Launcher extends Activity
         if(MuchConfig.SUPPORT_MUCH_STYLE){
             mFloatMenuManager.onDestory();
             mFloatMenuManager = null;
+            
+            mOverviewTabs.onDestory(); //add by linmaoqing 2015-11-18
+            mOverviewTabs = null;
         }
 
         LauncherAnimUtils.onDestroyActivity();
@@ -2828,6 +2832,7 @@ public class Launcher extends Activity
                     mWorkspace.startReordering(v);
                 } else {
                     mWorkspace.enterOverviewMode();
+                    mOverviewTabs.initPage(0);//add by linmaoqing 2015-11-18
                 }
             } else {
                 if (!(itemUnderLongClick instanceof Folder)) {

@@ -15,6 +15,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -27,7 +36,7 @@ import com.android.launcher3.LauncherAppState;
 import com.android.launcher3.R;
 import com.android.launcher3.much.MuchConfig;
 
-public class UnderlinesNoFadeLayout extends LinearLayout {
+public class UnderlinesNoFadeLayout extends LinearLayout implements InitPage{
 
     
     private PagerAdapter mAdapter;
@@ -39,26 +48,30 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
     private static final int PORT_PAGE_ITEM = 6;
     private static final int LANDSCAPE_PAGE_ITEM = 5;
     private Context mContext;
+    private LayoutAnimationController mAnimController;
+
+    public UnderlinesNoFadeLayout(Context context, LayoutAnimationController animController) {
+        super(context);
+        mAnimController = animController;
+        init(context);
+    }
 
     public UnderlinesNoFadeLayout(Context context) {
         super(context);
-        mContext = context;
-        init();
+        init(context);
     }
 
     public UnderlinesNoFadeLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mContext = context;
-        init();
+        this(context,attrs,0);
     }
 
     public UnderlinesNoFadeLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = context;
-        init();
+        init(context);
     }
 
-    public void init() {
+    public void init(Context context) {
+        mContext = context;
         View view = LayoutInflater.from(mContext).inflate(R.layout.snail_overview_underlines, this, true);
         initData();
         initListViews();
@@ -119,6 +132,7 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
         List<EffectItem> items = mEffectList.subList(startIndex, endIndex + 1);
         EffectAdapter adapter = new EffectAdapter(items);
         grid.setAdapter(adapter);
+        grid.setTag(pageIndex);
         mEffectAdapterList.add(adapter);
         grid.setOnItemClickListener(new OnItemClickListener() {
             @Override
@@ -194,9 +208,11 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
             holder.effectName.setText(item.name);
             holder.effectIcon.setBackground(item.iconRes);
             holder.effectSelected.setVisibility(item.isSelected ? View.VISIBLE : View.INVISIBLE);
+            if(mAnimController != null && parent != null && (Integer)parent.getTag() == 0){
+                parent.setLayoutAnimation(mAnimController);
+            }
             return convertView;
         }
-
     }
 
     static class Holder {
@@ -220,13 +236,7 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
         }
     }
 
-    public void setInitPage() {
-        if (mIndicator != null && mPager != null) {
-            mIndicator.setViewPager(mPager, 0);
-        }
-    }
-
-    class MyPageAdater extends PagerAdapter {
+    static class MyPageAdater extends PagerAdapter {
 
         private List<View> mListViews;
 
@@ -265,5 +275,12 @@ public class UnderlinesNoFadeLayout extends LinearLayout {
         Editor editor = mContext.getSharedPreferences(MuchConfig.LAUNCHER_PREFS, Context.MODE_PRIVATE).edit();
         editor.putInt(MuchConfig.SCREEN_EFFECT_PREFS,index).commit();
         
+    }
+
+    @Override
+    public void initPage(int pageIndex) {
+        if(pageIndex == 0 && !mListViews.isEmpty()){
+            mPager.setCurrentItem(pageIndex);
+        }
     }
 }

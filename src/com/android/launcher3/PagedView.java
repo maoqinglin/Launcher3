@@ -610,7 +610,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
         if (mPageSwitchListener != null) {
             mPageSwitchListener.onPageSwitch(getPageAt(mCurrentPage), mCurrentPage);
         }
-
         // Update the page indicator (when we aren't reordering)
         if (mPageIndicator != null && !isReordering(false)) {
             mPageIndicator.setActiveMarker(getNextPage());

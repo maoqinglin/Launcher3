@@ -26,6 +26,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LayoutAnimationController;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -35,7 +36,7 @@ import android.widget.ListAdapter;
 
 import com.android.launcher3.R;
 
-public class WallpaperLayout extends LinearLayout {
+public class WallpaperLayout extends LinearLayout implements InitPage{
 
     static final String TAG = "WallpaperLayout";
     private PagerAdapter mAdapter;
@@ -47,23 +48,26 @@ public class WallpaperLayout extends LinearLayout {
     private Context mContext;
     private ArrayList<WallpaperTileInfo> mWallpapers ;
     private List<BuiltInWallpapersAdapter> mAdapterList = new ArrayList<BuiltInWallpapersAdapter>();
+    private LayoutAnimationController mAnimController;
 
     public WallpaperLayout(Context context) {
         super(context);
-        mContext = context;
-        init();
+        init(context);
+    }
+
+    public WallpaperLayout(Context context,LayoutAnimationController animController) {
+        super(context);
+        mAnimController = animController;
+        init(context);
     }
 
     public WallpaperLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mContext = context;
-        init();
+        this(context,attrs,0);
     }
 
     public WallpaperLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mContext = context;
-        init();
+        init(context);
     }
 
     public static abstract class WallpaperTileInfo {
@@ -87,15 +91,13 @@ public class WallpaperLayout extends LinearLayout {
     public static class PickImageInfo extends WallpaperTileInfo {
         @Override
         public void onClick(Context context) {
-//            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-//            intent.setType("image/*");
-//            Utilities.startActivityForResultSafely((Activity)a, intent, 5);
             Intent chooseIntent = new Intent(Intent.ACTION_SET_WALLPAPER);  
             context.startActivity(Intent.createChooser(chooseIntent, context.getResources().getString(R.string.wallpaper_select)));
         }
     }
 
-    public void init() {
+    public void init(Context context) {
+        mContext = context;
         View view = LayoutInflater.from(mContext).inflate(R.layout.snail_overview_underlines, this, true);
         initData();
         if(mWallpapers != null){
@@ -178,6 +180,7 @@ public class WallpaperLayout extends LinearLayout {
         int endIndex = Math.min((pageIndex + 1) * getPageItem() - 1, mWallpapers.size() - 1);
         GridView grid = (GridView) LayoutInflater.from(mContext).inflate(R.layout.snail_overview_grid, null);
         grid.setNumColumns(COLUMN_NUM);
+        grid.setTag(pageIndex);
         // 根据索引返回数据
         List<WallpaperTileInfo> items = mWallpapers.subList(startIndex, endIndex + 1);
         BuiltInWallpapersAdapter ia = new BuiltInWallpapersAdapter(mContext, items);
@@ -196,12 +199,6 @@ public class WallpaperLayout extends LinearLayout {
                     / getPageItem() + 1;
         }
         return 0;
-    }
-
-    public void setInitPage() {
-        if (mIndicator != null && mPager != null) {
-            mIndicator.setViewPager(mPager, 0);
-        }
     }
 
     class MyPageAdater extends PagerAdapter {
@@ -345,6 +342,9 @@ public class WallpaperLayout extends LinearLayout {
             if(mPageWallpapers != null){
                 view.setTag(mPageWallpapers.get(position));
             }
+            if(mAnimController != null && parent != null && (Integer)parent.getTag() == 0){
+                parent.setLayoutAnimation(mAnimController);
+            }
             return view;
         }
         
@@ -368,7 +368,6 @@ public class WallpaperLayout extends LinearLayout {
                 @Override
                 public void onClick(View v) {
                     WallpaperTileInfo info = (WallpaperTileInfo)v.getTag();
-                    Log.d("lmq", "onClick---info = "+info);
                     if(info != null){
                         info.onClick(mContext);
                     }
@@ -410,5 +409,12 @@ public class WallpaperLayout extends LinearLayout {
             return true;
         }
     }
-    
+
+    @Override
+    public void initPage(int pageIndex) {
+        if(pageIndex == 0 && !mListViews.isEmpty()){
+            mPager.setCurrentItem(pageIndex);
+        }
+    }
+
 }

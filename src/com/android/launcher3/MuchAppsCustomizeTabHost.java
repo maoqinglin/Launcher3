@@ -29,6 +29,9 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TabHost;
@@ -37,8 +40,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import com.android.launcher.overview.ui.InitPage;
+
 public class MuchAppsCustomizeTabHost extends TabHost implements LauncherTransitionable,
-        TabHost.OnTabChangeListener, Insettable  {
+        TabHost.OnTabChangeListener, Insettable  ,InitPage{
     static final String LOG_TAG = "AppsCustomizeTabHost";
 
     private static final String APPS_TAB_TAG = "APPS";
@@ -475,4 +480,21 @@ public class MuchAppsCustomizeTabHost extends TabHost implements LauncherTransit
     boolean isTransitioning() {
         return mInTransition;
     }
+
+    @Override
+    public void initPage(int pageIndex) {
+        if(pageIndex == 0){
+            mAppsCustomizePane.invalidatePageData(0,true);
+            postDelayed(new Runnable() {
+                
+                @Override
+                public void run() {
+                    if(mAppsCustomizePane.getPageIndicator() != null){
+                        mAppsCustomizePane.getPageIndicator().setActiveMarker(0);
+                    }
+                }
+            }, 100);
+        }
+    }
+    
 }
