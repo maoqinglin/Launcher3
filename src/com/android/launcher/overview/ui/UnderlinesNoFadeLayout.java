@@ -49,6 +49,7 @@ public class UnderlinesNoFadeLayout extends LinearLayout implements InitPage{
     private static final int LANDSCAPE_PAGE_ITEM = 5;
     private Context mContext;
     private LayoutAnimationController mAnimController;
+    private boolean mIsFirstDone = true;
 
     public UnderlinesNoFadeLayout(Context context, LayoutAnimationController animController) {
         super(context);
@@ -201,6 +202,10 @@ public class UnderlinesNoFadeLayout extends LinearLayout implements InitPage{
                 holder.effectIcon = (ImageView) convertView.findViewById(R.id.icon);
                 holder.effectSelected = (ImageView) convertView.findViewById(R.id.selected);
                 convertView.setTag(holder);
+                if(mAnimController != null && parent != null && (Integer)parent.getTag() == 0 && mIsFirstDone){
+                    parent.setLayoutAnimation(mAnimController);
+                    mIsFirstDone = false;
+                }
             }
             holder = (Holder) convertView.getTag();
             EffectItem item = effects.get(position);
@@ -208,9 +213,6 @@ public class UnderlinesNoFadeLayout extends LinearLayout implements InitPage{
             holder.effectName.setText(item.name);
             holder.effectIcon.setBackground(item.iconRes);
             holder.effectSelected.setVisibility(item.isSelected ? View.VISIBLE : View.INVISIBLE);
-            if(mAnimController != null && parent != null && (Integer)parent.getTag() == 0){
-                parent.setLayoutAnimation(mAnimController);
-            }
             return convertView;
         }
     }
@@ -251,7 +253,7 @@ public class UnderlinesNoFadeLayout extends LinearLayout implements InitPage{
 
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
-            container.addView(mListViews.get(position), 0);
+            container.addView(mListViews.get(position),0);
             return mListViews.get(position);
         }
 
@@ -280,7 +282,13 @@ public class UnderlinesNoFadeLayout extends LinearLayout implements InitPage{
     @Override
     public void initPage(int pageIndex) {
         if(pageIndex == 0 && !mListViews.isEmpty()){
+            final ViewGroup parent = (ViewGroup)mPager.getChildAt(0);
             mPager.setCurrentItem(pageIndex);
+            if(parent != null){
+                if(mAnimController != null && parent != null && (Integer)parent.getTag() == 0){
+                    parent.setLayoutAnimation(mAnimController);
+                }
+            }
         }
     }
 }
