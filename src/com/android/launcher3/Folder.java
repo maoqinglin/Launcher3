@@ -20,6 +20,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 import android.animation.Animator;
@@ -159,6 +160,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     private Runnable mDeferredAction;
     private boolean mDeferDropAfterUninstall;
     private boolean mUninstallSuccessful;
+    private static final int FOLDER_MIN_APP = 2;//文件夹中最少应用数
 
     /**
      * Used to inflate the Workspace from XML.
@@ -548,8 +550,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             }
             if (lastInfo != null) {
                 setupAddView(lastInfo.cellX, lastInfo.cellY);
-            } else {
-                Log.e("lmq", "lastInfo is Null");
             }
         }
     }
@@ -1313,8 +1313,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             if (info.cellX != vacant[0] || info.cellY != vacant[1]) {
                 info.cellX = vacant[0];
                 info.cellY = vacant[1];
-                LauncherModel.addOrMoveItemInDatabase(mLauncher, info, mInfo.id, 0,
-                        info.cellX, info.cellY);
+                if(info.getIntent().getComponent() != null){ //防止+号排序时插入数据库
+                    LauncherModel.addOrMoveItemInDatabase(mLauncher, info, mInfo.id, 0,
+                            info.cellX, info.cellY);
+                }
             }
             boolean insert = false;
             mContent.addViewToCellLayout(v, insert ? 0 : -1, (int)info.id, lp, true);
@@ -1390,23 +1392,23 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             @Override
             public void run() {
                 CellLayout cellLayout = mLauncher.getCellLayout(mInfo.container, mInfo.screenId);
-
                View child = null;
                 // Move the item from the folder to the workspace, in the position of the folder
-             //modify by linmaoqing 2015-10-30 包括加号在内，两个图标;卸载的时候只有一个图标
-                if (mInfo.contents.size() == 1 && mRemoveFolder) {
+                if (mInfo.contents.size() == 1) {
                     ShortcutInfo finalItem = mInfo.contents.get(0);
                     
                     child = mLauncher.createShortcut(R.layout.application, cellLayout,
                             finalItem);
                     LauncherModel.addOrMoveItemInDatabase(mLauncher, finalItem, mInfo.container,
                             mInfo.screenId, mInfo.cellX, mInfo.cellY);
-                    mRemoveFolder = false;
+                    mInfo.contents.clear();//清除文件夹最后一个item
                 }
                 if (mInfo.contents.size() <= 1) {//modify by linmaoqing 2015-10-30
                     // Remove the folder
                     LauncherModel.deleteItemFromDatabase(mLauncher, mInfo);
-                    cellLayout.removeView(mFolderIcon);
+                    if (cellLayout != null) {
+                        cellLayout.removeView(mFolderIcon);
+                    }
                     if (mFolderIcon instanceof DropTarget) {
                         mDragController.removeDropTarget((DropTarget) mFolderIcon);
                     }
@@ -1419,16 +1421,28 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 // the same time in the CellLayout.  We need to add the new item with addInScreenFromBind()
                 // to ensure that hotseat items are placed correctly.
                 if (child != null) {
-                    mLauncher.getWorkspace().addInScreenFromBind(child, mInfo.container, mInfo.screenId,
-                            mInfo.cellX, mInfo.cellY, mInfo.spanX, mInfo.spanY);
+                    if(mLauncher.getWorkspace() != null){
+                        mLauncher.getWorkspace().addInScreenFromBind(child, mInfo.container, mInfo.screenId,
+                                mInfo.cellX, mInfo.cellY, mInfo.spanX, mInfo.spanY);
+                    }
                 }
             }
         };
-        View finalChild = getItemAt(0);
+        View finalChild = getFirstChild();//modify by linmaoqing2015-12-11 修复移除文件夹中应用后形成空文件夹问题
         if (finalChild != null) {
             mFolderIcon.performDestroyAnimation(finalChild, onCompleteRunnable);
+        }else{
+            onCompleteRunnable.run();
         }
         mDestroyed = true;
+    }
+    
+    /**
+     * add by linmaoqing 2015-12-11
+     * @return
+     */
+    public View getFirstChild(){
+        return mContent.getChildAtByAbsoluteCoord(0, 0);
     }
 
     boolean isDestroyed() {
@@ -1495,11 +1509,15 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     // to correspond to the animation of the icon back into the folder. This is
     public void hideItem(ShortcutInfo info) {
         View v = getViewForInfo(info);
-        v.setVisibility(INVISIBLE);
+        if (v != null) {
+            v.setVisibility(INVISIBLE);
+        }
     }
     public void showItem(ShortcutInfo info) {
         View v = getViewForInfo(info);
-        v.setVisibility(VISIBLE);
+        if (v != null) {
+            v.setVisibility(VISIBLE);
+        }
     }
 
     public void onAdd(ShortcutInfo item) {
@@ -1678,13 +1696,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                     if (holder.isSelected) {
                         holder.selectedView.setVisibility(View.VISIBLE);
                         mAllData.selectList.add(holder.item);
-                        if (!mInfo.contents.contains(holder.item)) {
+                        if (!mAllData.addList.contains(holder.item)) {
                             mAllData.addList.add(holder.item);// 如果文件夹没有，添加到新增列表
                         }
                     } else {
                         holder.selectedView.setVisibility(View.INVISIBLE);
                         mAllData.selectList.remove(holder.item);
-                        if (mInfo.contents.contains(holder.item)) {
+                        if (!mAllData.removeList.contains(holder.item) ) {
                             mAllData.removeList.add(holder.item);// 如果文件夹已有，添加到移除列表
                         }
                     }
@@ -1717,24 +1735,44 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
      * 更新文件夹items
      */
     protected void updateFolderItemsBatch() {
-        //添加文件夹中选中的应用图标
+        //删除既添加又删除的数据
+        checkData();
+        
+        //添加文件夹中选中的应用图标,先移除，后添加，避免桌面位置占用问题
         addSelectedItemsToFolder();
         
         //移除文件夹未选中的应用图标
         removeUnSelectedItemsFromFolder();
+        
     }
 
-    boolean mRemoveFolder = true;
+    private void checkData() {
+        HashSet<ItemInfo> infoSet = new HashSet<ItemInfo>();
+        if (!mAllData.addList.isEmpty() && !mAllData.removeList.isEmpty()) {
+            for (ItemInfo info : mAllData.addList) {
+                if (mAllData.removeList.contains(info)) {
+                    infoSet.add(info);
+                }
+            }
+            for (ItemInfo sameInfo : infoSet) {
+                mAllData.addList.remove(sameInfo);
+                mAllData.removeList.remove(sameInfo);
+            }
+        }
+    }
+
     private void removeUnSelectedItemsFromFolder() {
         //未选中的显示在桌面
         if(!mAllData.removeList.isEmpty()){
             for(ItemInfo info : mAllData.removeList){
                 if(info instanceof ShortcutInfo){
                     ShortcutInfo sInfo = (ShortcutInfo)info;
-                    mInfo.contents.remove(sInfo);
-                    onRemove(sInfo);
+                    onRemoveBatch(sInfo);
                 }
             }
+
+            arrangeAfterRemoveBatch();
+            
             LauncherAppState appState = LauncherAppState.getInstance();
             WeakReference<Callbacks> callbacks = appState.getModel().getCallbacks();
             // Ensure that we add all the workspace applications to the db
@@ -1742,6 +1780,33 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             
             final ArrayList<ItemInfo> addedInfos = new ArrayList<ItemInfo>(mAllData.removeList);
             appState.getModel().folderAppsToUnBind(appState.getContext(), addedInfos, cb, new ArrayList<AppInfo>());
+        }
+    }
+
+    public void onRemoveBatch(ShortcutInfo item) {
+        mItemsInvalidated = true;
+        // If this item is being dragged from this open folder, we have already handled
+        // the work associated with removing the item, so we don't have to do anything here.
+        if (item == mCurrentDragInfo) return;
+        mInfo.contents.remove(item);
+        View v = getViewForInfo(item);
+        if (MuchConfig.SUPPORT_MUCH_STYLE) {
+            mContent.removeIconView(v);
+        } else {
+            mContent.removeView(v);
+        }
+        if (mInfo.contents.size() <= 1) {
+            onCloseComplete();
+        }
+    }
+    
+    private void arrangeAfterRemoveBatch(){
+        if (mState == STATE_ANIMATING) {
+            mRearrangeOnClose = true;
+        } else {
+            if (mInfo.contents.size() >= FOLDER_MIN_APP) {// 当文件夹>=2个应用时，对文件夹进行排序
+                setupContentForNumItems(getItemCount());
+            }
         }
     }
 

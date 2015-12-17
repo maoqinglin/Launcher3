@@ -4296,6 +4296,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
                 } else {
                     if (stripDuplicates) {
                         cl.removeViewInLayout(v);
+                        Log.e("lmq", "getUniqueIntents");
                         LauncherModel.deleteItemFromDatabase(mLauncher, si);
                     }
                     if (duplicates != null) {
@@ -4769,6 +4770,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
             for (FolderInfo folder : folderAppsToRemove.keySet()) {
                 ArrayList<ShortcutInfo> appsToRemove = folderAppsToRemove.get(folder);
                 for (ShortcutInfo info : appsToRemove) {
+                    Log.e("lmq", "removeItemsByComponentName  info = "+info.title);
                     folder.remove(info);
                 }
             }

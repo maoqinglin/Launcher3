@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -450,14 +451,14 @@ public class LauncherModel extends BroadcastReceiver {
 
                         // Short-circuit this logic if the icon exists somewhere
                         // on the workspace
-                        if (LauncherModel.shortcutExists(context, name, launchIntent)) {
+                        /*if (LauncherModel.shortcutExists(context, name, launchIntent)) {
                             // modify by linmaoqing 2015-5-8 修复3G卡、4G卡导致桌面重复图标问题
                             final ContentResolver cr = context.getContentResolver();
                             final Uri uriToDelete = LauncherSettings.Favorites.getContentUri(a.id, false);
                             cr.delete(uriToDelete, null, null);
                             deleteItemFromDatabase(context, a);
 //                            continue;
-                        }
+                        }*/
 
                         // Add this icon to the db, creating a new page if
                         // necessary. If there
@@ -467,7 +468,6 @@ public class LauncherModel extends BroadcastReceiver {
                         int startSearchPageIndex = workspaceScreens.isEmpty() ? 0 : 1;
                         Pair<Long, int[]> coords = LauncherModel.findNextAvailableIconSpace(context, name,
                                 launchIntent, startSearchPageIndex, workspaceScreens);
-                        Log.e("lmq", "coords = "+coords);
                         if (coords == null) {
                             LauncherProvider lp = LauncherAppState.getLauncherProvider();
 
@@ -505,9 +505,10 @@ public class LauncherModel extends BroadcastReceiver {
                             throw new RuntimeException("Unexpected info type");
                         }
                         // Add the shortcut to the db
-                        addItemToDatabase(context, shortcutInfo, LauncherSettings.Favorites.CONTAINER_DESKTOP,
-                                coords.first, coords.second[0], coords.second[1], false);
+                        addOrMoveItemInDatabase(context, shortcutInfo, LauncherSettings.Favorites.CONTAINER_DESKTOP,
+                                coords.first, coords.second[0], coords.second[1]);
                         // Save the ShortcutInfo for binding in the workspace
+                        shortcutInfo.container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
                         addedShortcutsFinal.add(shortcutInfo);
                     }
                 }
@@ -2071,6 +2072,8 @@ public class LauncherModel extends BroadcastReceiver {
                     clearSBgDataStructures();
                     return false;
                 }
+                
+                checkItemUnKnownFolder(context);
 
                 if (itemsToRemove.size() > 0) {
                     ContentProviderClient client = contentResolver.acquireContentProviderClient(
@@ -2161,6 +2164,55 @@ public class LauncherModel extends BroadcastReceiver {
             }
             
             return loadedOldDb;
+        }
+
+        /**
+         * 解决应用所在文件夹不存在问题，把应用添加到桌面，以防应用不显示
+         * add by linmaoqing 2015-12-21
+         * @param context
+         */
+        private void checkItemUnKnownFolder(final Context context) {
+            for(Map.Entry<Long, FolderInfo> entry :sBgFolders.entrySet()){
+                FolderInfo fInfo = (FolderInfo)entry.getValue();
+                int size = fInfo.contents.size();
+                if(size == 1){
+                    ItemInfo info = fInfo.contents.get(0);
+                    ArrayList<Long> workspaceScreens = new ArrayList<Long>();
+                    TreeMap<Integer, Long> orderedScreens = loadWorkspaceScreensDb(context);
+                    for (Integer i : orderedScreens.keySet()) {
+                        long screenId = orderedScreens.get(i);
+                        workspaceScreens.add(screenId);
+                    }
+                    int startSearchPageIndex = workspaceScreens.isEmpty() ? 0 : 1;
+                    Pair<Long, int[]> coords = LauncherModel.findNextAvailableIconSpace(context,
+                            String.valueOf(info.title), info.getIntent(), startSearchPageIndex, workspaceScreens);
+                    if (coords == null) {
+                        LauncherProvider lp = LauncherAppState.getLauncherProvider();
+
+                        // If we can't find a valid position, then just add a new screen.
+                        // This takes time so we need to re-queue the add until the new
+                        // page is added.  Create as many screens as necessary to satisfy
+                        // the startSearchPageIndex.
+                        int numPagesToAdd = Math.max(1, startSearchPageIndex + 1 -
+                                workspaceScreens.size());
+                        while (numPagesToAdd > 0) {
+                            long screenId = lp.generateNewScreenId();
+                            // Save the screen id for binding in the workspace
+                            workspaceScreens.add(screenId);
+                            numPagesToAdd--;
+                        }
+
+                        // Find the coordinate again
+                        coords = LauncherModel.findNextAvailableIconSpace(context,
+                                String.valueOf(info.title), info.getIntent(), startSearchPageIndex, workspaceScreens);
+                    }
+                    if(coords != null){
+                        info.cellX = coords.second[0];
+                        info.cellY = coords.second[1];
+                    }
+                    moveItemInDatabase(context, info, Favorites.CONTAINER_DESKTOP, info.screenId, info.cellX, info.cellY);
+                }
+            }
         }
 
         /** Filters the set of items who are directly or indirectly (via another container) on the

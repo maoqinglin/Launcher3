@@ -3965,6 +3965,7 @@ public class Launcher extends Activity
                     if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP) {
                         CellLayout cl = mWorkspace.getScreenWithId(item.screenId);
                         if (cl != null && cl.isOccupied(item.cellX, item.cellY)) {
+                            Log.e("lmq", "isOccupied  item.cellX = "+item.cellX+" item.cellY = "+item.cellY+" screenid = "+item.screenId+ " title = "+item.title);
                             throw new RuntimeException("OCCUPIED");
                         }
                     }

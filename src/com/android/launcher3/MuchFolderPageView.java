@@ -530,6 +530,9 @@ public class MuchFolderPageView extends ViewPager implements ICellLayout {
 
 	public boolean checkAndRemoveEmptyPage() {
 		//只在文件夹关闭后进行处理，文件夹关闭后，图标会重排，因此空页出现在最后一页
+	    if(mCellLayoutList.isEmpty()){
+	        return false;
+	    }
 		MuchFolderCellLayout lastCellLayout = mCellLayoutList.get(mCellLayoutList.size() - 1);
 		if (0 == lastCellLayout.getShortcutsAndWidgets().getChildCount()) {
 			removeView(lastCellLayout);
