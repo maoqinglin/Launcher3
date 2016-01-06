@@ -41,6 +41,7 @@ import android.support.v4.widget.AutoScrollHelper;
 import android.text.InputType;
 import android.text.Selection;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.ActionMode;
@@ -288,6 +289,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         }
     };
 
+    private boolean isAppAddView(Intent intent){
+        return intent.getComponent() == null && TextUtils.isEmpty(intent.getAction());
+    }
+
     public void onClick(View v) {
         //modify by lilu 屏蔽分享功能
         //begin add by linmaoqing 2014-5-14
@@ -300,10 +305,13 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         //end by lilu
 
         Object tag = v.getTag();
-        if(tag instanceof ShortcutInfo && ((ShortcutInfo)tag).getIntent().getComponent() == null){
-            List<ShortcutInfo> outAppList = LauncherAppState.getInstance().getModel().getOutAppList();
-            showPop(outAppList);
-            return;
+        if(tag instanceof ShortcutInfo){
+            Intent intent = ((ShortcutInfo)tag).getIntent();
+            if(isAppAddView(intent)){
+                List<ShortcutInfo> outAppList = LauncherAppState.getInstance().getModel().getOutAppList();
+                showPop(outAppList);
+                return;
+            }
         }
         if (tag instanceof ShortcutInfo) {
             mLauncher.onClick(v);
@@ -321,7 +329,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             if (!v.isInTouchMode()) {
                 return false;
             }
-            if(item.getIntent().getComponent() == null){
+            if(isAppAddView(item.getIntent())){
                 return false;
             }
 
@@ -700,7 +708,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         final BubbleTextView textView =
             (BubbleTextView) mInflater.inflate(R.layout.application, this, false);
         if(MuchConfig.SUPPORT_MUCH_STYLE) {
-            if(item.intent.getComponent() != null){
+            if(!isAppAddView(item.getIntent())){//有可能为快捷方式
                 LauncherAppState.getInstance().getIconDecorater().observeIconNeedUpdated(textView, item.getIcon(mIconCache), item.intent.getComponent());
             }else{
                 Bitmap bmp = BitmapFactory.decodeResource(
@@ -1883,7 +1891,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             
-            if(item.intent.getComponent() != null){
+            if(!isAppAddView(item.getIntent())){
                 LauncherAppState.getInstance().getIconDecorater().observeIconNeedUpdated(viewHolder.textView, item.getIcon(mIconCache), item.intent.getComponent());
             }
             viewHolder.item = item;
