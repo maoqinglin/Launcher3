@@ -1853,6 +1853,7 @@ public class LauncherModel extends BroadcastReceiver {
                                     if (cn != null && !TextUtils.isEmpty(cn.flattenToString())) { //modify by linmaoqing 2015-10-28
                                         if (iconComponentNameList.contains(cn.flattenToString())) {
                                             itemsToRemove.add(id);
+                                            continue;
                                         } else {
                                             //iconComponentNameList.add(cn.getClassName());
                                             iconComponentNameList.add(cn.flattenToString());
