@@ -27,6 +27,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -1818,27 +1819,35 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
         }
     }
 
-    private void addSelectedItemsToFolder() {
-        final ArrayList<String> packageNames = new ArrayList<String>();
-        for(ItemInfo info : mAllData.addList){
-            if(info instanceof ShortcutInfo && !mInfo.contents.contains(info)){
-                ShortcutInfo sInfo = (ShortcutInfo)info;
-                packageNames.add(sInfo.intent.getComponent().getPackageName());
+    private void removeView(ItemInfo item) {
+        CellLayout celllayout = mLauncher.getCellLayout(item.container, item.screenId);
+        if(celllayout != null){
+            View v = celllayout.getChildAt(item.cellX, item.cellY);
+            if(v != null){
+                celllayout.removeView(v);
             }
         }
-        //移除桌面图标
-        if(mLauncher.getWorkspace() != null){
-            mLauncher.getWorkspace().removeItemsByPackageName(packageNames);
+    }
+
+    //modified by lilu 20160217
+    private void addSelectedItemsToFolder() {
+        for(ItemInfo info : mAllData.addList){
+            if(info instanceof ShortcutInfo && !mInfo.contents.contains(info)){
+                //remove the icon view from workspace,but not modify the database
+                removeView(info);
+            }
         }
         //选中的显示在文件夹
         for(ItemInfo info : mAllData.addList){
             if(info instanceof ShortcutInfo && !mInfo.contents.contains(info)){
                 ShortcutInfo sInfo = (ShortcutInfo)info;
-                mInfo.contents.add(sInfo);
+                //just change the modify record ,not added
                 onAdd(sInfo);
+                mInfo.contents.add(sInfo);
             }
         }
     }
+    //modified end by lilu 20160217
 
     class ConfirmOnClickListener implements OnClickListener {
 
