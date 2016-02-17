@@ -18,8 +18,8 @@
 */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    android:versionCode="101011"
-    android:versionName="1.1.11"
+    android:versionCode="101012"
+    android:versionName="1.1.12"
     package="com.android.launcher3" >
 
     <permission
