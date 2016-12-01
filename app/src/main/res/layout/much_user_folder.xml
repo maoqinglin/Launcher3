@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<com.android.launcher3.Folder xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:launcher="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/much_folder_shadow"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/folder_frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/portal_container_holo"
+        android:orientation="vertical" >
+
+        <com.android.launcher3.FolderEditText
+            android:id="@+id/folder_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="5dp"
+            android:background="@null"
+            android:gravity="center_horizontal"
+            android:hint="@string/folder_hint_text"
+            android:imeOptions="flagNoExtractUi"
+            android:paddingRight="12dp"
+            android:singleLine="true"
+            android:textColor="@color/workspace_icon_text_color"
+            android:textColorHint="@color/workspace_icon_text_color"
+            android:textSize="24sp" />
+
+        <com.android.launcher3.MuchFolderPageView
+            android:id="@+id/folder_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </com.android.launcher3.MuchFolderPageView>
+
+        <com.android.launcher3.much.MuchFolderPagedViewIndicator
+            android:id="@+id/folder_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="1dp" />
+    </LinearLayout>
+
+</com.android.launcher3.Folder>
