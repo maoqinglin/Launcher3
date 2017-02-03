@@ -198,7 +198,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     private AccelerateInterpolator mAlphaInterpolator = new AccelerateInterpolator(0.9f);
     private DecelerateInterpolator mLeftScreenAlphaInterpolator = new DecelerateInterpolator(4);
 
-    public static boolean DISABLE_ALL_APPS = true;	//modify by linmaoqing 2014-5-12 
+    public static boolean DISABLE_ALL_APPS = true;	//modify by linmaoqing 2014-5-12
 
     // Previews & outlines
     ArrayList<AppsCustomizeAsyncTask> mRunningTasks;
@@ -227,15 +227,15 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
     private Rect mTmpRect = new Rect();
 
     // Used for drawing shortcut previews
-    BitmapCache mCachedShortcutPreviewBitmap = new BitmapCache();
-    PaintCache mCachedShortcutPreviewPaint = new PaintCache();
-    CanvasCache mCachedShortcutPreviewCanvas = new CanvasCache();
+//    BitmapCache mCachedShortcutPreviewBitmap = new BitmapCache();
+//    PaintCache mCachedShortcutPreviewPaint = new PaintCache();
+//    CanvasCache mCachedShortcutPreviewCanvas = new CanvasCache();
 
     // Used for drawing widget previews
-    CanvasCache mCachedAppWidgetPreviewCanvas = new CanvasCache();
-    RectCache mCachedAppWidgetPreviewSrcRect = new RectCache();
-    RectCache mCachedAppWidgetPreviewDestRect = new RectCache();
-    PaintCache mCachedAppWidgetPreviewPaint = new PaintCache();
+//    CanvasCache mCachedAppWidgetPreviewCanvas = new CanvasCache();
+//    RectCache mCachedAppWidgetPreviewSrcRect = new RectCache();
+//    RectCache mCachedAppWidgetPreviewDestRect = new RectCache();
+//    PaintCache mCachedAppWidgetPreviewPaint = new PaintCache();
 
     WidgetPreviewLoader mWidgetPreviewLoader;
 

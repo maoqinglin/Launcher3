@@ -13,8 +13,6 @@ import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.android.launcher3.R;
-
 public class AppWidgetResizeFrame extends FrameLayout {
     private LauncherAppWidgetHostView mWidgetView;
     private CellLayout mCellLayout;
@@ -59,10 +57,10 @@ public class AppWidgetResizeFrame extends FrameLayout {
     int[] mLastDirectionVector = new int[2];
     int[] mTmpPt = new int[2];
 
-    final int SNAP_DURATION = 150;
-    final int BACKGROUND_PADDING = 24;
-    final float DIMMED_HANDLE_ALPHA = 0f;
-    final float RESIZE_THRESHOLD = 0.66f;
+    final static int SNAP_DURATION = 150;
+    final static int BACKGROUND_PADDING = 24;
+    final static float DIMMED_HANDLE_ALPHA = 0f;
+    final static float RESIZE_THRESHOLD = 0.66f;
 
     private static Rect mTmpRect = new Rect();
 

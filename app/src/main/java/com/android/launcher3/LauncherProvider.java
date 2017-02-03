@@ -1076,7 +1076,7 @@ public class LauncherProvider extends ContentProvider {
 
                     long container = LauncherSettings.Favorites.CONTAINER_DESKTOP;
                     if (a.hasValue(R.styleable.Favorite_container)) {
-                        container = Long.valueOf(a.getString(R.styleable.Favorite_container));
+                        container = Long.parseLong(a.getString(R.styleable.Favorite_container));
                     }
 
                     String screen = a.getString(R.styleable.Favorite_screen);

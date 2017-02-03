@@ -4925,9 +4925,7 @@ public class Workspace extends SmoothPagedView implements DropTarget, DragSource
         if (mTransitionEffect != null && mUseTransitionEffect) {
             initViewAnim(v);
             mTransitionEffect.screenScrolled(v, i, scrollProgress);
-        } else if (mScrollTransformsSet) {
-            initViewAnim(v);
-        }else{
+        } else{
             initViewAnim(v);
         }
     }

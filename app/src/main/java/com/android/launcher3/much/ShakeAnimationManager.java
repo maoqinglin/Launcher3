@@ -1,9 +1,5 @@
 package com.android.launcher3.much;
 
-import java.util.HashMap;
-
-import com.android.launcher3.LauncherAnimUtils;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -12,9 +8,13 @@ import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.Paint;
 import android.view.View;
 
+import com.android.launcher3.LauncherAnimUtils;
+
+import java.util.HashMap;
+
 public class ShakeAnimationManager {
 
-	private static ShakeAnimationManager manager;
+	private static volatile ShakeAnimationManager manager;
 	private HashMap<View, ShakeAnimation> mAnimators = new HashMap<View, ShakeAnimation>();
 	private static final float AMPLITUDE = 2.5f;
 

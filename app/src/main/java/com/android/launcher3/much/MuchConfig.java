@@ -1,13 +1,13 @@
 
 package com.android.launcher3.much;
 
-import com.android.launcher3.LauncherAppState;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.preference.PreferenceManager;
+
+import com.android.launcher3.LauncherAppState;
 
 public final class MuchConfig {
     public static final boolean SUPPORT_MUCH_STYLE = true;
@@ -24,7 +24,7 @@ public final class MuchConfig {
     private static final String ALREADY_SET_DEFAULT_WALLPAPER = "ALREADY_SET_DEFAULT_WALLPAPER";
     public static final String MUCH_LAUNCH_ICON_KEY = "much_launcher_icon_sw_key";
     
-    private static MuchConfig sInstatnce;
+    private static volatile MuchConfig sInstatnce;
     private Context mContext;
     public static final String LAUNCHER_PREFS = "com.android.launcher3.prefs";
     public static final String SCREEN_EFFECT_PREFS = "screenEffect";

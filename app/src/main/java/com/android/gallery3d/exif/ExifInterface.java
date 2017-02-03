@@ -1112,7 +1112,9 @@ public class ExifInterface {
                 closeSilently(is);
                 throw e;
             } finally {
-                is.close();
+                if (is != null) {
+                    is.close();
+                }
                 // Prevent clobbering of mData
                 mData = tempData;
             }

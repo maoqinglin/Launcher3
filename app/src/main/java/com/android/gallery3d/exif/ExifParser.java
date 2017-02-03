@@ -25,6 +25,8 @@ import java.nio.charset.Charset;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
+import static android.R.attr.tag;
+
 /**
  * This class provides a low-level EXIF parsing API. Given a JPEG format
  * InputStream, the caller can request which IFD's to read via
@@ -617,11 +619,11 @@ class ExifParser {
             if (isThumbnailRequested()) {
                 if (tag.hasValue()) {
                     for (int i = 0; i < tag.getComponentCount(); i++) {
-                        if (tag.getDataType() == ExifTag.TYPE_UNSIGNED_SHORT) {
+//                        if (tag.getDataType() == ExifTag.TYPE_UNSIGNED_SHORT) {
+//                            registerUncompressedStrip(i, tag.getValueAt(i));
+//                        } else {
                             registerUncompressedStrip(i, tag.getValueAt(i));
-                        } else {
-                            registerUncompressedStrip(i, tag.getValueAt(i));
-                        }
+//                        }
                     }
                 } else {
                     mCorrespondingEvent.put(tag.getOffset(), new ExifTagEvent(tag, false));

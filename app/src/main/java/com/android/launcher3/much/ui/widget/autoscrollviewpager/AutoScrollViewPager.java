@@ -1,17 +1,16 @@
 package com.android.launcher3.much.ui.widget.autoscrollviewpager;
 
-import java.lang.reflect.Field;
-
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.animation.Interpolator;
+
+import java.lang.reflect.Field;
 
 /**
  * Auto Scroll View Pager
@@ -280,6 +279,7 @@ public class AutoScrollViewPager extends ViewPager {
 			case SCROLL_WHAT:
 				scrollOnce();
 				sendScrollMessage(interval);
+				break;
 			default:
 				break;
 			}

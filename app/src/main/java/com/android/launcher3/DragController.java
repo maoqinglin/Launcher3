@@ -45,10 +45,10 @@ public class DragController {
     private static final String TAG = "Launcher.DragController";
 
     /** Indicates the drag is a move.  */
-    public static int DRAG_ACTION_MOVE = 0;
+    public final static int DRAG_ACTION_MOVE = 0;
 
     /** Indicates the drag is a copy.  */
-    public static int DRAG_ACTION_COPY = 1;
+    public final static int DRAG_ACTION_COPY = 1;
 
     private static final int SCROLL_DELAY = 500;
     private static final int RESCROLL_DELAY = PagedView.PAGE_SNAP_ANIMATION_DURATION + 150;
